@@ -3,12 +3,17 @@ version: '3.4'
 services:
   bookstore-backend:
     image: ${DOCKER_REGISTRY-}bookstorebackend
+    container_name: BookStore-API
     build:
       context: .
-      dockerfile: Bookstore-backend/Dockerfile  
+      dockerfile: Bookstore-backend/Dockerfile 
+    ports: 
+        - "8080:8080"
+        - "8081:8081"  
+  
   db.books:
       image: postgres:latest
-      container_name: postDb
+      container_name: PostgreDb-Bookstore
       environment : 
         POSTGRES_PASSWORD: changethis
         POSTGRES_DB: booksdb

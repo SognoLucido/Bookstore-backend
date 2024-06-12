@@ -7,9 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bookstore-backend", "Bookst
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{6374F715-E448-4FF1-8478-1DB96917914C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dblogic", "Dblogic\Dblogic.csproj", "{9EFE0E7E-78E2-4B26-B9A7-2E1C9CBDC829}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{354B83B7-918E-4894-8821-E71D91DF0361}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Database", "Database\Database.csproj", "{354B83B7-918E-4894-8821-E71D91DF0361}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +23,6 @@ Global
 		{6374F715-E448-4FF1-8478-1DB96917914C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6374F715-E448-4FF1-8478-1DB96917914C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6374F715-E448-4FF1-8478-1DB96917914C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9EFE0E7E-78E2-4B26-B9A7-2E1C9CBDC829}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9EFE0E7E-78E2-4B26-B9A7-2E1C9CBDC829}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9EFE0E7E-78E2-4B26-B9A7-2E1C9CBDC829}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9EFE0E7E-78E2-4B26-B9A7-2E1C9CBDC829}.Release|Any CPU.Build.0 = Release|Any CPU
 		{354B83B7-918E-4894-8821-E71D91DF0361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{354B83B7-918E-4894-8821-E71D91DF0361}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{354B83B7-918E-4894-8821-E71D91DF0361}.Release|Any CPU.ActiveCfg = Release|Any CPU

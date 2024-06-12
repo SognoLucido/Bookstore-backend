@@ -41,7 +41,7 @@ namespace Bookstore_backend
                 app.UseSwaggerUI();
             }
 
-           
+           app.ApplayMigration();
 
 
             app.UseHttpsRedirection();
