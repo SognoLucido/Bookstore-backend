@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  bookstore-backend:
+    image: ${DOCKER_REGISTRY-}bookstorebackend
+    build:
+      context: .
+      dockerfile: Bookstore-backend/Dockerfile  
+  db.books:
+      image: postgres:latest
+      container_name: postDb
+      environment : 
+        POSTGRES_PASSWORD: changethis
+        POSTGRES_DB: booksdb
+      ports:
+      - "5432:5432"
+      volumes:
+         - postDb:/var/lib/postgresql/data
+volumes:
+  postDb:
+    
