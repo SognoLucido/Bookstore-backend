@@ -1,19 +1,17 @@
-﻿
-
-using Database.ApplicationDbcontext;
+﻿using Database.ApplicationDbcontext;
 using Database.Model;
 using Database.Services;
 
 
-namespace Database;
+namespace Database.DatabaseLogic;
 
 public class DbBookCrud : ICrudlayer
 {
-    
+
     private readonly Booksdbcontext _context;
-    public DbBookCrud(Booksdbcontext context)          
+    public DbBookCrud(Booksdbcontext context)
     {
-        
+
         _context = context;
     }
 
@@ -21,7 +19,7 @@ public class DbBookCrud : ICrudlayer
     public async Task<Person> Getbyid(int id)
     {
 
-        var x = await _context.People.FindAsync(id);
+        var x = await _context.Person.FindAsync(id);
 
         return x;
 
@@ -32,7 +30,7 @@ public class DbBookCrud : ICrudlayer
     {
 
         _context.Add(person);
-       var x = await _context.SaveChangesAsync();
+        var x = await _context.SaveChangesAsync();
 
 
 

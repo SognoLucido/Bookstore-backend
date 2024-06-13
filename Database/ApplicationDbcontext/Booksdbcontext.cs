@@ -1,8 +1,6 @@
 ﻿using Database.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
-using System;
+
 
 
 namespace Database.ApplicationDbcontext
@@ -12,13 +10,18 @@ namespace Database.ApplicationDbcontext
 
         public Booksdbcontext(DbContextOptions<Booksdbcontext> options) : base(options) { }
 
-       public DbSet<Person> People { get; set; }
+        public DbSet<Author> Authors { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Book> Books { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+
+        public DbSet<Person> Person { get; set; }
+
+
+
+
     }
-
-   
-
-
-
-
 
 }
