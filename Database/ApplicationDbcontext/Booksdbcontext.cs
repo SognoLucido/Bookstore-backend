@@ -1,5 +1,6 @@
 ﻿using Database.Model;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 
 
@@ -20,7 +21,17 @@ namespace Database.ApplicationDbcontext
         public DbSet<Person> Person { get; set; }
 
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
 
+
+
+
+            //modelBuilder.Entity<Student>()
+            //    .HasOne<Grade>(s => s.Grade)
+            //    .WithMany(g => g.Students)
+            //    .HasForeignKey(s => s.CurrentGradeId);
+        }
 
     }
 

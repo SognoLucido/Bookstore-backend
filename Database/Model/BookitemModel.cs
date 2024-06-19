@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 
 namespace Database.Model
@@ -13,7 +12,8 @@ namespace Database.Model
             [Key]
             public int AuthorId { get; set; }
 
-            public string Name { get; set; }
+            [MaxLength(30)]
+            public string FullName { get; set; }
             public string Bio { get; set; }
             public ICollection<Book> Books { get; set; }
         }
@@ -22,6 +22,8 @@ namespace Database.Model
         {
             [Key]
             public int CategoryId { get; set; }
+
+            [MaxLength(30)]
             public string Name { get; set; }
         }
 
@@ -35,9 +37,11 @@ namespace Database.Model
             public int CategoryId { get; set; }
             public Category Category { get; set; }
             public string ISBN { get; set; }
-            public decimal Price { get; set; }
+
+        [Column(TypeName = "decimal(8,2)")]
+        public decimal Price { get; set; }
             public int StockQuantity { get; set; }
-            public DateTime PublicationDate { get; set; }
+            public DateOnly PublicationDate { get; set; }
             public string Description { get; set; }
         }
 

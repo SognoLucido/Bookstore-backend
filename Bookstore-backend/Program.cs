@@ -1,6 +1,6 @@
 using Database.ApplicationDbcontext;
 using Database.DatabaseLogic;
-using Database.Services;
+using Database;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -24,11 +24,9 @@ namespace Bookstore_backend
                 builder.Services.AddDbContext<Booksdbcontext>(opt =>
                      opt.UseNpgsql(builder.Configuration.GetConnectionString("database")));
 
-            //test
-            //builder.Services.AddSingleton<BooksContextFactory>();
-            //
+           
 
-            builder.Services.AddScoped<ICrudlayer, DbBookCrud>();
+            builder.Services.AddDatabaseCrudService();
 
 
             var app = builder.Build();
