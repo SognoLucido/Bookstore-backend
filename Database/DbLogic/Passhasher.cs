@@ -5,26 +5,27 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using Database.Services;
 
 
 namespace Database.DatabaseLogic
 {
     //using sha256 for a fast implementation
-    public class Passhasher
+    public class Passhasher : IpassHash
     {
 
 
-        public string HashpasstoDb(string pass)
+        public async Task<(string,string)> HashpasstoDb(string pass)
         {
             Guid guid = Guid.NewGuid();
             string salt = guid.ToString().Substring(0, 8);
    
 
-            return HashAlgoritm(pass,salt);
+            return (await HashAlgorithm(pass,salt),salt);
         }
 
 
-        public string HashAlgoritm(string pass ,string salt)
+        public async Task<string> HashAlgorithm(string pass ,string salt)
         {
            
 

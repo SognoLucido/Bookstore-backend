@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Database.Migrations
 {
     [DbContext(typeof(Booksdbcontext))]
-    [Migration("20240614135021_basemigration")]
-    partial class basemigration
+    [Migration("20240619144318_basemig")]
+    partial class basemig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -111,11 +111,9 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Model.Customer", b =>
                 {
-                    b.Property<int>("CustomerId")
+                    b.Property<Guid>("CustomerId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CustomerId"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -168,6 +166,9 @@ namespace Database.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("CustomerId1")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -176,7 +177,7 @@ namespace Database.Migrations
 
                     b.HasKey("OrderId");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("CustomerId1");
 
                     b.ToTable("Orders");
                 });
@@ -210,27 +211,6 @@ namespace Database.Migrations
                     b.ToTable("OrderItems");
                 });
 
-            modelBuilder.Entity("Database.Model.Person", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("personal_info");
-                });
-
             modelBuilder.Entity("Database.Model.Book", b =>
                 {
                     b.HasOne("Database.Model.Author", "Author")
@@ -254,7 +234,7 @@ namespace Database.Migrations
                 {
                     b.HasOne("Database.Model.Customer", "Customer")
                         .WithMany("Orders")
-                        .HasForeignKey("CustomerId")
+                        .HasForeignKey("CustomerId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

@@ -50,7 +50,7 @@ namespace Database.Model
     public class Customer
     {
         [Key]
-        public int CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
 
         [MaxLength(30)]
         public string FirstName { get; set; }

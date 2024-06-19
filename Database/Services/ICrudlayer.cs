@@ -17,6 +17,9 @@ public interface ICrudlayer
     Task<MarketDataAPIModelbyISBN?> Getbyisbn(string isbn, CancellationToken token = default);
     Task<List<DetailedFilterBookModel>> Filteredquery(QuerySelector selector, CancellationToken token = default);
     Task<List<BooksCatalog>> RawReturn(int page , int pagesize,CancellationToken token = default);
+    Task<bool> Registration(Registration regi, CancellationToken token = default);
+
+    Task<bool> Login(Login login, CancellationToken token = default);
 
 
 }

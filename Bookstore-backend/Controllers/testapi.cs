@@ -96,6 +96,65 @@ namespace Bookstore_backend.Controllers
         }
 
 
+
+
+        [HttpPost]
+        [Route("Register")]
+        public async Task<IActionResult> Register([FromBody] Registration regi)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+
+            if (await dbcall.Registration(regi))
+            {
+                return Ok();
+            }
+            else return BadRequest("User already exist");
+            // check if already exyst by email 
+
+
+            //register
+
+
+
+
+        }
+
+        [HttpPost]
+        [Route("Login")]
+        public async Task<IActionResult> Login([FromBody] Login login)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            if (await dbcall.Login(login))
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest("Invalid Email or passwd");
+            }
+           
+
+           
+            // check if already exyst by email 
+
+
+            //register
+
+
+
+
+        }
+
+
+
         //[HttpPost]
         //public async Task Post([FromBody] Person person, [FromServices] ICrudlayer dbconn)
         //{
@@ -114,5 +173,12 @@ namespace Bookstore_backend.Controllers
         //public void Delete(int id)
         //{
         //}
+
+
+
+
+
+
+
     }
 }

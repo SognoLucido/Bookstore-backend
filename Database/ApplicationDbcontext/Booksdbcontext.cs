@@ -18,7 +18,7 @@ namespace Database.ApplicationDbcontext
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
 
-        public DbSet<Person> Person { get; set; }
+       
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

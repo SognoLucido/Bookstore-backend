@@ -2,6 +2,7 @@ using Database.ApplicationDbcontext;
 using Database.DatabaseLogic;
 using Database;
 using Microsoft.EntityFrameworkCore;
+using Database.Services;
 
 
 namespace Bookstore_backend
@@ -19,9 +20,10 @@ namespace Bookstore_backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddScoped<IpassHash, Passhasher>();
 
-           
-                builder.Services.AddDbContext<Booksdbcontext>(opt =>
+
+            builder.Services.AddDbContext<Booksdbcontext>(opt =>
                      opt.UseNpgsql(builder.Configuration.GetConnectionString("database")));
 
            
