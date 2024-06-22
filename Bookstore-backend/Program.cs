@@ -40,7 +40,7 @@ namespace Bookstore_backend
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
-                    //ValidateLifetime = true,
+                    ValidateLifetime = true,
                     ValidIssuer = builder.Configuration["Authentication:Issuer"],
                     ValidAudience = builder.Configuration["Authentication:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SecretKey"]!))
@@ -51,7 +51,7 @@ namespace Bookstore_backend
 
             builder.Services.AddAuthorization(x =>
             {
-                x.AddPolicy("Userlogged", p => p.RequireClaim("role", "user"));
+                x.AddPolicy("Userlogged", p => p.RequireClaim("user", "user"));
             });
 
                
