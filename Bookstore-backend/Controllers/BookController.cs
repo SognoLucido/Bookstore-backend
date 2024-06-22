@@ -98,55 +98,55 @@ namespace Bookstore_backend.Controllers
 
 
 
-        [HttpPost]
-        [Route("Register")]
-        public async Task<IActionResult> Register([FromBody] Registration regi)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
+        //[HttpPost]
+        //[Route("Register")]
+        //public async Task<IActionResult> Register([FromBody] Registration regi,CancellationToken token)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest();
+        //    }
 
 
-            if (await dbcall.Registration(regi))
-            {
-                return Ok();
-            }
-            else return BadRequest("User already exist");
-            // check if already exyst by email 
+        //    if (await dbcall.Registration(regi,token))
+        //    {
+        //        return Ok();
+        //    }
+        //    else return BadRequest("User already exist");
+        //    // check if already exyst by email 
 
 
-            //register
+        //    //register
 
 
 
 
-        }
+        //}
 
-        [HttpPost]
-        [Route("Login")]
-        public async Task<IActionResult> Login([FromBody] Login login)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
+        //[HttpPost]
+        //[Route("Login")]
+        //public async Task<IActionResult> Login([FromBody] Login login,CancellationToken token)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            if (await dbcall.Login(login))
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest("Invalid Email or passwd");
-            }
+        //    if (await dbcall.Login(login,token))
+        //    {
+        //        return Ok();
+        //    }
+        //    else
+        //    {
+        //        return BadRequest("Invalid Email or passwd");
+        //    }
            
 
            
-            // check if already exyst by email 
+        //    // check if already exyst by email 
 
 
-            //register
+        //    //register
 
 
 
@@ -180,5 +180,5 @@ namespace Bookstore_backend.Controllers
 
 
 
-    }
+    
 }

@@ -21,7 +21,7 @@ namespace Database.Model
         [Key]
         public int OrderId { get; set; }
 
-        public int CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
         public Customer Customer { get; set; }
         public DateTime OrderDate { get; set; }
 
@@ -50,7 +50,7 @@ namespace Database.Model
     public class Customer
     {
         [Key]
-        public Guid CustomerId { get; set; }
+        public Guid Id { get; set; }
 
         [MaxLength(30)]
         public string FirstName { get; set; }
@@ -73,8 +73,19 @@ namespace Database.Model
 
         [MaxLength(20)]
         public string Phone { get; set; }
-        public ICollection<Order> Orders { get; set; }
+        public List<Order> Orders { get; set; }
+
+        //public List<RolesModel> RolesModel { get; set; }
+
+        public int RolesModelId {  get; set; }
+        public RolesModel RolesModel { get; set; }
+
     }
+
+
+
+
+
 
 
 }

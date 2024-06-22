@@ -12,14 +12,16 @@ namespace Database
 
             return  new Customer
             {
-                CustomerId = Guid.NewGuid(),
+                Id = Guid.NewGuid(),
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 Email = model.Email,
                 //pass
                 //salt
                 Address = model.Address,
-                Phone = model.Phone
+                Phone = model.Phone,
+                RolesModelId = 2
+                
 
             };
 

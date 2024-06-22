@@ -3,6 +3,11 @@ using Database.DatabaseLogic;
 using Database;
 using Microsoft.EntityFrameworkCore;
 using Database.Services;
+using System.Data;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Auth;
 
 
 namespace Bookstore_backend
@@ -22,11 +27,24 @@ namespace Bookstore_backend
 
             builder.Services.AddScoped<IpassHash, Passhasher>();
 
+            builder.Services.AddAuthentication("Bearer").AddJwtBearer(opt =>
+            {
+                opt.TokenValidationParameters = new()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Authentication:Issuer"],
+                    ValidAudience = builder.Configuration["Authentication:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Authentication:SecretKey"]!))
+                };
+            });
 
             builder.Services.AddDbContext<Booksdbcontext>(opt =>
                      opt.UseNpgsql(builder.Configuration.GetConnectionString("database")));
 
-           
+
+            builder.Services.AddScoped<ITokenService, JWTokenGenerator>();
 
             builder.Services.AddDatabaseCrudService();
 
@@ -46,7 +64,7 @@ namespace Bookstore_backend
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
+            app.UseAuthentication();
 
             app.MapControllers();
 

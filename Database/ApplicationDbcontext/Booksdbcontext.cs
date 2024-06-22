@@ -1,6 +1,7 @@
 ﻿using Database.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Reflection.Metadata;
 
 
 
@@ -18,19 +19,31 @@ namespace Database.ApplicationDbcontext
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
 
-       
+        public DbSet<RolesModel> Roles { get; set; }
 
+       
+      
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
+            //modelBuilder.Entity<RolesModel>()
+            // .HasMany(e => e.Customer)
+            // .HasForeignKey(e => e.CustomersId);
+
+            //modelBuilder.Entity<RolesAcUserManytomany>().HasKey(sc => new { sc.RoleModel, sc.CustomersId });
+
+            //modelBuilder.Entity<RolesModel>()
+            //    .HasNoKey()
+            //    .HasOne(x => x.Customer)
+            //    .WithOne()
+            //    .HasForeignKey<Customer>(x => x.CustomerId)
+            //    .HasPrincipalKey<RolesModel>(x => x.CustomerId);
 
 
+            //modelBuilder.Entity<Customer>()
+            //    .HasMany(c => c.Orders)
 
-            //modelBuilder.Entity<Student>()
-            //    .HasOne<Grade>(s => s.Grade)
-            //    .WithMany(g => g.Students)
-            //    .HasForeignKey(s => s.CurrentGradeId);
         }
 
     }

@@ -174,19 +174,37 @@ public class DbBookCrud : ICrudlayer
 
 
 
-    public async Task<bool> Login(Login login, CancellationToken token = default)
+    public async Task<(string?,string?)> Login(Login login, CancellationToken token = default)
     {
+       
+
+
+        //var Getthepassw = await _context.Customers
+        //    .FirstOrDefaultAsync(x => x.Email == login.Email,token);
+
+        var Getthepassw =  await  _context.Customers
+            .Where(x => x.Email == login.Email)
+            .Join(_context.Roles,
+              customer => customer.RolesModelId,
+              roles => roles.Id,
+              (customer, roles) =>  new
+            {
+                customer.Id,
+                customer.Salt,
+                customer.Password,
+                roles.Roles
+
+            }).FirstOrDefaultAsync(token);
 
 
 
-        var Getthepassw = await _context.Customers.FirstOrDefaultAsync(x => x.Email == login.Email,token);
 
-        if(Getthepassw is not null)
+        if (Getthepassw is not null)
         {
-            if (await passHash.HashAlgorithm(login.Password, Getthepassw.Salt) == Getthepassw.Password) return true;
-            else return false;
+            if (await passHash.HashAlgorithm(login.Password, Getthepassw.Salt) == Getthepassw.Password) return (Getthepassw.Id.ToString(),Getthepassw.Roles);
+            else return (null,null);
         }
-        else return false;
+        else return (null,null);
 
 
 

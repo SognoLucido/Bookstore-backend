@@ -108,7 +108,7 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Model.Customer", b =>
                 {
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -142,12 +142,17 @@ namespace Database.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<int>("RolesModelId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Salt")
                         .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("character varying(8)");
 
-                    b.HasKey("CustomerId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("RolesModelId");
 
                     b.ToTable("Customers");
                 });
@@ -160,10 +165,7 @@ namespace Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderId"));
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("CustomerId1")
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("OrderDate")
@@ -174,7 +176,7 @@ namespace Database.Migrations
 
                     b.HasKey("OrderId");
 
-                    b.HasIndex("CustomerId1");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("Orders");
                 });
@@ -208,6 +210,23 @@ namespace Database.Migrations
                     b.ToTable("OrderItems");
                 });
 
+            modelBuilder.Entity("Database.Model.RolesModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Roles")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("Database.Model.Book", b =>
                 {
                     b.HasOne("Database.Model.Author", "Author")
@@ -227,11 +246,22 @@ namespace Database.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Database.Model.Customer", b =>
+                {
+                    b.HasOne("Database.Model.RolesModel", "RolesModel")
+                        .WithMany("Customer")
+                        .HasForeignKey("RolesModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RolesModel");
+                });
+
             modelBuilder.Entity("Database.Model.Order", b =>
                 {
                     b.HasOne("Database.Model.Customer", "Customer")
                         .WithMany("Orders")
-                        .HasForeignKey("CustomerId1")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -270,6 +300,11 @@ namespace Database.Migrations
             modelBuilder.Entity("Database.Model.Order", b =>
                 {
                     b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("Database.Model.RolesModel", b =>
+                {
+                    b.Navigation("Customer");
                 });
 #pragma warning restore 612, 618
         }

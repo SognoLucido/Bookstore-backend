@@ -18,8 +18,7 @@ public interface ICrudlayer
     Task<List<DetailedFilterBookModel>> Filteredquery(QuerySelector selector, CancellationToken token = default);
     Task<List<BooksCatalog>> RawReturn(int page , int pagesize,CancellationToken token = default);
     Task<bool> Registration(Registration regi, CancellationToken token = default);
-
-    Task<bool> Login(Login login, CancellationToken token = default);
+    Task<(string?, string?)> Login(Login login, CancellationToken token = default);
 
 
 }
