@@ -1,13 +1,13 @@
+using Auth;
+using Database;
 using Database.ApplicationDbcontext;
 using Database.DatabaseLogic;
-using Database;
-using Microsoft.EntityFrameworkCore;
 using Database.Services;
-using System.Data;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Auth;
 
 
 namespace Bookstore_backend
@@ -18,27 +18,44 @@ namespace Bookstore_backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-         
+
 
             builder.Services.AddControllers();
-  
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<IpassHash, Passhasher>();
 
-            builder.Services.AddAuthentication("Bearer").AddJwtBearer(opt =>
+            builder.Services.AddAuthentication(
+                opt =>
+                {
+                    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new()
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
+                    //ValidateLifetime = true,
                     ValidIssuer = builder.Configuration["Authentication:Issuer"],
                     ValidAudience = builder.Configuration["Authentication:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Authentication:SecretKey"]!))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SecretKey"]!))
                 };
             });
+
+
+
+            builder.Services.AddAuthorization(x =>
+            {
+                x.AddPolicy("Userlogged", p => p.RequireClaim("role", "user"));
+            });
+
+               
+               
 
             builder.Services.AddDbContext<Booksdbcontext>(opt =>
                      opt.UseNpgsql(builder.Configuration.GetConnectionString("database")));
@@ -51,20 +68,22 @@ namespace Bookstore_backend
 
             var app = builder.Build();
 
-           
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-           app.ApplayMigration();
+            app.ApplayMigration();
 
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+
             app.UseAuthentication();
+            app.UseAuthorization();
+
 
             app.MapControllers();
 

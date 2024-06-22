@@ -6,6 +6,8 @@ using System.Data.Common;
 using Database;
 using Database.Model.Apimodels;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -24,8 +26,10 @@ namespace Bookstore_backend.Controllers
 
 
         // GET: api/<testapi>
+        
         [HttpGet]
         [Route("Catalog")]
+        [Authorize]
         public async  Task<ActionResult<BooksCatalog>> GetList([FromQuery] Pagemodel pagesettings,CancellationToken cToken)
         {
 
@@ -47,9 +51,10 @@ namespace Bookstore_backend.Controllers
             //var x = new BooksContextFactory();
         }
 
-
+        
         [HttpGet]
         [Route("OnMatch")]
+        [Authorize("Userlogged")]
         public async Task<IActionResult> GetListfiltered([FromQuery] QuerySelector selector, CancellationToken cToken)
         {
             if (!ModelState.IsValid)
