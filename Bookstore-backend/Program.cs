@@ -37,8 +37,8 @@ namespace Bookstore_backend
             {
                 opt.TokenValidationParameters = new()
                 {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = true,
                     ValidIssuer = builder.Configuration["Authentication:Issuer"],
@@ -51,7 +51,8 @@ namespace Bookstore_backend
 
             builder.Services.AddAuthorization(x =>
             {
-                x.AddPolicy("Userlogged", p => p.RequireClaim("user", "user"));
+                x.AddPolicy("Userlogged", p => p.RequireClaim("ruoli", "user" ,"admin"));
+                x.AddPolicy("AdminOnly", p => p.RequireClaim("ruoli", "admin"));
             });
 
                

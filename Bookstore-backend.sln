@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dblibrary.test", "..\Dblibr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auth", "..\Auth\Auth.csproj", "{A159156B-52D7-442B-B263-D8A91B50ECBE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.Api", "..\..\..\..\Videoless\c#\from-zero-hero-rest-apis-net\code\Authentication and Authorization in REST APIs_5.1\rest-api-course-final-master\Helpers\Identity.Api\Identity.Api.csproj", "{13752F6B-5378-4658-A9CB-C5D6EEE0919C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{A159156B-52D7-442B-B263-D8A91B50ECBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A159156B-52D7-442B-B263-D8A91B50ECBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A159156B-52D7-442B-B263-D8A91B50ECBE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13752F6B-5378-4658-A9CB-C5D6EEE0919C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13752F6B-5378-4658-A9CB-C5D6EEE0919C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13752F6B-5378-4658-A9CB-C5D6EEE0919C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13752F6B-5378-4658-A9CB-C5D6EEE0919C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
