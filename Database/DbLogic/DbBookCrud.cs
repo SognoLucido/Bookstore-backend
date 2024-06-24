@@ -150,30 +150,35 @@ public class DbBookCrud : ICrudlayer
     //WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 
 
-    public async Task ConcurTest(int delay)
+    public async Task ConcurTest(int delay, int qnty)
     {
         var product = await _context.Books.FindAsync(1);
         await Task.Delay(TimeSpan.FromSeconds(delay));
-        product.StockQuantity -= 1;
+        product.StockQuantity += qnty;
         await _context.SaveChangesAsync();
+
+        //var x = new Book
+        //{
+        //    Title = "test",
+        //    AuthorId = 1,
+        //    CategoryId = 1,
+        //    ISBN = "9783161484199",
+        //    Price = 5.5M,
+        //    StockQuantity = qnty,
+        //    PublicationDate = new DateOnly(2010, 12, 12),
+        //    Description = "test",
+        //};
+
+        //await Task.Delay(TimeSpan.FromSeconds(delay));
+        //_context.Books.Add(x);
+        //await _context.SaveChangesAsync();
+
     }
-
-
-
-
-
-
-
-
-
 
 
 
     public async Task Testapi()
     {
-
-
-
 
         var x = new Book
         {
@@ -195,7 +200,7 @@ public class DbBookCrud : ICrudlayer
     }
 
 
-
+    //pkkkkkkkkkkkkkkkkkkkkkkkk
 
 
 
