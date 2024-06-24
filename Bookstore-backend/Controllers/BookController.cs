@@ -1,13 +1,12 @@
 ﻿using Database.Services;
 using Microsoft.AspNetCore.Mvc;
 using Database.ApplicationDbcontext;
-using Database.Model;
-using System.Data.Common;
-using Database;
+
 using Database.Model.Apimodels;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,18 +17,19 @@ namespace Bookstore_backend.Controllers
     public class BookStoreController : ControllerBase
     {
         private readonly ICrudlayer dbcall;
+       
 
         public BookStoreController(ICrudlayer crud) 
         {
             dbcall = crud;
+          
         }
 
 
         // GET: api/<testapi>
         
         [HttpGet]
-        [Route("Catalog")]
-        [Authorize]
+        [Route("Catalog")]      
         public async  Task<ActionResult<BooksCatalog>> GetList([FromQuery] Pagemodel pagesettings,CancellationToken cToken)
         {
 
@@ -46,15 +46,16 @@ namespace Bookstore_backend.Controllers
             }
             else return Ok(data);
 
-
-
             //var x = new BooksContextFactory();
         }
 
+
+
+
+
         
         [HttpGet]
-        [Route("OnMatch")]
-        [Authorize("Userlogged")]
+        [Route("OnMatch")]      
         public async Task<IActionResult> GetListfiltered([FromQuery] QuerySelector selector, CancellationToken cToken)
         {
             if (!ModelState.IsValid)
@@ -84,6 +85,7 @@ namespace Bookstore_backend.Controllers
 
 
         [HttpGet("{ISBN}")]
+        [Authorize("Userlogged")]
         public async Task<IActionResult> GetbyISBN([FromRoute][RegularExpression("^[0-9]*$")]string ISBN , CancellationToken cToken)
         {
 
@@ -97,11 +99,99 @@ namespace Bookstore_backend.Controllers
             return Ok(data);
 
 
+        }
+
+        [HttpDelete("{ISBN}")]
+        [Authorize("AdminOnly")]
+        public async Task<IActionResult> DeletebyISBN([FromRoute][RegularExpression("^[0-9]*$")] string ISBN, CancellationToken cToken)
+        {
+
+            if (await dbcall.Deletebyisbn(ISBN, cToken))
+            {
+                return Ok();
+            }
+            return NotFound();
+
 
         }
 
 
+        //testtttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
 
+        //[HttpPost("{id}/sell/{quantity}")]
+        //public async Task<IActionResult> SellProduct(int id, int quantity)
+        //{
+
+        //    var product = await dbContext.Products.FindAsync(id);
+
+        //    if (product == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    if (product.Inventory < quantity)
+        //    {
+        //        return Problem("Not enough inventory.");
+        //    }
+        //    product.Inventory -= quantity;
+        //    await context.SaveChangesAsync();
+        //    return product;
+        //}
+
+
+
+
+        [HttpGet]
+        [Route("testConcurr/{delay}")]
+
+        public async Task<IActionResult> Testapi([FromRoute]int delay)
+        {
+          
+          await  dbcall.ConcurTest(delay);    
+
+            return Ok();
+        }
+
+
+
+        [HttpGet]
+        [Route("test")]
+
+        public async Task<IActionResult> Testapi()
+        {
+         await dbcall.Testapi();
+       
+
+
+
+            return Ok();
+        }
+
+
+
+
+
+
+
+        [HttpPatch("{ISBN}")]
+        [Authorize("AdminOnly")]
+        public async Task<IActionResult>AddOrOverrideStockQuantitybyISBN(
+            [FromRoute][MaxLength(30)][RegularExpression("^[0-9]*$")] string ISBN,
+            [FromQuery][Required] int qnty,
+            [FromQuery] bool? ForceOverride, // if true override the current dbstock-qnty with the qnty  , if not just add += qnty to the dbstock qnty 
+            CancellationToken cToken)
+        {
+
+            //
+            
+
+            if (await dbcall.AddOrOverrideStockQuantitybyISBN(ISBN, qnty, ForceOverride ?? false, cToken))
+            {
+                return Ok();
+            }
+            return NotFound();
+
+
+        }
 
         //[HttpPost]
         //[Route("Register")]
@@ -145,9 +235,9 @@ namespace Bookstore_backend.Controllers
         //    {
         //        return BadRequest("Invalid Email or passwd");
         //    }
-           
 
-           
+
+
         //    // check if already exyst by email 
 
 
@@ -156,34 +246,36 @@ namespace Bookstore_backend.Controllers
 
 
 
-        }
+    }
+
+  
 
 
 
-        //[HttpPost]
-        //public async Task Post([FromBody] Person person, [FromServices] ICrudlayer dbconn)
-        //{
-        //  await dbconn.Insert(person);    
+    //[HttpPost]
+    //public async Task Post([FromBody] Person person, [FromServices] ICrudlayer dbconn)
+    //{
+    //  await dbconn.Insert(person);    
 
-        //}
+    //}
 
-        //// PUT api/<testapi>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
+    //// PUT api/<testapi>/5
+    //[HttpPut("{id}")]
+    //public void Put(int id, [FromBody] string value)
+    //{
+    //}
 
-        //// DELETE api/<testapi>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
-
-
+    //// DELETE api/<testapi>/5
+    //[HttpDelete("{id}")]
+    //public void Delete(int id)
+    //{
+    //}
 
 
 
 
 
-    
+
+
+
 }

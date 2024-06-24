@@ -31,12 +31,7 @@ namespace Bookstore_backend.Controllers
             }
             else return BadRequest("User already exist");
             // check if already exyst by email 
-
-
             //register
-
-
-
 
         }
 
@@ -59,13 +54,6 @@ namespace Bookstore_backend.Controllers
             {
                 return Unauthorized("Invalid Email or passwd");
             }
-
-
-
-         
-
-
-
 
         }
     }

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -123,7 +124,108 @@ public class DbBookCrud : ICrudlayer
 
     }
 
-   
+    public async Task<bool> Deletebyisbn(string isbn, CancellationToken token = default)
+    {
+
+        var x = await _context.Books.FirstOrDefaultAsync(a => a.ISBN == isbn);
+
+
+        if (x is null) return false;
+        else
+        {
+            _context.Books.Remove(x);
+            await _context.SaveChangesAsync(token);
+            return true;
+        }
+
+
+
+    }
+
+
+
+
+
+
+    //WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+
+
+    public async Task ConcurTest(int delay)
+    {
+        var product = await _context.Books.FindAsync(1);
+        await Task.Delay(TimeSpan.FromSeconds(delay));
+        product.StockQuantity -= 1;
+        await _context.SaveChangesAsync();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    public async Task Testapi()
+    {
+
+
+
+
+        var x = new Book
+        {
+            Title = "test",
+             AuthorId = 1,
+             CategoryId = 1,
+             ISBN = "9783161484199",
+             Price = 5.5M,
+            StockQuantity = 30,
+            PublicationDate = new DateOnly(2010,12,12),
+            Description = "test",
+        };
+
+
+        _context.Books.Add(x);
+        await _context.SaveChangesAsync();
+
+
+    }
+
+
+
+
+
+
+
+    public async Task<bool> AddOrOverrideStockQuantitybyISBN(string isbn, int qnty, bool Forcerewrite , CancellationToken token = default)
+    {
+        
+         if( Forcerewrite)
+        {
+            await _context.Books
+               .Where(b => b.ISBN == isbn)
+               .ExecuteUpdateAsync(x => x.SetProperty(a => a.StockQuantity, qnty), token);
+
+        }
+        else 
+        {
+
+            await _context.Books
+                .Where(b => b.ISBN == isbn)
+                .ExecuteUpdateAsync(x => x.SetProperty(a => a.StockQuantity, a => a.StockQuantity + qnty), token);
+
+        }
+
+
+ 
+        return true;
+    }
+
+
+
 
     public async Task<bool> Registration(Registration regi,CancellationToken token = default)
     {
