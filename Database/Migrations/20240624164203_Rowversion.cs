@@ -5,18 +5,18 @@
 namespace Database.Migrations
 {
     /// <inheritdoc />
-    public partial class Basemigrationplusconcur : Migration
+    public partial class Rowversion : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<byte[]>(
+            migrationBuilder.AddColumn<string>(
                 name: "RowVersion",
                 table: "Books",
-                type: "bytea",
+                type: "text",
                 rowVersion: true,
                 nullable: false,
-                defaultValue: new byte[0]);
+                defaultValue: "");
         }
 
         /// <inheritdoc />

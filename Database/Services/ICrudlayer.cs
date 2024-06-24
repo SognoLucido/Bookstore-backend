@@ -12,7 +12,7 @@ public interface ICrudlayer
 {
 
 
-    Task ConcurTest(int delay);
+    Task ConcurTest(int delay,int qnty);
     Task Testapi();
     Task<MarketDataAPIModelbyISBN?> Getbyisbn(string isbn, CancellationToken token = default);
     Task<List<DetailedFilterBookModel>> Filteredquery(QuerySelector selector, CancellationToken token = default);

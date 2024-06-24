@@ -39,7 +39,7 @@ namespace Database.Model
             public string ISBN { get; set; }
 
         [Timestamp]
-        public byte[] RowVersion { get; set; }
+        public string RowVersion { get; set; }
 
         [Column(TypeName = "decimal(8,2)")]
            public decimal Price { get; set; }

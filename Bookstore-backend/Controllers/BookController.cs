@@ -141,12 +141,12 @@ namespace Bookstore_backend.Controllers
 
 
         [HttpGet]
-        [Route("testConcurr/{delay}")]
+        [Route("testConcurr/{delay}/{qnty}")]
 
-        public async Task<IActionResult> Testapi([FromRoute]int delay)
+        public async Task<IActionResult> Testapi([FromRoute]int delay, [FromRoute] int qnty)
         {
-          
-          await  dbcall.ConcurTest(delay);    
+            
+          await  dbcall.ConcurTest(delay,qnty);    
 
             return Ok();
         }

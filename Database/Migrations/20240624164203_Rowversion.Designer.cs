@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Database.Migrations
 {
     [DbContext(typeof(Booksdbcontext))]
-    [Migration("20240623122815_Basemigrationplusconcur")]
-    partial class Basemigrationplusconcur
+    [Migration("20240624164203_Rowversion")]
+    partial class Rowversion
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,11 +75,11 @@ namespace Database.Migrations
                     b.Property<DateOnly>("PublicationDate")
                         .HasColumnType("date");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<string>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("text");
 
                     b.Property<int>("StockQuantity")
                         .HasColumnType("integer");

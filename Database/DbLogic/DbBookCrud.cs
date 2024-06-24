@@ -150,12 +150,21 @@ public class DbBookCrud : ICrudlayer
     //WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 
 
-    public async Task ConcurTest(int delay)
+    public async Task ConcurTest(int delay,int qnty)
     {
-        var product = await _context.Books.FindAsync(1);
+       
+
+       
         await Task.Delay(TimeSpan.FromSeconds(delay));
-        product.StockQuantity -= 1;
+
+        await _context.Books
+               .Where(b => b.ISBN == "9783161484100")
+               .ExecuteUpdateAsync(x => x.SetProperty(a => a.StockQuantity, a => a.StockQuantity + qnty));
+
+
+
         await _context.SaveChangesAsync();
+       
     }
 
 
