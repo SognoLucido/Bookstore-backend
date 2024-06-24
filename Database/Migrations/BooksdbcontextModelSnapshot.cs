@@ -41,7 +41,7 @@ namespace Database.Migrations
 
                     b.HasKey("AuthorId");
 
-                    b.ToTable("Authors");
+                    b.ToTable("Authors", (string)null);
                 });
 
             modelBuilder.Entity("Database.Model.Book", b =>
@@ -72,12 +72,6 @@ namespace Database.Migrations
                     b.Property<DateOnly>("PublicationDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("text");
-
                     b.Property<int>("StockQuantity")
                         .HasColumnType("integer");
 
@@ -91,7 +85,7 @@ namespace Database.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("Database.Model.Category", b =>
@@ -109,7 +103,7 @@ namespace Database.Migrations
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Database.Model.Customer", b =>
@@ -160,7 +154,7 @@ namespace Database.Migrations
 
                     b.HasIndex("RolesModelId");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("Database.Model.Order", b =>
@@ -184,7 +178,7 @@ namespace Database.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Database.Model.OrderItem", b =>
@@ -213,7 +207,7 @@ namespace Database.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Database.Model.RolesModel", b =>
@@ -230,7 +224,7 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Database.Model.Book", b =>
