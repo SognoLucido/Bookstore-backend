@@ -1,6 +1,7 @@
 ﻿using Database.ApplicationDbcontext;
 using Database.Model;
 using Database.Model.Apimodels;
+using Database.Model.ModelsDto;
 using Database.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -167,32 +168,49 @@ public class DbBookCrud : ICrudlayer
        
     }
 
+    public async Task<Respostebookapi> InsertBookItem(BookinsertModel datamodel)
+    {
+
+        //var x = new Book
+        //{
+        //    Title = "test",
+        //    AuthorId = 1,
+        //    CategoryId = 1,
+        //    ISBN = "9783161484199",
+        //    Price = 5.5M,
+        //    StockQuantity = 30,
+        //    PublicationDate = new DateOnly(2010, 12, 12),
+        //    Description = "test",
+        //};
 
 
 
 
 
+       // _context.Books.Add(datamodel);
+       //var y =  await _context.SaveChangesAsync();
+       
 
 
+        return new Respostebookapi();
+       
 
 
+    }
 
 
     public async Task Testapi()
     {
 
-
-
-
         var x = new Book
         {
             Title = "test",
-             AuthorId = 1,
-             CategoryId = 1,
-             ISBN = "9783161484199",
-             Price = 5.5M,
+            AuthorId = 1,
+            CategoryId = 1,
+            ISBN = "9783161484199",
+            Price = 5.5M,
             StockQuantity = 30,
-            PublicationDate = new DateOnly(2010,12,12),
+            PublicationDate = new DateOnly(2010, 12, 12),
             Description = "test",
         };
 
@@ -204,7 +222,7 @@ public class DbBookCrud : ICrudlayer
     }
 
 
-
+    //pkkkkkkkkkkkkkkkkkkkkkkkk
 
 
 

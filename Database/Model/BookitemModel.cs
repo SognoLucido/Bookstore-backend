@@ -38,8 +38,8 @@ namespace Database.Model
             public Category Category { get; set; }
             public string ISBN { get; set; }
 
-        //[Timestamp]
-        //public string RowVersion { get; set; }
+        [Timestamp]
+        public uint Version { get; set; }
 
         [Column(TypeName = "decimal(8,2)")]
            public decimal Price { get; set; }
