@@ -1,5 +1,6 @@
 ﻿using Database.Model;
 using Database.Model.Apimodels;
+using Database.Model.ModelsDto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,5 +25,6 @@ public interface ICrudlayer
 
     Task<bool> AddOrOverrideStockQuantitybyISBN(string isbn, int qnty, bool Forcerewrite, CancellationToken token = default);
 
+    Task<string> InsertBookItem(BookinsertModel datamodel);
 
 }
