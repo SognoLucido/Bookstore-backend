@@ -11,6 +11,7 @@ namespace Database.Model
 
    public enum Status
     {
+      Pending,
       Declined,
       Accepted
     }
@@ -33,6 +34,8 @@ namespace Database.Model
     {
         [Key]
         public int OrderItemId { get; set; }
+
+
         public int OrderId { get; set; }
         public Order Order { get; set; }
 

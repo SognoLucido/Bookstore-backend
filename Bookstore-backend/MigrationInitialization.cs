@@ -1,5 +1,6 @@
 ﻿using Database.ApplicationDbcontext;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Bookstore_backend
 {
@@ -11,7 +12,19 @@ namespace Bookstore_backend
 
             using Booksdbcontext dbContext = scope.ServiceProvider.GetRequiredService<Booksdbcontext>();
 
-            dbContext.Database.Migrate();
+
+            try
+            {
+                dbContext.Database.Migrate();
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Database offline");
+                Console.WriteLine(ex.Message);
+                Environment.Exit(1);
+            }
+
+          
 
         }
     }

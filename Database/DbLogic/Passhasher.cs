@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using System.Text;
-using System.Threading.Tasks;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using Database.Services;
 
 
 namespace Database.DatabaseLogic
 {
-    //using sha256 for a fast implementation
+    //using sha256 for a fast implementation i know
     public class Passhasher : IpassHash
     {
 

@@ -1,16 +1,15 @@
 ﻿using Database.ApplicationDbcontext;
+using Database.Mapperdtotodb;
 using Database.Model;
 using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
+using Database.Model.ModelsDto.Paymentmodels;
 using Database.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using System.Net;
-using System.Runtime.CompilerServices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 
 namespace Database.DatabaseLogic;
@@ -170,26 +169,112 @@ public class DbBookCrud : ICrudlayer
 
     public async Task<Respostebookapi> InsertBookItem(BookinsertModel datamodel)
     {
+        bool force = false;
+      
 
-        //var x = new Book
-        //{
-        //    Title = "test",
-        //    AuthorId = 1,
-        //    CategoryId = 1,
-        //    ISBN = "9783161484199",
-        //    Price = 5.5M,
-        //    StockQuantity = 30,
-        //    PublicationDate = new DateOnly(2010, 12, 12),
-        //    Description = "test",
-        //};
-
-
-
+        var query = _context.Books
+            .Where(x => x.StockQuantity > 0)
+             .Join(_context.Authors,
+              book => book.AuthorId,
+              author => author.AuthorId,
+              (book, author) => new { book, author })
+            .Join(_context.Categories,
+              book => book.book.CategoryId,
+              category => category.CategoryId,
+              (bookAuthor, category) => new { bookAuthor, category }).AsQueryable();
 
 
-       // _context.Books.Add(datamodel);
-       //var y =  await _context.SaveChangesAsync();
-       
+
+        var exist = await query.Where(x => x.bookAuthor.book.ISBN == datamodel.ISBN).AsNoTracking().AnyAsync();
+
+        if (!exist)
+        {
+            return new Respostebookapi()
+            {
+                Code = 409,
+                Message = "the book already exist"
+            };
+        }
+
+        if (!force)
+        {
+            var getAuthorId =  await _context.Authors.Where(a=>a.FullName == datamodel.Author ).AsNoTracking().FirstOrDefaultAsync();
+            var getcategoryId = await _context.Categories.Where(a => a.Name == datamodel.Category).AsNoTracking().FirstOrDefaultAsync();
+
+
+            var message = new Respostebookapi();
+  
+
+            if (getAuthorId  is null)
+            {
+                message.Code = 404;
+                message.Message = " Author name not Found \n";
+
+                
+            }
+            if(getcategoryId is null)
+            {
+                message.Code = 404;
+                message.Message += " Author name not Found";
+
+                
+            }
+
+            if(getAuthorId is null || getcategoryId is null)return message;
+
+            if (getAuthorId is not null && getcategoryId is not null)
+            {
+
+                var modeltoinsert = datamodel.MapTobook();
+
+                modeltoinsert.AuthorId = getAuthorId.AuthorId;
+                modeltoinsert.CategoryId = getcategoryId.CategoryId;
+
+
+                await _context.Books.AddAsync(modeltoinsert);
+
+
+                try { 
+
+                await _context.SaveChangesAsync();
+
+                    message.Code = 200;
+                    message.Message = "Sucessful inserted";
+      
+                    return message;
+
+                }
+                catch (Exception ex)
+                {
+                    message.Code = 500;
+                    message.Message = ex.Message;
+
+                    return message;
+                }
+
+
+
+                //await 
+
+
+            }
+
+
+
+        }
+        
+
+
+        //var y = await query
+        //    .Where(x => x.bookAuthor.author.FullName == datamodel.Author || x.category.Name == datamodel.Category)
+           
+        //    .FirstOrDefaultAsync();
+
+
+
+        // _context.Books.Add(datamodel);
+        //var y =  await _context.SaveChangesAsync();
+
 
 
         return new Respostebookapi();
@@ -265,7 +350,7 @@ public class DbBookCrud : ICrudlayer
 
 
         //creo il modello base da inserire nel database
-        var modeltoinsert = regi.Maptodbregistration();
+        var modeltoinsert = regi.MaptoCustomer();
 
         //genero hash + salt dalla password dell'api model
         var( hash, salt) = await passHash.HashpasstoDb(regi.Password);
@@ -295,11 +380,217 @@ public class DbBookCrud : ICrudlayer
             {
 
                 await transaction.RollbackAsync(token);
-                throw;
+                return false;
             }
 
         
     }
+
+
+
+
+
+    public async Task<PaymentDetails?> GetInvoicebooks(List<Model.ModelsDto.PaymentPartialmodels.BookItemList> bookitems)
+    {
+
+        var UserGuid = Guid.Parse("aad38dfe-1275-48d2-8793-3027caa50c09");
+
+
+        var isbnANDqnty = bookitems.Select(b => (b.ISBN,b.Quantity)).Where(a=> a.Quantity>0 ).ToList();
+
+        if(isbnANDqnty.Count != bookitems.Count)return null;
+
+        //dinstict and merge
+
+        var listisbn = isbnANDqnty.Select(a => a.ISBN);
+
+
+        //var Getbooksprices = await _context.Books
+        //    //.Where(a => isbns.Contains(a.ISBN) && a.StockQuantity > 0 )
+        //    //.Where(a => isbns.Contains(a.ISBN) && a.StockQuantity > 0)
+        //    .Select(x => new {
+        //        x.ISBN,
+        //        x.Title , 
+        //        x.Price ,
+
+        //    })
+        //    .ToListAsync();
+
+
+        //var Getbooksprices = _context.Books
+
+        //    .Where(a => isbns.Contains(a.ISBN) && a.StockQuantity > 0)
+        //    .Select(x => new
+        //    {
+        //        x.ISBN,
+        //        x.Title,
+        //        x.Price,
+
+        //    }).AsQueryable();
+
+
+        var GetdataMatchfromdb =  await _context.Books.Where(b => listisbn.Contains(b.ISBN))
+            //.Select(x => new
+            //{
+            //    x.BookId,
+            //    x.ISBN,
+            //    x.Title,
+            //    x.Price,
+            //    x.StockQuantity,
+
+
+            //})
+            //.AsNoTracking()
+            .ToListAsync();
+
+
+           // stock Check 
+        var Qntycheck = GetdataMatchfromdb.Where(a => isbnANDqnty
+                    .Any(b => b.ISBN == a.ISBN && b.Quantity <= a.StockQuantity))
+                .ToList();
+         
+        if (Qntycheck.Count != GetdataMatchfromdb.Count || Qntycheck.Count == 0) return null;
+
+
+        using (var transaction = await _context.Database.BeginTransactionAsync()) 
+        {
+
+            try
+            {
+
+                foreach (var item in GetdataMatchfromdb) 
+                {
+                    item.StockQuantity -= isbnANDqnty.Where(a => a.ISBN == item.ISBN).First().Quantity;
+                }
+
+                await _context.SaveChangesAsync();
+
+
+                var Orderinsert = new Order()
+                {
+                    CustomerId = UserGuid,
+                    status = Status.Pending,
+                    OrderDate = DateTime.UtcNow,
+                };
+
+               await _context.Orders.AddAsync(Orderinsert);
+
+                await _context.SaveChangesAsync();
+
+
+
+
+
+                var InsertOrderItems = new List<OrderItem>();
+
+
+                foreach (var (ISBN, Quantity) in isbnANDqnty)
+                {
+                    var book = GetdataMatchfromdb.Where(a => a.ISBN == ISBN).FirstOrDefault();
+
+                    InsertOrderItems.Add(new OrderItem
+                    {
+                        OrderId = Orderinsert.OrderId,
+                        BookId = book!.BookId,
+                        Quantity = Quantity,
+                        Price = book.Price,
+                    });
+
+
+                    //InsertOrderItems.Add(new OrderItem
+                    //{
+                    //    OrderId = order.OrderId,
+                    //    BookId = Getdatafromdb.Where(x => x.ISBN == ISBN).Select(x => x.BookId).First(),
+                    //    Quantity = Quantity,
+                    //    Price = Getdatafromdb.Where(x => x.ISBN == ISBN).Select(x => x.Price).First(),
+                    //});
+                }
+
+
+                _context.OrderItems.AddRange(InsertOrderItems);
+
+                await _context.SaveChangesAsync();
+
+                //await _context.Customers.AddAsync(modeltoinsert, token);
+
+                //await _context.SaveChangesAsync(token);
+
+
+
+
+                await transaction.CommitAsync();
+
+                //return true;
+            }
+            catch (Exception)
+            {
+
+                await transaction.RollbackAsync();
+               return null; 
+            }
+
+        } ;
+
+
+
+
+        //var GetBooksprices = _context.Books.AsQueryable();
+
+        //foreach (var item in isbnANDqnty)
+        //{
+        //    GetBooksprices = GetBooksprices.TakeWhile(a => a.ISBN.Contains(item.ISBN) && item.Quantity <= a.StockQuantity);
+        //}
+
+        //var Getdatafromdb = await GetBooksprices
+        //    .Select(x => new
+        //    {
+        //        x.BookId,
+        //        x.ISBN,
+        //        x.Title,
+        //        x.Price,
+
+        //    })
+        //    .AsNoTracking()
+        //    .ToListAsync();
+
+
+        //if (isbnANDqnty.Count != Getdatafromdb.Count)return null;
+
+
+
+
+        //var insertOrderToPending = ne
+
+
+
+
+
+
+
+
+        var data = new PaymentDetails();
+
+
+
+
+        data.TotalAmount = GetdataMatchfromdb.Sum(x => x.Price);
+
+        foreach (var item in GetdataMatchfromdb)
+        {
+            data.Invoce.Add(new Invoice(item.Title, item.ISBN, item.Price));
+        }
+
+
+
+
+        return data.TotalAmount > 0 ? data : null;
+    }
+
+
+
+
+
+
 
 
 
@@ -340,6 +631,6 @@ public class DbBookCrud : ICrudlayer
        
     }
 
-
    
+    
 }

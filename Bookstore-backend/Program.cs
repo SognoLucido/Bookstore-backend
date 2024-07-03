@@ -1,4 +1,5 @@
 using Auth;
+using Auth._3rdpartyPaymentportal;
 using Database;
 using Database.ApplicationDbcontext;
 using Database.DatabaseLogic;
@@ -26,6 +27,8 @@ namespace Bookstore_backend
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<IpassHash, Passhasher>();
+            builder.Services.AddHttpClient<PaymentPortalx>();
+
 
             builder.Services.AddAuthentication(
                 opt =>

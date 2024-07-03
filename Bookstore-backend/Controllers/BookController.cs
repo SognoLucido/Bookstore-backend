@@ -6,7 +6,13 @@ using Database.Model.Apimodels;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Database.Model.ModelsDto.Paymentmodels;
+using System.Collections.Generic;
+using Auth._3rdpartyPaymentportal;
+using Database.Model;
 using Database.Model.ModelsDto;
+using Database.Model.ModelsDto.PaymentPartialmodels;
+
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -117,55 +123,104 @@ namespace Bookstore_backend.Controllers
         }
 
 
-        //testtttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
 
-        //[HttpPost("{id}/sell/{quantity}")]
-        //public async Task<IActionResult> SellProduct(int id, int quantity)
+
+        [HttpPost]
+        //[Authorize]
+        [Route("buy")]
+        public async Task<IActionResult> UserBuyTransaction([FromBody] BookPartialPaymentModel data ,[FromServices] PaymentPortalx portalpay) 
+        { 
+        
+          //var x = User.Claims.SingleOrDefault();
+
+
+
+
+
+          //  if (x is not null && x.Subject is not null && x.Subject.IsAuthenticated)
+          //  {
+
+
+
+
+                //method
+
+                var zuz = await dbcall.GetInvoicebooks(data.BookItemList);
+
+
+
+
+
+                //if (await portalpay.Paymentportal(data.PaymentDetails))
+                //{
+
+
+
+
+                //    return Ok(x);
+                //}
+                //else
+                //{
+                //    return BadRequest("payment failed");
+                //}
+
+
+            //    return Ok();
+            //}
+
+            if(zuz is null)
+            {
+                BadRequest();
+            }
+            else return Ok(zuz); 
+
+            return Ok();
+            
+        }
+            
+
+
+
+
+
+
+
+        
+        
+       
+
+
+
+        
+
+
+
+
+        //[HttpGet]
+        //[Route("testConcurr/{delay}/{qnty}")]
+
+        //public async Task<IActionResult> Testapi([FromRoute]int delay, [FromRoute] int qnty)
         //{
+            
+        //  await  dbcall.ConcurTest(delay,qnty);    
 
-        //    var product = await dbContext.Products.FindAsync(id);
-
-        //    if (product == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    if (product.Inventory < quantity)
-        //    {
-        //        return Problem("Not enough inventory.");
-        //    }
-        //    product.Inventory -= quantity;
-        //    await context.SaveChangesAsync();
-        //    return product;
+        //    return Ok();
         //}
 
 
 
+        //[HttpGet]
+        //[Route("test")]
 
-        [HttpGet]
-        [Route("testConcurr/{delay}/{qnty}")]
-
-        public async Task<IActionResult> Testapi([FromRoute]int delay, [FromRoute] int qnty)
-        {
-            
-          await  dbcall.ConcurTest(delay,qnty);    
-
-            return Ok();
-        }
-
-
-
-        [HttpGet]
-        [Route("test")]
-
-        public async Task<IActionResult> Testapi()
-        {
-            await dbcall.Testapi();
+        //public async Task<IActionResult> Testapi()
+        //{
+        //    await dbcall.Testapi();
 
 
 
 
-            return Ok();
-        }
+        //    return Ok();
+        //}
 
 
 
@@ -214,14 +269,21 @@ namespace Bookstore_backend.Controllers
             //    return BadRequest(" invalid date ");
             //}
 
-
-           var z = await dbcall.InsertBookItem(bodydata);
-
+            var message = await dbcall.InsertBookItem(bodydata);
 
 
+            switch (message.Code)
+            {
+                case 200: return Ok(message.Message); 
+                case 500: return StatusCode(500, message.Message); 
+                case 404: return NotFound(message.Message);
+                case 409: return StatusCode(409, message.Message); 
+
+                default: return BadRequest();
+            }
 
 
-            return Ok();
+            
         }
 
 

@@ -1,11 +1,8 @@
-﻿using Database.Model;
+﻿
 using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Database.Model.ModelsDto.Paymentmodels;
+
 
 namespace Database.Services;
 
@@ -15,6 +12,16 @@ public interface ICrudlayer
 
     Task ConcurTest(int delay,int qnty);
     Task Testapi();
+
+
+
+    //Task<decimal?> Getpricebooks(List<BookItemList> bookitem);
+
+
+    //Task<Model.PaymentDetails?> GetInvoicebooks(List<Model.ModelsDto.Paymentmodels.BookItemList> bookitem);
+    //Task<BookPaymentModel?> GetInvoicebooks(List<BookItemList> bookitem);
+
+    Task<PaymentDetails?> GetInvoicebooks(List<Model.ModelsDto.PaymentPartialmodels.BookItemList> BooksList);
     Task<MarketDataAPIModelbyISBN?> Getbyisbn(string isbn, CancellationToken token = default);
     Task<List<DetailedFilterBookModel>> Filteredquery(QuerySelector selector, CancellationToken token = default);
     Task<List<BooksCatalog>> RawReturn(int page , int pagesize,CancellationToken token = default);
@@ -25,6 +32,6 @@ public interface ICrudlayer
 
     Task<bool> AddOrOverrideStockQuantitybyISBN(string isbn, int qnty, bool Forcerewrite, CancellationToken token = default);
 
-    Task<string> InsertBookItem(BookinsertModel datamodel);
+    Task<Respostebookapi> InsertBookItem(BookinsertModel datamodel);
 
 }
