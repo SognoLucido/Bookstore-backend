@@ -12,7 +12,8 @@ using Auth._3rdpartyPaymentportal;
 using Database.Model;
 using Database.Model.ModelsDto;
 using Database.Model.ModelsDto.PaymentPartialmodels;
-
+using Database.Mapperdtotodb;
+using System.Diagnostics.Eventing.Reader;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -90,7 +91,7 @@ namespace Bookstore_backend.Controllers
 
 
 
-
+        //apikeytoadd
         [HttpGet("{ISBN}")]
         [Authorize("Userlogged")]
         public async Task<IActionResult> GetbyISBN([FromRoute][RegularExpression("^[0-9]*$")] string ISBN, CancellationToken cToken)
@@ -108,73 +109,51 @@ namespace Bookstore_backend.Controllers
 
         }
 
-        [HttpDelete("{ISBN}")]
-        [Authorize("AdminOnly")]
-        public async Task<IActionResult> DeletebyISBN([FromRoute][RegularExpression("^[0-9]*$")] string ISBN, CancellationToken cToken)
-        {
-
-            if (await dbcall.Deletebyisbn(ISBN, cToken))
-            {
-                return Ok();
-            }
-            return NotFound();
-
-
-        }
-
 
 
 
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         [Route("buy")]
         public async Task<IActionResult> UserBuyTransaction([FromBody] BookPartialPaymentModel data ,[FromServices] PaymentPortalx portalpay) 
-        { 
-        
-          //var x = User.Claims.SingleOrDefault();
+        {
+
+            var UserID = User.Claims.SingleOrDefault(x => x.Type == "UserID");
 
 
+            if (UserID is null) return BadRequest();
+            if (!Guid.TryParse(UserID.Value, out Guid GuidUserID))return BadRequest();
 
+         
 
-
-          //  if (x is not null && x.Subject is not null && x.Subject.IsAuthenticated)
-          //  {
-
-
-
-
-                //method
-
-                var zuz = await dbcall.GetInvoicebooks(data.BookItemList);
-
-
-
-
-
-                //if (await portalpay.Paymentportal(data.PaymentDetails))
-                //{
-
-
-
-
-                //    return Ok(x);
-                //}
-                //else
-                //{
-                //    return BadRequest("payment failed");
-                //}
-
-
-            //    return Ok();
-            //}
-
-            if(zuz is null)
+            if (!ModelState.IsValid)
             {
-                BadRequest();
+                return BadRequest(ModelState);
             }
-            else return Ok(zuz); 
 
-            return Ok();
+            
+
+            var dbdata = await dbcall.GetInvoicebooks(data.BookItemList, GuidUserID);
+            if(dbdata.Item1 is null || dbdata.Item2 is null) return BadRequest();
+
+
+
+            dbdata.Item1.Fillcardinfo(data.PaymentDetails);
+
+
+            var message = await portalpay.Paymentportal(dbdata.Item1, (int)dbdata.Item2, dbcall);
+
+
+            switch (message.Code)
+            {
+                case 200: return Ok(dbdata.Item1.Invoce);   
+                case 400: return StatusCode(400, message.Message);
+
+                default: return StatusCode(500);
+            };
+
+
+            
             
         }
             
@@ -228,63 +207,7 @@ namespace Bookstore_backend.Controllers
 
 
 
-        [HttpPatch("{ISBN}")]
-        //[Authorize("AdminOnly")]
-        public async Task<IActionResult> AddOrOverrideStockQuantitybyISBN(
-            [FromRoute][MaxLength(30)][RegularExpression("^[0-9]*$")] string ISBN,
-            [FromQuery][Required] int qnty,
-            [FromQuery] bool? ForceOverride, // if true override the current dbstock-qnty with the qnty  , if not just add += qnty to the dbstock qnty 
-            CancellationToken cToken)
-        {
 
-            //
-
-
-            if (await dbcall.AddOrOverrideStockQuantitybyISBN(ISBN, qnty, ForceOverride ?? false, cToken))
-            {
-                return Ok();
-            }
-            return NotFound();
-
-
-        }
-
-
-        [HttpPost]
-        //[Authorize("AdminOnly")]
-        [Route("Book")]
-        public async Task<IActionResult> InsertBook([FromBody] BookinsertModel bodydata )
-        {
-
-            if (!ModelState.IsValid ) return BadRequest(bodydata);
-
-            if (bodydata.PublicationDate.year > DateTime.UtcNow.Year) return BadRequest("wrong year");
-
-            //try
-            //{
-            //    _ = new DateOnly(bodydata.PublicationDate.year, bodydata.PublicationDate.month, bodydata.PublicationDate.day);
-            //}
-            //catch (Exception)
-            //{
-            //    return BadRequest(" invalid date ");
-            //}
-
-            var message = await dbcall.InsertBookItem(bodydata);
-
-
-            switch (message.Code)
-            {
-                case 200: return Ok(message.Message); 
-                case 500: return StatusCode(500, message.Message); 
-                case 404: return NotFound(message.Message);
-                case 409: return StatusCode(409, message.Message); 
-
-                default: return BadRequest();
-            }
-
-
-            
-        }
 
 
 

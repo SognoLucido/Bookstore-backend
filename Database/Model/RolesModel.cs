@@ -9,8 +9,12 @@ using System.Threading.Tasks;
 
 namespace Database.Model
 {
+    public enum UserRole
+    {
+        admin = 1,
+        user
+    }
 
-   
     public class RolesModel
     {
         public int Id { get; set; } 

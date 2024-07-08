@@ -38,7 +38,7 @@ namespace Database.Model.ModelsDto.Paymentmodels
         public CardExpiry CardExpiry { get; set; }
         public string CardCVC { get; set; }
 
-        public List<Invoice> Invoce { get; set; }
+        public List<Invoice> Invoce { get; set; } = [];
 
         public Decimal TotalAmount { get; set; }
 
@@ -53,13 +53,9 @@ namespace Database.Model.ModelsDto.Paymentmodels
 
     }
 
-    public class Invoicev1
-    {
-        public string ItemType { get; set; }
-        public string Title { get; set; }
-    }
+ 
 
-    public record Invoice(string Title, string ISBN, decimal Price);
+    public record Invoice(string Title, string ISBN, decimal Price ,int? Quantity);
 
 
 

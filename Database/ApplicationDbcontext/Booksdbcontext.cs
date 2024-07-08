@@ -27,6 +27,52 @@ namespace Database.ApplicationDbcontext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
+           
+
+
+
+
+
+            //modelBuilder.Entity<RolesModel>().HasData(
+            //    new RolesModel
+            //    {
+            //        Id = 1,
+            //        Roles = "admin"
+            //    },
+            //    new RolesModel
+            //    {
+            //        Id= 2,
+            //        Roles = "user"
+            //    }
+                
+            //    );
+
+
+            ////admin login = user :admin@example.com, psswd: admin
+
+            //modelBuilder.Entity<Customer>().HasData(
+            //    new Customer
+            //    {
+            //        Id = Guid.NewGuid(),
+            //        FirstName = "Admin",  
+            //        LastName = "Admin",
+            //        Email = "admin@example.com",
+            //        Password = "7fb1cf92faf20c657c1fee16d6e975eb5c8b61a82cbaaf66a2c9a2c2c19addf1",
+            //        Salt = "e1ed2b31",
+            //        Phone = "yes331",
+            //        RolesModelId = 1,
+
+
+            //    });
+
+
+
+
+
+
+
+
+
             //modelBuilder.Entity<RolesModel>()
             // .HasMany(e => e.Customer)
             // .HasForeignKey(e => e.CustomersId);

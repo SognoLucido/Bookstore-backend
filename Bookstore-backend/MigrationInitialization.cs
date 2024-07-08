@@ -13,16 +13,21 @@ namespace Bookstore_backend
             using Booksdbcontext dbContext = scope.ServiceProvider.GetRequiredService<Booksdbcontext>();
 
 
-            try
-            {
-                dbContext.Database.Migrate();
-            }
-            catch (NpgsqlException ex)
-            {
-                Console.WriteLine("Database offline");
-                Console.WriteLine(ex.Message);
-                Environment.Exit(1);
-            }
+            //try
+            //{
+            //    dbContext.Database.Migrate();
+            //}
+            //catch (NpgsqlException ex)
+            //{
+            //    Console.WriteLine("Database offline");
+            //    Console.WriteLine(ex.Message);
+            //    Environment.Exit(1);
+            //}
+            //catch(Exception ex)
+            //{
+            //    Console.WriteLine(ex.Message);
+            //    Environment.Exit(1);
+            //}
 
           
 

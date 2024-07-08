@@ -34,11 +34,15 @@ namespace Database.Model.ModelsDto.PaymentPartialmodels
 
     public class PaymentDetails
     {
+        [Required]
         public string CardHolderName { get; set; }
 
+        [Required]
         [MaxLength(16)]
         [RegularExpression("^[0-9]+$")]
         public string CardNumber { get; set; }
+
+        [Required]
         public CardExpiry CardExpiry { get; set; }
 
 
@@ -56,8 +60,10 @@ namespace Database.Model.ModelsDto.PaymentPartialmodels
 
     public class CardExpiry
     {
-
+        [Range(24,99)]
         public int Year { get; set; }
+
+        [Range(1,12)]
         public int Month { get; set; }
 
     }

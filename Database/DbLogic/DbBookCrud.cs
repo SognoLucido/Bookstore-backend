@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Data;
 using System.Linq;
+using System.Xml;
 
 
 
@@ -390,66 +391,35 @@ public class DbBookCrud : ICrudlayer
 
 
 
-    public async Task<PaymentDetails?> GetInvoicebooks(List<Model.ModelsDto.PaymentPartialmodels.BookItemList> bookitems)
+    public async Task<(PaymentDetails?,int?)> GetInvoicebooks(List<Model.ModelsDto.PaymentPartialmodels.BookItemList> bookitems, Guid UserGuidID)
     {
 
-        var UserGuid = Guid.Parse("aad38dfe-1275-48d2-8793-3027caa50c09");
+        //var UserGuid = Guid.Parse("aad38dfe-1275-48d2-8793-3027caa50c09");
+
+        int OrderID;
 
 
-        var isbnANDqnty = bookitems.Select(b => (b.ISBN,b.Quantity)).Where(a=> a.Quantity>0 ).ToList();
-
-        if(isbnANDqnty.Count != bookitems.Count)return null;
-
-        //dinstict and merge
-
-        var listisbn = isbnANDqnty.Select(a => a.ISBN);
+        var Booklistfiltered = bookitems
+              .Where(w => w.Quantity > 0)
+              .GroupBy(x => x.ISBN)
+              .ToDictionary(k => k.Key, k => k.Sum(t => t.Quantity));
 
 
-        //var Getbooksprices = await _context.Books
-        //    //.Where(a => isbns.Contains(a.ISBN) && a.StockQuantity > 0 )
-        //    //.Where(a => isbns.Contains(a.ISBN) && a.StockQuantity > 0)
-        //    .Select(x => new {
-        //        x.ISBN,
-        //        x.Title , 
-        //        x.Price ,
 
-        //    })
-        //    .ToListAsync();
+        if (Booklistfiltered.Count == 0 ) return (null,null);
 
 
-        //var Getbooksprices = _context.Books
-
-        //    .Where(a => isbns.Contains(a.ISBN) && a.StockQuantity > 0)
-        //    .Select(x => new
-        //    {
-        //        x.ISBN,
-        //        x.Title,
-        //        x.Price,
-
-        //    }).AsQueryable();
+        var GetdataMatchfromdb = await _context.Books.Where(w => Booklistfiltered.Keys.Contains(w.ISBN)).ToListAsync();
 
 
-        var GetdataMatchfromdb =  await _context.Books.Where(b => listisbn.Contains(b.ISBN))
-            //.Select(x => new
-            //{
-            //    x.BookId,
-            //    x.ISBN,
-            //    x.Title,
-            //    x.Price,
-            //    x.StockQuantity,
+        // stock Check 
+        var Qntycheck = GetdataMatchfromdb.Where(a => Booklistfiltered
+                    .Any(b => b.Key == a.ISBN && b.Value <= a.StockQuantity))
+                    .ToList();     
+
+        if (Qntycheck.Count != GetdataMatchfromdb.Count || Qntycheck.Count == 0) return (null, null);
 
 
-            //})
-            //.AsNoTracking()
-            .ToListAsync();
-
-
-           // stock Check 
-        var Qntycheck = GetdataMatchfromdb.Where(a => isbnANDqnty
-                    .Any(b => b.ISBN == a.ISBN && b.Quantity <= a.StockQuantity))
-                .ToList();
-         
-        if (Qntycheck.Count != GetdataMatchfromdb.Count || Qntycheck.Count == 0) return null;
 
 
         using (var transaction = await _context.Database.BeginTransactionAsync()) 
@@ -460,7 +430,8 @@ public class DbBookCrud : ICrudlayer
 
                 foreach (var item in GetdataMatchfromdb) 
                 {
-                    item.StockQuantity -= isbnANDqnty.Where(a => a.ISBN == item.ISBN).First().Quantity;
+                    //item.StockQuantity -= Booklistfiltered.Where(a => a.Key == item.ISBN).First().Value;
+                    item.StockQuantity -= Booklistfiltered[item.ISBN];
                 }
 
                 await _context.SaveChangesAsync();
@@ -468,7 +439,7 @@ public class DbBookCrud : ICrudlayer
 
                 var Orderinsert = new Order()
                 {
-                    CustomerId = UserGuid,
+                    CustomerId = UserGuidID,
                     status = Status.Pending,
                     OrderDate = DateTime.UtcNow,
                 };
@@ -484,15 +455,15 @@ public class DbBookCrud : ICrudlayer
                 var InsertOrderItems = new List<OrderItem>();
 
 
-                foreach (var (ISBN, Quantity) in isbnANDqnty)
+                foreach (var item in Booklistfiltered)
                 {
-                    var book = GetdataMatchfromdb.Where(a => a.ISBN == ISBN).FirstOrDefault();
+                    var book = GetdataMatchfromdb.Where(a => a.ISBN == item.Key).FirstOrDefault();
 
                     InsertOrderItems.Add(new OrderItem
                     {
                         OrderId = Orderinsert.OrderId,
                         BookId = book!.BookId,
-                        Quantity = Quantity,
+                        Quantity = item.Value,
                         Price = book.Price,
                     });
 
@@ -520,70 +491,44 @@ public class DbBookCrud : ICrudlayer
 
                 await transaction.CommitAsync();
 
+                OrderID = Orderinsert.OrderId;
+
                 //return true;
             }
             catch (Exception)
             {
 
                 await transaction.RollbackAsync();
-               return null; 
+               return (null, null); 
             }
+            
+
+
 
         } ;
 
 
 
 
-        //var GetBooksprices = _context.Books.AsQueryable();
-
-        //foreach (var item in isbnANDqnty)
-        //{
-        //    GetBooksprices = GetBooksprices.TakeWhile(a => a.ISBN.Contains(item.ISBN) && item.Quantity <= a.StockQuantity);
-        //}
-
-        //var Getdatafromdb = await GetBooksprices
-        //    .Select(x => new
-        //    {
-        //        x.BookId,
-        //        x.ISBN,
-        //        x.Title,
-        //        x.Price,
-
-        //    })
-        //    .AsNoTracking()
-        //    .ToListAsync();
 
 
-        //if (isbnANDqnty.Count != Getdatafromdb.Count)return null;
+       
 
 
-
-
-        //var insertOrderToPending = ne
-
-
-
-
-
-
-
-
-        var data = new PaymentDetails();
-
-
-
-
-        data.TotalAmount = GetdataMatchfromdb.Sum(x => x.Price);
+        var data = new PaymentDetails
+        {
+            TotalAmount = GetdataMatchfromdb.Sum(x => x.Price)
+        };
 
         foreach (var item in GetdataMatchfromdb)
         {
-            data.Invoce.Add(new Invoice(item.Title, item.ISBN, item.Price));
+            data.Invoce.Add(new Invoice(item.Title, item.ISBN, item.Price , Booklistfiltered[item.ISBN]));
         }
 
 
 
 
-        return data.TotalAmount > 0 ? data : null;
+        return data.TotalAmount > 0 ? (data, OrderID) : (null, null);
     }
 
 
@@ -631,6 +576,81 @@ public class DbBookCrud : ICrudlayer
        
     }
 
-   
-    
+
+
+
+
+
+
+    public async Task UpdateOrderStatus(int OrderID, Status Ordertatus)
+    {
+
+
+        //////////
+
+        await _context.Orders
+               .Where(b => b.OrderId == OrderID)    
+               .ExecuteUpdateAsync(x => x.SetProperty(a => a.status, Ordertatus));
+    }
+
+
+
+
+ 
+
+    public async Task<bool> ChangeRoles(Guid? UserID,string? email,UserRole role)
+    {
+
+       var x = await _context.Customers
+            .Where(b => b.Id == UserID || b.Email == email)
+            .ExecuteUpdateAsync(p => p.SetProperty(a => a.RolesModelId, (int)role));
+           
+        if(x == 1 )return true;
+        return false;
+    }
+
+
+
+
+    //public async Task<bool> DeleteAccount(Guid? userid)
+    //{
+
+    //    var success =   await _context.Customers
+    //       .Where(b => b.Id == userid )
+    //       .ExecuteDeleteAsync();
+
+
+    //    return success == 1 ;
+    //}
+
+
+
+    public async Task<bool> DeleteAccount<T>(T value)
+    {
+
+
+        var test = _context.Customers.AsQueryable();
+
+
+        if(value is string Email)
+        {
+           test = test.Where(b => b.Email == Email);
+        }
+        else if(value is Guid userID)
+        {
+            test = test.Where(b => b.Id == userID);
+        }
+        
+      var result = await test.ExecuteDeleteAsync();
+
+
+        //var success = await _context.Customers
+        //   .Where(b => b.Id == userid)
+        //   
+
+
+        return result == 1 ;
+    }
+
+
 }
