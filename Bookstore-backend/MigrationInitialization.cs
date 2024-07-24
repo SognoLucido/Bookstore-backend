@@ -6,7 +6,7 @@ namespace Bookstore_backend
 {
     public static class MigrationInitialization
     {
-        public static void ApplayMigration(this IApplicationBuilder app)
+        public static async void ApplyMigration(this IApplicationBuilder app)
         {
             using IServiceScope scope = app.ApplicationServices.CreateScope();
 
@@ -15,7 +15,8 @@ namespace Bookstore_backend
 
             //try
             //{
-            //    dbContext.Database.Migrate();
+            //    await dbContext.Database.MigrateAsync();
+                
             //}
             //catch (NpgsqlException ex)
             //{
@@ -23,13 +24,13 @@ namespace Bookstore_backend
             //    Console.WriteLine(ex.Message);
             //    Environment.Exit(1);
             //}
-            //catch(Exception ex)
+            //catch (Exception ex)
             //{
             //    Console.WriteLine(ex.Message);
             //    Environment.Exit(1);
             //}
 
-          
+
 
         }
     }

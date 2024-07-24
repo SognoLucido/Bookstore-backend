@@ -24,8 +24,9 @@ namespace Database.Mapperdtotodb
                 //salt
                 Address = model.Address,
                 Phone = model.Phone,
-                RolesModelId = 2
-
+                RolesModelId = 2,
+               
+                
 
             };
         }

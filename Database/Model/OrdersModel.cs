@@ -3,10 +3,16 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Database.Model
 {
-
+    public enum Subscription
+    {
+        Tier0 ,
+        Tier1 ,
+        Tier2 ,
+    }
 
 
    public enum Status
@@ -57,7 +63,7 @@ namespace Database.Model
 
         [MaxLength(30)]
         public string FirstName { get; set; }
-
+     
 
         [MaxLength(30)]
         public string LastName { get; set; }
@@ -80,15 +86,28 @@ namespace Database.Model
 
         //public List<RolesModel> RolesModel { get; set; }
 
-        public int RolesModelId {  get; set; }
+        public int RolesModelId { get; set; }
         public RolesModel RolesModel { get; set; }
+
+        public ICollection<Apiservice> Apiservices { get; set; }
 
     }
 
 
+   public class Apiservice
+    {
+        public int Id { get; set; }
 
+        public Guid CustomerId { get; set; }
+        public Customer Customer { get; set; }
 
+        public Guid Apikey { get; set; }
+        public Subscription SubscriptionTier { get; set; } = Subscription.Tier0;
 
+        public int Calls { get; set; } = 0;
 
+       
+        public DateTime? DateTime { get; set; } 
 
+    }
 }

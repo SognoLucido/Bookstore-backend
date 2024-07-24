@@ -10,10 +10,10 @@ namespace Database.Services;
 
 public interface ICrudlayer 
 {
-
+    Task Testapi();
 
     Task ConcurTest(int delay,int qnty);
-    Task Testapi();
+
 
 
 
@@ -26,11 +26,17 @@ public interface ICrudlayer
 
 
     //Task<bool> DeleteAccount(Guid? userid);
+    Task<bool> UpdateTier(Guid userID, Subscription subtier ,HttpClient client);
+    Task<bool> Pricebookset(string isbn, decimal price,CancellationToken token = default);
     Task<bool> DeleteAccount<T>(T value);
     Task<bool> ChangeRoles(Guid? UserID, string? email, UserRole role);
     Task UpdateOrderStatus(int OrderID, Status Ordertatus);
     Task<(PaymentDetails?, int?)> GetInvoicebooks(List<Model.ModelsDto.PaymentPartialmodels.BookItemList> BooksList , Guid GuidID);
-    Task<MarketDataAPIModelbyISBN?> Getbyisbn(string isbn, CancellationToken token = default);
+
+    //Task<MarketDataAPIModelbyISBN?> ApiServiceGetbyisbn(string isbn, Guid userID, UserRole role, CancellationToken token = default);
+    Task<(MarketDataAPIModelbyISBN?, Respostebookapi?)> ApiServiceGetbyisbn(string isbn, Guid apikey, CancellationToken token = default);
+    //Task<MarketDataAPIModelbyISBN?> ApiServiceGetbyisbn(string isbn, Guid apikey, CancellationToken token = default);
+
     Task<List<DetailedFilterBookModel>> Filteredquery(QuerySelector selector, CancellationToken token = default);
     Task<List<BooksCatalog>> RawReturn(int page , int pagesize,CancellationToken token = default);
     Task<bool> Registration(Registration regi, CancellationToken token = default);

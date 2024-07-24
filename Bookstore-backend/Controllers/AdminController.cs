@@ -50,6 +50,9 @@ namespace Bookstore_backend.Controllers
         }
 
 
+
+
+
         [HttpPost]
         //[Authorize("AdminOnly")]
         [Route("book")]
@@ -72,21 +75,25 @@ namespace Bookstore_backend.Controllers
             var message = await dbcall.InsertBookItem(bodydata);
 
 
-            switch (message.Code)
-            {
-                case 200: return Ok(message.Message);
-                case 500: return StatusCode(500, message.Message);
-                case 404: return NotFound(message.Message);
-                case 409: return StatusCode(409, message.Message);
 
-                default: return BadRequest();
-            }
+
+            return StatusCode(message.Code, message);
+
+            //switch (message.Code)
+            //{
+            //    case 200: return Ok(message.Message);
+            //    case 500: return StatusCode(500, message.Message);
+            //    case 404: return NotFound(message.Message);
+            //    case 409: return StatusCode(409, message.Message);
+
+            //    default: return BadRequest();
+            //}
 
 
 
         }
 
-        [HttpPatch("book/{ISBN}")]
+        [HttpPatch("bookstock/{ISBN}")]
         //[Authorize("AdminOnly")]
         public async Task<IActionResult> AddOrOverrideStockQuantitybyISBN(
             [FromRoute][MaxLength(30)][RegularExpression("^[0-9]*$")] string ISBN,
@@ -105,6 +112,19 @@ namespace Bookstore_backend.Controllers
             return NotFound();
 
 
+        }
+
+        [HttpPatch("bookprice/{ISBN}")]
+        //[Authorize("AdminOnly")]
+        public async Task<IActionResult> Changeprice([FromRoute] string ISBN, [FromQuery] decimal price,CancellationToken ctoken)
+        {
+
+            //
+            if (await dbcall.Pricebookset(ISBN, price, ctoken))  return Ok();
+           
+
+            return StatusCode(500, "update failed");
+           
         }
 
 
@@ -184,7 +204,7 @@ namespace Bookstore_backend.Controllers
             };
 
           
-            return StatusCode(500,"failed to delete");
+            return StatusCode(500, "delete failed");
         }
 
 

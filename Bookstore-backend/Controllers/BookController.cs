@@ -5,15 +5,14 @@ using Database.ApplicationDbcontext;
 using Database.Model.Apimodels;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Database.Model.ModelsDto.Paymentmodels;
-using System.Collections.Generic;
 using Auth._3rdpartyPaymentportal;
 using Database.Model;
 using Database.Model.ModelsDto;
 using Database.Model.ModelsDto.PaymentPartialmodels;
 using Database.Mapperdtotodb;
 using System.Diagnostics.Eventing.Reader;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -37,7 +36,7 @@ namespace Bookstore_backend.Controllers
         // GET: api/<testapi>
 
         [HttpGet]
-        [Route("Catalog")]
+        [Route("booklist")]
         public async Task<ActionResult<BooksCatalog>> GetList([FromQuery] Pagemodel pagesettings, CancellationToken cToken)
         {
 
@@ -91,30 +90,81 @@ namespace Bookstore_backend.Controllers
 
 
 
-        //apikeytoadd
+        //get {isbn,price,stockqnty} service ,
+        //tier2 accounts have no restrictions
+        //This is a subscription-based service  
+        //todo : free books,
+        //todo : coupon code like(30% off all fantasy books /specific author name)
         [HttpGet("{ISBN}")]
-        [Authorize("Userlogged")]
-        public async Task<IActionResult> GetbyISBN([FromRoute][RegularExpression("^[0-9]*$")] string ISBN, CancellationToken cToken)
+        //[Authorize]
+        public async Task<IActionResult> ApiService([FromRoute][RegularExpression("^[0-9]*$")] string ISBN, [FromHeader(Name = "x-api-key")] string apikey , CancellationToken cToken)
         {
 
 
-            var data = await dbcall.Getbyisbn(ISBN, cToken);
+            //(Guid UserdbGuid, UserRole role) = (Guid.Empty,UserRole.user);
 
-            if (data is null)
-            {
-                return NotFound(data);
-            }
-            return Ok(data);
+            //foreach (var claims in User.Claims)
+            //{
 
+            //    switch (claims.Type)
+            //    {
+            //        case "UserID":
+            //            {
+            //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
+            //                else UserdbGuid = Guid.Parse(claims.Value);
+            //            }; break;
+            //        case "ruoli":
+            //            {
+            //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
+
+            //                if (claims.Value == "user") role = UserRole.user;
+            //                else if (claims.Value == "admin") role = UserRole.admin;
+            //                else return BadRequest();
+
+
+            //            }; break;
+
+            //    }
+
+            //}
+
+
+            //var data = await dbcall.ApiServiceGetbyisbn(ISBN,UserdbGuid,role, cToken);
+
+            //if (data is null)
+            //{
+            //    return NotFound(data);
+            //}
+            //return Ok(data);
+           var(data,Errors)  =  await dbcall.ApiServiceGetbyisbn(ISBN , Guid.Parse(apikey) , cToken);
+
+
+            return data is not null ? Ok(data) :  StatusCode(Errors!.Code, Errors);
+
+
+            //if(data is not null) return Ok(data);
+
+            //switch (Errors!.Code)
+            //{
+            //    case 400: return BadRequest(Errors);
+            //    case 403: return Forbid();
+            //    case 404: return NotFound(Errors);
+            //    case 409: return Conflict(Errors);
+            //    case 0: return StatusCode(Errors.Code,Errors);   
+            //    default:
+            //        break;
+            //}
+
+           
+
+            //return StatusCode(500);
 
         }
 
 
-
-
         [HttpPost]
         [Authorize]
-        [Route("buy")]
+        [Route("buybook")]
         public async Task<IActionResult> UserBuyTransaction([FromBody] BookPartialPaymentModel data ,[FromServices] PaymentPortalx portalpay) 
         {
 
@@ -141,7 +191,10 @@ namespace Bookstore_backend.Controllers
             dbdata.Item1.Fillcardinfo(data.PaymentDetails);
 
 
-            var message = await portalpay.Paymentportal(dbdata.Item1, (int)dbdata.Item2, dbcall);
+            var message = await portalpay.BookPaymentportal(dbdata.Item1, (int)dbdata.Item2, dbcall);
+
+
+            
 
 
             switch (message.Code)
@@ -156,7 +209,55 @@ namespace Bookstore_backend.Controllers
             
             
         }
-            
+
+
+
+        //tier 0 : 5 calls per 5 min 
+        //tier 1 : 10 calls per 5 min (monthly bill)
+        //tier 2 no limit (monthly bill || admin)
+        //not implemented //tier 3 : $ per call (monthly bill || per call bill)
+
+         [HttpPost]
+        //[Authorize]
+        [Route("buysubTier")] // default = 0
+        public async Task<IActionResult> BuySubscriptions([FromBody] PaymentDetails data,[FromQuery] Subscription subscriptionTier, [FromServices] PaymentPortalx portalpay) 
+        {
+
+
+
+            Guid UserdbGuid = Guid.Empty;
+
+            foreach (var claims in User.Claims)
+            {
+
+                switch (claims.Type)
+                {
+                    case "UserID":
+                        {
+                            if (claims.Value.IsNullOrEmpty()) return BadRequest();
+                            else UserdbGuid = Guid.Parse(claims.Value);
+                        }; break;
+                    case "ruoli":
+                        {
+                            if (claims.Value.IsNullOrEmpty()) return BadRequest();
+
+                            if (claims.Value == "user") break;
+                            else if (claims.Value == "admin") return BadRequest("admin account doesn't need a subscription");
+                            else return BadRequest();
+
+
+                        };
+
+                }
+
+            }
+
+            //var backdata = await portalpay.Subpayment(Guid.Parse("4a60ac31-5117-4bc5-ad7b-e09f861e6651"), subscriptionTier, dbcall);
+            var backdata = await portalpay.Subpayment(UserdbGuid, subscriptionTier, dbcall);
+
+
+            return backdata.Code == 200 ? Ok():StatusCode(500) ;
+        }
 
 
 
@@ -164,42 +265,36 @@ namespace Bookstore_backend.Controllers
 
 
 
-        
-        
-       
-
-
-
-        
 
 
 
 
-        //[HttpGet]
-        //[Route("testConcurr/{delay}/{qnty}")]
 
-        //public async Task<IActionResult> Testapi([FromRoute]int delay, [FromRoute] int qnty)
-        //{
-            
-        //  await  dbcall.ConcurTest(delay,qnty);    
+            //[HttpGet]
+            //[Route("testConcurr/{delay}/{qnty}")]
 
-        //    return Ok();
-        //}
+            //public async Task<IActionResult> Testapi([FromRoute]int delay, [FromRoute] int qnty)
+            //{
 
+            //  await  dbcall.ConcurTest(delay,qnty);    
 
-
-        //[HttpGet]
-        //[Route("test")]
-
-        //public async Task<IActionResult> Testapi()
-        //{
-        //    await dbcall.Testapi();
+            //    return Ok();
+            //}
 
 
 
+            //[HttpGet]
+            //[Route("test")]
 
-        //    return Ok();
-        //}
+            //public async Task<IActionResult> Testapi()
+            //{
+            //    await dbcall.Testapi();
+
+
+
+
+            //    return Ok();
+            //}
 
 
 
@@ -213,7 +308,7 @@ namespace Bookstore_backend.Controllers
 
 
 
-    }
+        }
 
 
 }

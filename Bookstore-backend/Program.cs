@@ -1,12 +1,10 @@
 using Auth;
 using Auth._3rdpartyPaymentportal;
-using Database;
 using Database.ApplicationDbcontext;
 using Database.DatabaseLogic;
 using Database.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -28,6 +26,7 @@ namespace Bookstore_backend
 
             builder.Services.AddScoped<IpassHash, Passhasher>();
             builder.Services.AddHttpClient<PaymentPortalx>();
+            builder.Services.AddScoped<ICrudlayer,DbBookCrud>();
 
 
             builder.Services.AddAuthentication(
@@ -67,10 +66,12 @@ namespace Bookstore_backend
 
             builder.Services.AddScoped<ITokenService, JWTokenGenerator>();
 
-            builder.Services.AddDatabaseCrudService();
+            //builder.Services.AddDatabaseCrudService();
 
 
             var app = builder.Build();
+
+            app.ApplyMigration();
 
 
             if (app.Environment.IsDevelopment())
@@ -79,7 +80,7 @@ namespace Bookstore_backend
                 app.UseSwaggerUI();
             }
 
-            app.ApplayMigration();
+            
 
 
             app.UseHttpsRedirection();

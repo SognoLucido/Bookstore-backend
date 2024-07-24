@@ -21,6 +21,7 @@ namespace Database.ApplicationDbcontext
 
         public DbSet<RolesModel> Roles { get; set; }
 
+        public DbSet<Apiservice> Api { get; set; }
        
       
 
