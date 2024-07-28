@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Bookstore_backend.Controllers
 {
-    [Route("[controller]")]
+    [Route("auth/")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -16,7 +16,7 @@ namespace Bookstore_backend.Controllers
 
 
         [HttpPost]
-        [Route("register")]
+        [Route("register")]   
         public async Task<IActionResult> Register([FromBody] Registration regi,[FromServices] ICrudlayer dbcall, CancellationToken token)
         {
             if (!ModelState.IsValid)

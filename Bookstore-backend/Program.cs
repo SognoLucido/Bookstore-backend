@@ -2,10 +2,15 @@ using Auth;
 using Auth._3rdpartyPaymentportal;
 using Database.ApplicationDbcontext;
 using Database.DatabaseLogic;
+using Database.Model;
 using Database.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text;
 
 
@@ -21,12 +26,47 @@ namespace Bookstore_backend
 
             builder.Services.AddControllers();
 
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            //builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(opt =>
+            {
 
+                opt.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",    
+                    Title = "Bookstore-backend DEMO",
+                    Description = "ASP.NET Core Web API",                
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Francesco Barbano",
+                        //Url = new Uri("https://example.com/contact")
+                    }
+                  
+                });
+
+
+                opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Login using Bearer-token (/auth/login)",
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+
+                });
+
+             
+
+
+                opt.OperationFilter<AuthResponsesOperationFilter>();
+
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                opt.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+            });
             builder.Services.AddScoped<IpassHash, Passhasher>();
             builder.Services.AddHttpClient<PaymentPortalx>();
-            builder.Services.AddScoped<ICrudlayer,DbBookCrud>();
+            builder.Services.AddScoped<ICrudlayer, DbBookCrud>();
 
 
             builder.Services.AddAuthentication(
@@ -53,12 +93,12 @@ namespace Bookstore_backend
 
             builder.Services.AddAuthorization(x =>
             {
-                x.AddPolicy("Userlogged", p => p.RequireClaim("ruoli", "user" ,"admin"));
+                x.AddPolicy("Userlogged", p => p.RequireClaim("ruoli", "user", "admin"));
                 x.AddPolicy("AdminOnly", p => p.RequireClaim("ruoli", "admin"));
             });
 
-               
-               
+
+
 
             builder.Services.AddDbContext<Booksdbcontext>(opt =>
                      opt.UseNpgsql(builder.Configuration.GetConnectionString("database")));
@@ -69,6 +109,15 @@ namespace Bookstore_backend
             //builder.Services.AddDatabaseCrudService();
 
 
+
+
+
+
+
+
+
+
+
             var app = builder.Build();
 
             app.ApplyMigration();
@@ -77,10 +126,14 @@ namespace Bookstore_backend
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(opt =>
+                {
+                    opt.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore_v1");
+                    opt.RoutePrefix = string.Empty;
+                });
             }
 
-            
+
 
 
             app.UseHttpsRedirection();

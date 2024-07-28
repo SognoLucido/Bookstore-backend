@@ -12,26 +12,23 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Database.Migrations
 {
     [DbContext(typeof(Booksdbcontext))]
-    [Migration("20240710201117_Apiservicemigration")]
-    partial class Apiservicemigration
+    [Migration("20240725144057_OnetoOneApi")]
+    partial class OnetoOneApi
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
+                .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Database.Model.Apiservice", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("Apikey")
                         .HasColumnType("uuid");
@@ -39,18 +36,14 @@ namespace Database.Migrations
                     b.Property<int>("Calls")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime?>("DateTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("SubscriptionTier")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
+                    b.HasKey("CustomerId")
+                        .HasName("UserID");
 
                     b.ToTable("Api");
                 });
@@ -194,6 +187,20 @@ namespace Database.Migrations
                     b.HasIndex("RolesModelId");
 
                     b.ToTable("Customers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"),
+                            Address = "here",
+                            Email = "admin@example.com",
+                            FirstName = "Admin",
+                            LastName = "Admin",
+                            Password = "7fb1cf92faf20c657c1fee16d6e975eb5c8b61a82cbaaf66a2c9a2c2c19addf1",
+                            Phone = "yes331",
+                            RolesModelId = 1,
+                            Salt = "e1ed2b31"
+                        });
                 });
 
             modelBuilder.Entity("Database.Model.Order", b =>
@@ -269,8 +276,8 @@ namespace Database.Migrations
             modelBuilder.Entity("Database.Model.Apiservice", b =>
                 {
                     b.HasOne("Database.Model.Customer", "Customer")
-                        .WithMany("Apiservices")
-                        .HasForeignKey("CustomerId")
+                        .WithOne("Apiservice")
+                        .HasForeignKey("Database.Model.Apiservice", "CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -344,7 +351,7 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Model.Customer", b =>
                 {
-                    b.Navigation("Apiservices");
+                    b.Navigation("Apiservice");
 
                     b.Navigation("Orders");
                 });

@@ -1,13 +1,12 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace Database.Migrations
 {
     /// <inheritdoc />
-    public partial class Apiservicemigration : Migration
+    public partial class OnetoOneApi : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,8 +15,6 @@ namespace Database.Migrations
                 name: "Api",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CustomerId = table.Column<Guid>(type: "uuid", nullable: false),
                     Apikey = table.Column<Guid>(type: "uuid", nullable: false),
                     SubscriptionTier = table.Column<int>(type: "integer", nullable: false),
@@ -26,7 +23,7 @@ namespace Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Api", x => x.Id);
+                    table.PrimaryKey("UserID", x => x.CustomerId);
                     table.ForeignKey(
                         name: "FK_Api_Customers_CustomerId",
                         column: x => x.CustomerId,
@@ -35,10 +32,10 @@ namespace Database.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Api_CustomerId",
-                table: "Api",
-                column: "CustomerId");
+            migrationBuilder.InsertData(
+                table: "Customers",
+                columns: new[] { "Id", "Address", "Email", "FirstName", "LastName", "Password", "Phone", "RolesModelId", "Salt" },
+                values: new object[] { new Guid("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"), "here", "admin@example.com", "Admin", "Admin", "7fb1cf92faf20c657c1fee16d6e975eb5c8b61a82cbaaf66a2c9a2c2c19addf1", "yes331", 1, "e1ed2b31" });
         }
 
         /// <inheritdoc />
@@ -46,6 +43,11 @@ namespace Database.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Api");
+
+            migrationBuilder.DeleteData(
+                table: "Customers",
+                keyColumn: "Id",
+                keyValue: new Guid("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"));
         }
     }
 }

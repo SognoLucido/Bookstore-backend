@@ -48,7 +48,7 @@ namespace Database.Mapperdtotodb
 
         }
 
-        public static Model.ModelsDto.Paymentmodels.PaymentDetails Fillcardinfo(this Model.ModelsDto.Paymentmodels.PaymentDetails model, Model.ModelsDto.PaymentPartialmodels.PaymentDetails partial)
+        public static PaymentDetails Fillcardinfo(this PaymentDetails model, PartialPaymentDetails partial)
         {
 
             model.CardHolderName = partial.CardHolderName;

@@ -89,14 +89,16 @@ namespace Database.Model
         public int RolesModelId { get; set; }
         public RolesModel RolesModel { get; set; }
 
-        public ICollection<Apiservice> Apiservices { get; set; }
+     
+
+        public Apiservice? Apiservice { get; set; }
 
     }
 
 
    public class Apiservice
     {
-        public int Id { get; set; }
+
 
         public Guid CustomerId { get; set; }
         public Customer Customer { get; set; }

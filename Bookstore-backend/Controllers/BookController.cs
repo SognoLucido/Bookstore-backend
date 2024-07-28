@@ -13,6 +13,8 @@ using Database.Mapperdtotodb;
 using System.Diagnostics.Eventing.Reader;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using System.Data.SqlTypes;
+using System.ComponentModel;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -37,6 +39,7 @@ namespace Bookstore_backend.Controllers
 
         [HttpGet]
         [Route("booklist")]
+        
         public async Task<ActionResult<BooksCatalog>> GetList([FromQuery] Pagemodel pagesettings, CancellationToken cToken)
         {
 
@@ -60,9 +63,12 @@ namespace Bookstore_backend.Controllers
 
 
 
-
+        /// <summary>
+        /// Retrieves a list of books based on the specified filter criteria.
+        /// </summary>   
         [HttpGet]
         [Route("OnMatch")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DetailedFilterBookModel))]
         public async Task<IActionResult> GetListfiltered([FromQuery] QuerySelector selector, CancellationToken cToken)
         {
             if (!ModelState.IsValid)
@@ -95,8 +101,24 @@ namespace Bookstore_backend.Controllers
         //This is a subscription-based service  
         //todo : free books,
         //todo : coupon code like(30% off all fantasy books /specific author name)
+        /// <summary>
+        ///
+        /// </summary>   
+        /// <param name="apikey">The API key used to authenticate the request.</param>   
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     GET /
+        ///     
+        ///    curl -X 'GET' /  
+        ///    'https://localhost:7178/api/0000000000001'
+        ///    -H 'accept: application/json' 
+        ///    -H 'x-api-key: 00000000-0000-0000-0000-4ae86ca65fc2'
+        ///    
+        /// </remarks>
         [HttpGet("{ISBN}")]
         //[Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MarketDataAPIModelbyISBN))]
         public async Task<IActionResult> ApiService([FromRoute][RegularExpression("^[0-9]*$")] string ISBN, [FromHeader(Name = "x-api-key")] string apikey , CancellationToken cToken)
         {
 
@@ -161,7 +183,13 @@ namespace Bookstore_backend.Controllers
 
         }
 
+       
 
+
+
+
+
+        
         [HttpPost]
         [Authorize]
         [Route("buybook")]
@@ -212,15 +240,25 @@ namespace Bookstore_backend.Controllers
 
 
 
+
+
+
+
         //tier 0 : 5 calls per 5 min 
         //tier 1 : 10 calls per 5 min (monthly bill)
         //tier 2 no limit (monthly bill || admin)
         //not implemented //tier 3 : $ per call (monthly bill || per call bill)
 
-         [HttpPost]
+        /// <param name="subscriptionTier">
+        /// - <c>Tier0</c>: Represents the basic subscription tier.
+        /// - <c>Tier1</c>: Represents the standard subscription tier.
+        /// - <c>Tier2</c>: Represents the premium subscription tier.
+        /// </param>
+        [HttpPost]
         //[Authorize]
-        [Route("buysubTier")] // default = 0
-        public async Task<IActionResult> BuySubscriptions([FromBody] PaymentDetails data,[FromQuery] Subscription subscriptionTier, [FromServices] PaymentPortalx portalpay) 
+        [Route("buysubTier")] // default = 0 XX
+        [Authorize]
+        public async Task<IActionResult> BuySubscriptions([FromBody] PartialPaymentDetails data,[FromQuery] Subscription subscriptionTier, [FromServices] PaymentPortalx portalpay) 
         {
 
 
@@ -258,6 +296,8 @@ namespace Bookstore_backend.Controllers
 
             return backdata.Code == 200 ? Ok():StatusCode(500) ;
         }
+
+
 
 
 

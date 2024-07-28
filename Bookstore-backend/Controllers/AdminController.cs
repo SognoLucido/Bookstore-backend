@@ -145,69 +145,6 @@ namespace Bookstore_backend.Controllers
 
    
 
-        [HttpDelete]
-        [Authorize]
-        [Route("account")]
-        public async Task<IActionResult> DeleteAccount([FromQuery] Guid? userid, [FromQuery][EmailAddress] string? email,CancellationToken ctoken)
-        {
-        
-
-            (Guid? UserdbGuid, string Role) = (null,string.Empty);
-
-            foreach (var claims in User.Claims)
-            {
-
-                switch(claims.Type)
-                {
-                    case "UserID": 
-                        {
-                            if (claims.Value.IsNullOrEmpty()) return BadRequest();
-                            else UserdbGuid = Guid.Parse(claims.Value);
-                        }; break;
-                    case "ruoli":
-                        {
-                            if (claims.Value.IsNullOrEmpty()) return BadRequest();
-                            else Role = claims.Value;
-                        }; break;
-
-                }
-
-            }
-
-            if(Role == "user" && userid != UserdbGuid) return Unauthorized();
-            else if(Role == "admin" && userid == UserdbGuid )return BadRequest();
-
-
-
-            switch (Role)
-            {
-                case "user": 
-                    {
-                        if (await dbcall.DeleteAccount(UserdbGuid)) return Ok();
-
-                    };break;
-
-                case "admin": 
-                    {
-                        if(email is not null)
-                        {
-                            if(await dbcall.DeleteAccount(email)) return Ok();                          
-                        }
-                        else
-                        {
-                            if (await dbcall.DeleteAccount(UserdbGuid)) return Ok();
-                           
-                        }
-
-                    };break;
-
-            };
-
-          
-            return StatusCode(500, "delete failed");
-        }
-
-
 
     
 

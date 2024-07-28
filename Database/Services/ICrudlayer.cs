@@ -26,6 +26,8 @@ public interface ICrudlayer
 
 
     //Task<bool> DeleteAccount(Guid? userid);
+
+    Task<UserInfo?> GetUserInfoAccount(Guid UserID);
     Task<bool> UpdateTier(Guid userID, Subscription subtier ,HttpClient client);
     Task<bool> Pricebookset(string isbn, decimal price,CancellationToken token = default);
     Task<bool> DeleteAccount<T>(T value);

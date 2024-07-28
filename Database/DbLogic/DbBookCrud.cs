@@ -4,6 +4,7 @@ using Database.Model;
 using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
 using Database.Model.ModelsDto.Paymentmodels;
+using Database.Model.ModelsDto.PaymentPartialmodels;
 using Database.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -189,7 +190,7 @@ public class DbBookCrud : ICrudlayer
 
             if (Datecheck)
             {
-                await dbresult.ExecuteUpdateAsync(p => p
+               var result = await dbresult.ExecuteUpdateAsync(p => p
                 .SetProperty(a => a.Calls, 1)
                 .SetProperty(a=> a.DateTime,DateTime.UtcNow), token);
             }
@@ -829,6 +830,73 @@ public class DbBookCrud : ICrudlayer
 
 
 
+    }
+
+
+    public async Task<UserInfo?> GetUserInfoAccount(Guid UserID)
+    {
+
+        //var GetfromuserTable = await _context.Customers
+        //   .Where(x => x.Id == UserID)
+        //   .Join(_context.Roles,
+        //     customer => customer.RolesModelId,
+        //     roles => roles.Id,
+        //     (customer, roles) => new
+        //     {
+        //         customer.FirstName,
+        //         customer.LastName,
+        //         customer.Email,
+        //         customer.Phone,
+
+        //         roles.Roles
+
+        //     }).AsNoTracking().FirstOrDefaultAsync();
+
+
+
+        //var GetapiInfo = await _context.Customers
+        //    .Where(x => x.Id == UserID)
+        //    .Join(_context.Api,
+        //    customer => customer.Id,
+        //    apitable => apitable.CustomerId,
+        //    (customer, apitable) => new
+        //    {
+
+        //    }).AsNoTracking().FirstOrDefaultAsync();
+
+
+
+        var GetfromuserTableTest1 = await _context.Customers
+          .Where(x => x.Id == UserID)
+          .Join(_context.Roles,
+            customer => customer.RolesModelId,
+            roles => roles.Id,
+            (customer, roles) => new {customer,roles})
+          .Join(_context.Api,
+            customer => customer.customer.Id,
+            apitable => apitable.CustomerId,
+            (customer,apitable) => new UserInfo
+                (
+                customer.customer.FirstName,
+                customer.customer.LastName,
+                customer.customer.Email,
+                customer.customer.Phone,
+                customer.roles.Roles,
+                new Apiinfo
+                    (
+                    apitable.Apikey.ToString("N"),
+                    //Tier: Enumconverter.EnumTostring(apitable.SubscriptionTier),
+                    apitable.SubscriptionTier.ToString(),
+                    apitable.Calls
+                    )
+
+                )
+            )
+            .AsNoTracking().FirstOrDefaultAsync();
+
+
+        return GetfromuserTableTest1;
+        
     }
 
 

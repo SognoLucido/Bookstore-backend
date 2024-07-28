@@ -10,7 +10,7 @@ namespace Database.Model.ModelsDto.PaymentPartialmodels
         //public string Token { get; set; } idk
 
         [Required]
-        public PaymentDetails PaymentDetails { get; set; }
+        public PartialPaymentDetails PaymentDetails { get; set; }
 
 
         [Required]
@@ -32,7 +32,7 @@ namespace Database.Model.ModelsDto.PaymentPartialmodels
     }
 
 
-    public class PaymentDetails
+    public class PartialPaymentDetails
     {
         [Required]
         public string CardHolderName { get; set; }
