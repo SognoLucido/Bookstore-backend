@@ -3,7 +3,7 @@ using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
 using Database.Model.ModelsDto.Paymentmodels;
 using Database.Model.ModelsDto.PaymentPartialmodels;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 
 namespace Database.Mapperdtotodb
