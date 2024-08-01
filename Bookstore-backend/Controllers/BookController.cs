@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Data.SqlTypes;
 using System.ComponentModel;
+using Database.Model.ModelsDto.Paymentmodels;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -227,7 +228,8 @@ namespace Bookstore_backend.Controllers
 
             switch (message.Code)
             {
-                case 200: return Ok(dbdata.Item1.Invoce);   
+                //case 200: return Ok((dbdata.Item1.Invoce,dbdata.Item1.TotalAmount))
+                case 200: return Ok(new Invoicev2(dbdata.Item1.Invoce,dbdata.Item1.TotalAmount));   
                 case 400: return StatusCode(400, message.Message);
 
                 default: return StatusCode(500);
@@ -238,8 +240,8 @@ namespace Bookstore_backend.Controllers
             
         }
 
-
-
+        //rip
+        private record Invoicev2(List<Invoice> Invoice,decimal Total);
 
 
 

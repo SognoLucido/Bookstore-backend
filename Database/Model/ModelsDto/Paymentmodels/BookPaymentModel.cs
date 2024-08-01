@@ -55,7 +55,7 @@ namespace Database.Model.ModelsDto.Paymentmodels
 
  
 
-    public record Invoice(string Title, string ISBN, decimal Price ,int? Quantity);
+    public record Invoice(string Title, string ISBN, decimal PricePerItem ,int? Quantity);
 
 
 

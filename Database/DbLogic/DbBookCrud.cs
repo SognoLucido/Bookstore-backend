@@ -535,6 +535,11 @@ public class DbBookCrud : ICrudlayer
 
 
 
+        var data = new PaymentDetails();
+       
+
+
+
 
         using (var transaction = await _context.Database.BeginTransactionAsync())
         {
@@ -589,6 +594,8 @@ public class DbBookCrud : ICrudlayer
                     //    Quantity = Quantity,
                     //    Price = Getdatafromdb.Where(x => x.ISBN == ISBN).Select(x => x.Price).First(),
                     //});
+                   
+                  
                 }
 
 
@@ -607,6 +614,9 @@ public class DbBookCrud : ICrudlayer
 
                 OrderID = Orderinsert.OrderId;
 
+
+                data.TotalAmount = InsertOrderItems.Sum(a => a.Price * a.Quantity);
+
                 //return true;
             }
             catch (Exception)
@@ -624,15 +634,10 @@ public class DbBookCrud : ICrudlayer
 
 
 
-
-
-
-
-
-        var data = new PaymentDetails
-        {
-            TotalAmount = GetdataMatchfromdb.Sum(x => x.Price)
-        };
+        //var data = new PaymentDetails
+        //{
+        //    TotalAmount = GetdataMatchfromdb.Sum(x => x.Price )
+        //};
 
         foreach (var item in GetdataMatchfromdb)
         {
