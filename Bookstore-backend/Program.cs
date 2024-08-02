@@ -6,10 +6,12 @@ using Database.Model;
 using Database.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Text;
 
@@ -67,6 +69,16 @@ namespace Bookstore_backend
             builder.Services.AddScoped<IpassHash, Passhasher>();
             builder.Services.AddHttpClient<PaymentPortalx>();
             builder.Services.AddScoped<ICrudlayer, DbBookCrud>();
+            builder.Services.AddSingleton<TokenBlocklist>();
+           
+            
+
+
+            //builder.Services.AddSingleton(provider =>
+            //{
+            //    var tokenBlocklist = provider.GetRequiredService<TokenBlocklist>();
+            //    return new AuthTokenBlockv1(tokenBlocklist);
+            //});
 
 
             builder.Services.AddAuthentication(
@@ -87,14 +99,48 @@ namespace Bookstore_backend
                     ValidAudience = builder.Configuration["Authentication:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SecretKey"]!))
                 };
+
+
+                
+                //var customEvents = builder.Services.BuildServiceProvider().GetRequiredService<AuthTokenBlockv1>();
+                //opt.Events = customEvents;
+
+                opt.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        
+                        var tokenBlocklist = context.HttpContext.RequestServices.GetRequiredService<TokenBlocklist>();
+                        var token = ((Microsoft.IdentityModel.JsonWebTokens.JsonWebToken)context.SecurityToken).EncodedSignature;
+
+                        Console.WriteLine($"check token : {token}");
+
+                        if (tokenBlocklist.TokenListCheck(token))
+                        {
+                            context.Fail("Token is blacklisted.");
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
+
+
             });
+
+
+           
 
 
 
             builder.Services.AddAuthorization(x =>
             {
-                x.AddPolicy("Userlogged", p => p.RequireClaim("ruoli", "user", "admin"));
-                x.AddPolicy("AdminOnly", p => p.RequireClaim("ruoli", "admin"));
+                //x.AddPolicy("test",
+                //    x => x.AddRequirements(new AuthTokenblock()));
+
+                ////x.AddPolicy( new AuthTokenblock());
+
+                //x.AddPolicy("Userlogged", p => p.RequireClaim("ruoli", "user", "admin"));
+                //x.AddPolicy("AdminOnly", p => p.RequireClaim("ruoli", "admin"));
             });
 
 

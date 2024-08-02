@@ -9,6 +9,8 @@ using Auth._3rdpartyPaymentportal;
 using Database.Model.ModelsDto.PaymentPartialmodels;
 using Database.Model;
 using Database.Mapperdtotodb;
+using System.Security.Claims;
+using System.Reflection.Metadata.Ecma335;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -34,7 +36,7 @@ namespace Bookstore_backend.Controllers
         [Route("userinfo")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfo))]
-        public async Task<IActionResult> AccountInfoGet()
+        public async Task<IActionResult> AccountInfoGet([FromServices] TokenBlocklist block)
         {
             var UserID = User.Claims.SingleOrDefault(x => x.Type == "UserID");
 
@@ -42,6 +44,16 @@ namespace Bookstore_backend.Controllers
 
 
             var dbdata = await dbcall.GetUserInfoAccount(userIDokcheck);
+
+
+
+            //var rawtoken = Request.Headers["Authorization"].First();
+
+            //string EncodedSignature = rawtoken.Substring(rawtoken.Length - 43);
+
+            //block.TokenInsert(EncodedSignature);
+
+            //await Console.Out.WriteLineAsync($"insert {EncodedSignature}");
 
 
             return dbdata is not null ? Ok(dbdata) : NotFound("invalid UserID - user not found");
@@ -166,35 +178,57 @@ namespace Bookstore_backend.Controllers
         [HttpDelete]
         [Authorize]
         [Route("account")]
-        public async Task<IActionResult> DeleteAccount([FromQuery] Guid? userid, [FromQuery][EmailAddress] string? email, CancellationToken ctoken)
+        public async Task<IActionResult> DeleteAccount([FromQuery] Guid? userid, [FromQuery][EmailAddress] string? email, [FromServices] TokenBlocklist block, CancellationToken ctoken)
         {
+            
 
+            var Usercheck = User.HasClaim("ruoli", "user");
+            var Admincheck = User.HasClaim("ruoli", "admin");
+
+            var UserIDdata = User.FindFirst("UserID").Value;
+
+           // var GuidUserID = Guid.Parse(UserIDdata);
+
+            if(!Guid.TryParse(UserIDdata, out Guid GuidUserID))return BadRequest();
+
+
+            if (Usercheck && userid is not null && email is not null) return Unauthorized("only admins can delete other users , leave it blank");
+            if(Admincheck && GuidUserID == userid) return BadRequest();
+         
+
+           
 
             (Guid? UserdbGuid, string Role) = (null, string.Empty);
 
-            foreach (var claims in User.Claims)
-            {
+            //foreach (var claims in User.Claims)
+            //{
 
-                switch (claims.Type)
-                {
-                    case "UserID":
-                        {
-                            if (claims.Value.IsNullOrEmpty()) return BadRequest();
-                            else UserdbGuid = Guid.Parse(claims.Value);
-                        }; break;
-                    case "ruoli":
-                        {
-                            if (claims.Value.IsNullOrEmpty()) return BadRequest();
-                            else Role = claims.Value;
-                        }; break;
+                //    switch (claims.Type)
+                //    {
+                //        case "UserID":
+                //            {
+                //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
+                //                else UserdbGuid = Guid.Parse(claims.Value);
+                //            }; break;
+                //        case "ruoli":
+                //            {
+                //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
+                //                else Role = claims.Value;
+                //            }; break;
 
-                }
+                //    }
 
-            }
+                //}
 
-            if (Role == "user" && userid != UserdbGuid) return Unauthorized();
-            else if (Role == "admin" && userid == UserdbGuid) return BadRequest();
 
+            
+
+
+            var rawtoken = Request.Headers.Authorization.First();
+
+            string EncodedSignature = rawtoken.Substring(rawtoken.Length - 43);
+
+            block.TokenInsert(EncodedSignature);
 
 
             switch (Role)
@@ -220,6 +254,9 @@ namespace Bookstore_backend.Controllers
                     }; break;
 
             };
+
+
+
 
 
             return StatusCode(500, "delete failed");
