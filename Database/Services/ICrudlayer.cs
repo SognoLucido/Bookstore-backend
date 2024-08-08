@@ -27,6 +27,8 @@ public interface ICrudlayer
 
     //Task<bool> DeleteAccount(Guid? userid);
 
+    Task<List<DetailedFilterBookModel>> Usersearch(/*int limit, */(string? Booktitle, string? Authorname, string? Category) Tupledata);
+
     Task<List<AuthorDto>> GetAuthorinfo(int? limit, string? search);
 
     Task<List<Category>> GetCategoriesinfo(int? limit, string? search);

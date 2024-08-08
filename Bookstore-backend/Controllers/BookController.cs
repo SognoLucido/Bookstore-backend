@@ -16,6 +16,7 @@ using System.Security.Claims;
 using System.Data.SqlTypes;
 using System.ComponentModel;
 using Database.Model.ModelsDto.Paymentmodels;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -36,12 +37,27 @@ namespace Bookstore_backend.Controllers
         }
 
 
-        // GET: api/<testapi>
+        [HttpGet]
+        [Route("search")]
+        public async Task<IActionResult> SearchItems([FromQuery] string? booktitle, [FromQuery] string? authorname, [FromQuery] string? category, CancellationToken cToken)
+        {
+
+            const int limit = 5;
+
+            var data = (booktitle, authorname, category);
+
+
+
+            var test = await dbcall.Usersearch(data);
+
+            return Ok(test);
+
+        }
 
         [HttpGet]
         [Route("booklist")]
         
-        public async Task<ActionResult<BooksCatalog>> GetList([FromQuery] Pagemodel pagesettings, CancellationToken cToken)
+        public async Task<ActionResult<BooksCatalog>> GetBookList([FromQuery] Pagemodel pagesettings, CancellationToken cToken)
         {
 
             if (!ModelState.IsValid)

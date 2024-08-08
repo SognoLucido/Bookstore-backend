@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks.Dataflow;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 
@@ -949,8 +951,6 @@ public class DbBookCrud : ICrudlayer
     public async Task<List<Category>> GetCategoriesinfo( int? limit, string? search)
     {
 
-       
-
         var data = _context.Categories.AsQueryable();
   
         if (search is not null) data = data.Where(b => EF.Functions.Like(b.Name, $"%{search}%"));
@@ -960,14 +960,58 @@ public class DbBookCrud : ICrudlayer
          .OrderBy(o=> o.Name)
          .AsNoTracking()
          .ToListAsync();
-
-
-
-
-       
+ 
 
     }
 
+
+    public async Task<List<DetailedFilterBookModel>> Usersearch(/*int limit, */(string? Booktitle, string? Authorname, string? Category) Tupledata ){
+
+
+        var query = _context.Books
+         .Where(x => x.StockQuantity > 0)
+          .Join(_context.Authors,
+           book => book.AuthorId,
+           author => author.AuthorId,
+           (book, author) => new { book, author })
+         .Join(_context.Categories,
+           book => book.book.CategoryId,
+           category => category.CategoryId,
+           (bookAuthor, category) => new { bookAuthor, category }).AsQueryable();
+
+
+        if (Tupledata.Booktitle is not null) query = query.Where(b => EF.Functions.Like(b.bookAuthor.book.Title, $"%{Tupledata.Booktitle}%"));
+        if (Tupledata.Authorname is not null) query = query.Where(b => EF.Functions.Like(b.bookAuthor.author.FullName, $"%{Tupledata.Authorname}%"));
+        if (Tupledata.Category is not null) query = query.Where(b => EF.Functions.Like(b.category.Name, $"%{Tupledata.Category}%"));
+
+        
+
+
+
+
+
+        var test = await query
+            .OrderBy(b=>b.bookAuthor.book.Title)
+            .Take(5)
+            .Select(b=> new DetailedFilterBookModel
+            {
+                BookTitle = b.bookAuthor.book.Title,
+                Category = b.category.Name,
+                Price = b.bookAuthor.book.Price.ToString() + "$",
+                Description = b.bookAuthor.book.Description,
+                AuthorName = b.bookAuthor.author.FullName,
+                ISBN = b.bookAuthor.book.ISBN,
+                PublicationDate = b.bookAuthor.book.PublicationDate
+            }).AsNoTracking().ToListAsync();
+            
+
+
+        return test;
+
+    }
+  
     
+
+   
 
 }
