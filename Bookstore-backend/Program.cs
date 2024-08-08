@@ -74,11 +74,6 @@ namespace Bookstore_backend
             
 
 
-            //builder.Services.AddSingleton(provider =>
-            //{
-            //    var tokenBlocklist = provider.GetRequiredService<TokenBlocklist>();
-            //    return new AuthTokenBlockv1(tokenBlocklist);
-            //});
 
 
             builder.Services.AddAuthentication(
@@ -102,8 +97,7 @@ namespace Bookstore_backend
 
 
                 
-                //var customEvents = builder.Services.BuildServiceProvider().GetRequiredService<AuthTokenBlockv1>();
-                //opt.Events = customEvents;
+               
 
                 opt.Events = new JwtBearerEvents
                 {
@@ -140,7 +134,7 @@ namespace Bookstore_backend
                 ////x.AddPolicy( new AuthTokenblock());
 
                 //x.AddPolicy("Userlogged", p => p.RequireClaim("ruoli", "user", "admin"));
-                //x.AddPolicy("AdminOnly", p => p.RequireClaim("ruoli", "admin"));
+                x.AddPolicy("AdminOnly", p => p.RequireClaim("ruoli", "admin"));
             });
 
 

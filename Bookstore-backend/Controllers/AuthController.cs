@@ -35,6 +35,9 @@ namespace Bookstore_backend.Controllers
 
         }
 
+        /// <summary>
+        /// adminAccount :  email -> admin@example.com , passw -> admin
+        /// </summary>
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] Login login, [FromServices] ICrudlayer dbcall,[FromServices] ITokenService tokengen, CancellationToken ctoken)

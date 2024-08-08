@@ -1,13 +1,21 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 
 
 namespace Database.Model
 {
-   
-        public class Author
+
+    public enum Info
+    {
+        Authors,
+        Category
+    }
+
+
+    public class Author
         {
             [Key]
             public int AuthorId { get; set; }
@@ -15,6 +23,9 @@ namespace Database.Model
             [MaxLength(30)]
             public string FullName { get; set; }
             public string Bio { get; set; }
+
+        
+          
             public ICollection<Book> Books { get; set; }
         }
 

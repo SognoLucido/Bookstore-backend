@@ -1,6 +1,6 @@
 ﻿namespace Bookstore_backend
 {
-    public class TokenBlocklist
+    public class TokenBlocklist // redis ?
     {
         //temp block list
         public HashSet<string> TokenList { get; /*private*/ set; } = [];

@@ -3,7 +3,7 @@ using Database.Model;
 using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
 using Database.Model.ModelsDto.Paymentmodels;
-using static Database.DatabaseLogic.DbBookCrud;
+
 
 
 namespace Database.Services;
@@ -26,6 +26,11 @@ public interface ICrudlayer
 
 
     //Task<bool> DeleteAccount(Guid? userid);
+
+    Task<List<AuthorDto>> GetAuthorinfo(int? limit, string? search);
+
+    Task<List<Category>> GetCategoriesinfo(int? limit, string? search);
+    
 
     Task<UserInfo?> GetUserInfoAccount(Guid UserID);
     Task<bool> UpdateTier(Guid userID, Subscription subtier ,HttpClient client);

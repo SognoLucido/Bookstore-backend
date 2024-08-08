@@ -40,8 +40,11 @@ namespace Bookstore_backend.Controllers
         {
             var UserID = User.Claims.SingleOrDefault(x => x.Type == "UserID");
 
+
             if (!Guid.TryParse(UserID.Value, out Guid userIDokcheck)) return BadRequest();
 
+
+            if (User.HasClaim("ruoli", "admin"))return BadRequest("Only Users");
 
             var dbdata = await dbcall.GetUserInfoAccount(userIDokcheck);
 
@@ -178,7 +181,10 @@ namespace Bookstore_backend.Controllers
         [HttpDelete]
         [Authorize]
         [Route("account")]
-        public async Task<IActionResult> DeleteAccount([FromQuery] Guid? userid, [FromQuery][EmailAddress] string? email, [FromServices] TokenBlocklist block, CancellationToken ctoken)
+        public async Task<IActionResult> DeleteAccount(
+            [FromQuery] Guid? userid, 
+            [FromQuery][EmailAddress] string? email,
+            [FromServices] TokenBlocklist block, CancellationToken ctoken)
         {
             
 
@@ -194,60 +200,63 @@ namespace Bookstore_backend.Controllers
 
             if (Usercheck && userid is not null && email is not null) return Unauthorized("only admins can delete other users , leave it blank");
             if(Admincheck && GuidUserID == userid) return BadRequest();
-         
 
-           
 
-            (Guid? UserdbGuid, string Role) = (null, string.Empty);
+
+            var Role = Usercheck ? UserRole.user : UserRole.admin;
+            
 
             //foreach (var claims in User.Claims)
             //{
 
-                //    switch (claims.Type)
-                //    {
-                //        case "UserID":
-                //            {
-                //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
-                //                else UserdbGuid = Guid.Parse(claims.Value);
-                //            }; break;
-                //        case "ruoli":
-                //            {
-                //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
-                //                else Role = claims.Value;
-                //            }; break;
+            //    switch (claims.Type)
+            //    {
+            //        case "UserID":
+            //            {
+            //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
+            //                else UserdbGuid = Guid.Parse(claims.Value);
+            //            }; break;
+            //        case "ruoli":
+            //            {
+            //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
+            //                else Role = claims.Value;
+            //            }; break;
 
-                //    }
+            //    }
 
-                //}
+            //}
 
+
+            if(Role == UserRole.user)
+            {
+                var rawtoken = Request.Headers.Authorization.First();
+
+                string EncodedSignature = rawtoken.Substring(rawtoken.Length - 43);
+
+                block.TokenInsert(EncodedSignature);
+            }
 
             
 
 
-            var rawtoken = Request.Headers.Authorization.First();
-
-            string EncodedSignature = rawtoken.Substring(rawtoken.Length - 43);
-
-            block.TokenInsert(EncodedSignature);
-
 
             switch (Role)
             {
-                case "user":
+                case UserRole.user:
                     {
-                        if (await dbcall.DeleteAccount(UserdbGuid)) return Ok();
+                        if (await dbcall.DeleteAccount(GuidUserID)) return Ok("Deletion was successful");
 
                     }; break;
 
-                case "admin":
+                case UserRole.admin:
                     {
                         if (email is not null)
                         {
-                            if (await dbcall.DeleteAccount(email)) return Ok();
+                            if (await dbcall.DeleteAccount(email)) return Ok("Deletion was successful");
                         }
                         else
                         {
-                            if (await dbcall.DeleteAccount(UserdbGuid)) return Ok();
+                            if (await dbcall.DeleteAccount(GuidUserID)) return Ok("Deletion was successful");
 
                         }
 
@@ -259,7 +268,7 @@ namespace Bookstore_backend.Controllers
 
 
 
-            return StatusCode(500, "delete failed");
+            return StatusCode(500, "Deletion failed");
         }
 
 

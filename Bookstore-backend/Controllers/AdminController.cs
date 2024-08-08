@@ -25,8 +25,36 @@ namespace Bookstore_backend.Controllers
         }
 
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="info">0 get Authors // 1 get Categories </param>
+        /// <param name="limit"> Limit the number of batches . if null return list-all </param>
+        /// <param name="searchbyname"> optional  </param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("iteminfo")]
+        public async Task<IActionResult> Getinfo(Info info, [FromQuery] int? limit, [FromQuery][MaxLength(20)] string? searchbyname)
+        {
+            if (limit <= 0 ) return BadRequest();
+
+            if (info == Info.Authors)
+            {
+                return Ok(await dbcall.GetAuthorinfo(limit,searchbyname));
+            }
+            else
+            {
+                return Ok(await dbcall.GetCategoriesinfo(limit,searchbyname));
+            }
+
+           
+        }
+
+
+
         [HttpPost]
-        //[Authorize("AdminOnly")]
+        [Authorize("AdminOnly")]
         [Route("changerole")]
         public async Task<IActionResult> Changerole ([FromBody] Rolechanger data)
         {
@@ -52,9 +80,14 @@ namespace Bookstore_backend.Controllers
 
 
 
-
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///    Author name and category MUST match the existing records
+        ///    
+        /// </remarks>
         [HttpPost]
-        //[Authorize("AdminOnly")]
+        [Authorize("AdminOnly")]
         [Route("book")]
         public async Task<IActionResult> InsertBook([FromBody] BookinsertModel bodydata)
         {
@@ -92,9 +125,15 @@ namespace Bookstore_backend.Controllers
 
 
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        /// <param name="ForceOverride">if true {the "qnty" query will override the current stock in the db } else Dbstocktotal += "qnty" </param>
+        /// <param name="cToken"></param>
+        /// <returns></returns>
         [HttpPatch("bookstock/{ISBN}")]
-        //[Authorize("AdminOnly")]
+        [Authorize("AdminOnly")]
         public async Task<IActionResult> AddOrOverrideStockQuantitybyISBN(
             [FromRoute][MaxLength(30)][RegularExpression("^[0-9]*$")] string ISBN,
             [FromQuery][Required] int qnty,
@@ -115,7 +154,7 @@ namespace Bookstore_backend.Controllers
         }
 
         [HttpPatch("bookprice/{ISBN}")]
-        //[Authorize("AdminOnly")]
+        [Authorize("AdminOnly")]
         public async Task<IActionResult> Changeprice([FromRoute] string ISBN, [FromQuery] decimal price,CancellationToken ctoken)
         {
 

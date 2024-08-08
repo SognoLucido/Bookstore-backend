@@ -8,7 +8,9 @@ using Database.Model.ModelsDto.PaymentPartialmodels;
 using Database.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using System.Data;
+using System.Linq;
 using System.Net.Http;
 
 
@@ -33,6 +35,7 @@ public class DbBookCrud : ICrudlayer
 
         return await _context.Books
           .Where(x => x.StockQuantity > 0)
+          .OrderBy(x => x.BookId)
            .Join(_context.Authors,
             book => book.AuthorId,
             author => author.AuthorId,
@@ -50,7 +53,11 @@ public class DbBookCrud : ICrudlayer
                 AuthorName = bookAuthor.author.FullName,
 
 
-            }).Skip((page - 1) * pagesize).Take(pagesize).AsNoTracking().ToListAsync(token);
+            })
+          .Skip((page - 1) * pagesize)
+          .Take(pagesize)  
+          .AsNoTracking()
+          .ToListAsync(token);
 
 
 
@@ -246,9 +253,6 @@ public class DbBookCrud : ICrudlayer
 
 
     }
-
-
-
 
 
 
@@ -753,11 +757,11 @@ public class DbBookCrud : ICrudlayer
 
         if (value is string Email)
         {
-            test = test.Where(b => b.Email == Email);
+            test = test.Where(b => b.Email == Email && b.RolesModelId != (int)UserRole.admin);
         }
         else if (value is Guid userID)
         {
-            test = test.Where(b => b.Id == userID);
+            test = test.Where(b => b.Id == userID && b.RolesModelId != (int)UserRole.admin);
         }
 
         var result = await test.ExecuteDeleteAsync();
@@ -904,6 +908,66 @@ public class DbBookCrud : ICrudlayer
         
     }
 
+  
 
+    public async Task<List<AuthorDto>> GetAuthorinfo( int? limit, string? search)
+    {
+        //var data = _context.Authors.AsQueryable();
+
+        //if (limit is not null) data = data.Take((int)limit);
+
+        //return await data
+
+        // .AsNoTracking()
+        // .ToListAsync();
+
+
+        var data = _context.Authors.AsQueryable();
+
+        if (limit is not null) data = data.Take((int)limit);
+        if (search is not null) data = data.Where(b => EF.Functions.Like(b.FullName, $"%{search}%"));
+
+        return await data   
+            .Select(a => new AuthorDto
+            {
+                AuthorId = a.AuthorId,
+               FullName = a.FullName,
+               Bio = a.Bio,
+                Books = _context.Books
+                    .Where(b => b.AuthorId == a.AuthorId)
+                    .Select(s => new Books
+                    {
+                       book = s.Title,
+                    }).ToList()
+
+            }).AsNoTracking().ToListAsync();
+
+
+
+    }
+
+    public async Task<List<Category>> GetCategoriesinfo( int? limit, string? search)
+    {
+
+       
+
+        var data = _context.Categories.AsQueryable();
+  
+        if (search is not null) data = data.Where(b => EF.Functions.Like(b.Name, $"%{search}%"));
+        if (limit is not null) data = data.Take((int)limit);
+        return await data
+           
+         .OrderBy(o=> o.Name)
+         .AsNoTracking()
+         .ToListAsync();
+
+
+
+
+       
+
+    }
+
+    
 
 }

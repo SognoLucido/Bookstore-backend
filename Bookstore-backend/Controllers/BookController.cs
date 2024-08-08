@@ -114,7 +114,7 @@ namespace Bookstore_backend.Controllers
         ///    curl -X 'GET' /  
         ///    'https://localhost:7178/api/0000000000001'
         ///    -H 'accept: application/json' 
-        ///    -H 'x-api-key: 00000000-0000-0000-0000-4ae86ca65fc2'
+        ///    -H 'x-api-key: 000000000000000000004ae86ca65fc2'
         ///    
         /// </remarks>
         [HttpGet("{ISBN}")]
