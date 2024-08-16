@@ -44,13 +44,14 @@ namespace Bookstore_backend.Controllers
             if (!Guid.TryParse(UserID.Value, out Guid userIDokcheck)) return BadRequest();
 
 
-            if (User.HasClaim("ruoli", "admin"))return BadRequest("Only Users");
+            //if (User.HasClaim("ruoli", "admin"))return BadRequest("Only Users");
 
             var dbdata = await dbcall.GetUserInfoAccount(userIDokcheck);
 
 
 
             //var rawtoken = Request.Headers["Authorization"].First();
+
 
             //string EncodedSignature = rawtoken.Substring(rawtoken.Length - 43);
 
@@ -79,7 +80,7 @@ namespace Bookstore_backend.Controllers
 
             if (UserID is null) return BadRequest();
             if (!Guid.TryParse(UserID.Value, out Guid GuidUserID)) return BadRequest();
-
+            if(User.HasClaim("role","admin")) return BadRequest("only users");
 
 
             if (!ModelState.IsValid)
@@ -128,13 +129,16 @@ namespace Bookstore_backend.Controllers
         //tier 2 no limit (monthly bill || admin)
         //not implemented //tier 3 : $ per call (monthly bill || per call bill)
 
+        
+
+
         /// <param name="subscriptionTier">
-        /// - <c>Tier0</c>: Represents the basic subscription tier(default).
+        /// - <c>Tier0</c>: Represents the free tier(default).
         /// - <c>Tier1</c>: Represents the standard subscription tier.
         /// - <c>Tier2</c>: Represents the premium subscription tier.
         /// </param>
         [HttpPost]
-        [Route("buysubTier")] // default = 0 XX
+        [Route("buysubtier")] // default = 0 XX
         [Authorize]
         public async Task<IActionResult> BuySubscriptions([FromBody] PartialPaymentDetails data, [FromQuery] Subscription subscriptionTier, [FromServices] PaymentPortalx portalpay)
         {
@@ -142,6 +146,7 @@ namespace Bookstore_backend.Controllers
 
 
             Guid UserdbGuid = Guid.Empty;
+            UserRole? role = null;
 
             foreach (var claims in User.Claims)
             {
@@ -157,10 +162,10 @@ namespace Bookstore_backend.Controllers
                         {
                             if (claims.Value.IsNullOrEmpty()) return BadRequest();
 
-                            if (claims.Value == "user") break;
-                            else if (claims.Value == "admin") return BadRequest("admin account doesn't need a subscription");
+                            if (claims.Value == "user") break ; 
+                            else if (claims.Value == "admin") return BadRequest("admin account doesn't need to buy a subscription");
                             else return BadRequest();
-
+                         
 
                         };
 
@@ -169,7 +174,13 @@ namespace Bookstore_backend.Controllers
             }
 
             //var backdata = await portalpay.Subpayment(Guid.Parse("4a60ac31-5117-4bc5-ad7b-e09f861e6651"), subscriptionTier, dbcall);
-            var backdata = await portalpay.Subpayment(UserdbGuid, subscriptionTier, dbcall);
+
+       
+
+
+            var  backdata = await portalpay.Subpayment(UserdbGuid, subscriptionTier, dbcall);
+          
+
 
 
             return backdata.Code == 200 ? Ok() : StatusCode(500);
@@ -189,12 +200,11 @@ namespace Bookstore_backend.Controllers
             
 
             var Usercheck = User.HasClaim("ruoli", "user");
+
+
             var Admincheck = User.HasClaim("ruoli", "admin");
 
             var UserIDdata = User.FindFirst("UserID").Value;
-
-           // var GuidUserID = Guid.Parse(UserIDdata);
-
             if(!Guid.TryParse(UserIDdata, out Guid GuidUserID))return BadRequest();
 
 

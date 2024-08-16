@@ -4,16 +4,10 @@ using Database.Model;
 using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
 using Database.Model.ModelsDto.Paymentmodels;
-using Database.Model.ModelsDto.PaymentPartialmodels;
 using Database.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 using System.Data;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks.Dataflow;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 
@@ -57,7 +51,7 @@ public class DbBookCrud : ICrudlayer
 
             })
           .Skip((page - 1) * pagesize)
-          .Take(pagesize)  
+          .Take(pagesize)
           .AsNoTracking()
           .ToListAsync(token);
 
@@ -151,9 +145,9 @@ public class DbBookCrud : ICrudlayer
 
     //}
 
-   
 
-    public async Task<(MarketDataAPIModelbyISBN?,Respostebookapi?)> ApiServiceGetbyisbn(string isbn, Guid apikey, CancellationToken token = default)
+
+    public async Task<(MarketDataAPIModelbyISBN?, Respostebookapi?)> ApiServiceGetbyisbn(string isbn, Guid apikey, CancellationToken token = default)
     {
 
 
@@ -170,11 +164,11 @@ public class DbBookCrud : ICrudlayer
             .AsNoTracking()
            .FirstOrDefaultAsync(token);
 
-        if (checkkey == null) return (null,new Respostebookapi
+        if (checkkey == null) return (null, new Respostebookapi
         {
-        Code = 404,
-        }); 
-        
+            Code = 404,
+        });
+
 
         var dbresult = _context.Api.Where(a => a.Apikey == apikey).AsQueryable();
 
@@ -183,7 +177,7 @@ public class DbBookCrud : ICrudlayer
 
 
 
-        bool Datecheck = checkkey.DateTime is null || (DateTime.UtcNow - checkkey.DateTime) >= TimeSpan.FromMinutes(3) ; // 3 min(hardcoded) // 
+        bool Datecheck = checkkey.DateTime is null || (DateTime.UtcNow - checkkey.DateTime) >= TimeSpan.FromMinutes(3); // 3 min(hardcoded) // 
 
 
         switch (checkkey.SubscriptionTier)
@@ -199,9 +193,9 @@ public class DbBookCrud : ICrudlayer
 
             if (Datecheck)
             {
-               var result = await dbresult.ExecuteUpdateAsync(p => p
-                .SetProperty(a => a.Calls, 1)
-                .SetProperty(a=> a.DateTime,DateTime.UtcNow), token);
+                var result = await dbresult.ExecuteUpdateAsync(p => p
+                 .SetProperty(a => a.Calls, 1)
+                 .SetProperty(a => a.DateTime, DateTime.UtcNow), token);
             }
             else if (!Datecheck && !CallscapCheck)
             {
@@ -211,7 +205,7 @@ public class DbBookCrud : ICrudlayer
             {
                 var TimetoReset = TimeSpan.FromMinutes(3) - (DateTime.UtcNow - checkkey.DateTime);
 
-               
+
 
 
 
@@ -220,7 +214,7 @@ public class DbBookCrud : ICrudlayer
                     Code = 429,
                     Message = $"You have exceeded your request limit. Please try again later in {TimetoReset!.Value:hh\\:mm\\:ss}"
                 });
-               
+
             }
 
         }
@@ -234,7 +228,7 @@ public class DbBookCrud : ICrudlayer
 
               }).AsNoTracking().FirstOrDefaultAsync(token);
 
-        return (bookdata,new Respostebookapi{Code = 200,Message = null});
+        return (bookdata, new Respostebookapi { Code = 200, Message = null });
     }
 
 
@@ -278,7 +272,112 @@ public class DbBookCrud : ICrudlayer
 
     }
 
-    public async Task<Respostebookapi> InsertBookItem(BookinsertModel datamodel)
+
+
+    public async Task<Respostebookapi> InsertBookItem(BookinsertModel datamodel) //new version
+    {
+
+
+        var message = new Respostebookapi();
+
+        var exist = await _context.Books.AnyAsync(b => b.ISBN == datamodel.ISBN);
+
+
+        if (!exist)
+        {
+
+
+            var authorid = await _context.Authors
+                                .Where(b => b.FullName == datamodel.Author.ToLower())
+                                .Select(s => new { s.AuthorId })
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync();
+
+            var categorid = await _context.Categories
+                               .Where(b => b.Name == datamodel.Category.ToLower())
+                               .Select(s => new { s.CategoryId })
+                               .AsNoTracking()
+                               .FirstOrDefaultAsync();
+
+
+            if (authorid is null)
+            {
+                message.Code = 404;
+                message.Message = " Author name not Found \n";
+
+
+            }
+            if (categorid is null)
+            {
+                message.Code = 404;
+                message.Message += " Author name not Found";
+
+
+            }
+
+            if (authorid is null || categorid is null) return message;
+            else
+            {
+
+                var modeltoinsert = datamodel.MapTobook();
+
+                modeltoinsert.AuthorId = authorid.AuthorId;
+                modeltoinsert.CategoryId = categorid.CategoryId;
+
+
+                await _context.Books.AddAsync(modeltoinsert);
+
+
+                try
+                {
+
+                    await _context.SaveChangesAsync();
+
+                    message.Code = 200;
+                    message.Message = "Sucessful inserted";
+
+                    return message;
+
+                }
+                catch (Exception ex)
+                {
+                    message.Code = 500;
+                    message.Message = ex.Message;
+
+                    return message;
+                }
+
+
+
+            }
+
+
+
+        }
+        else
+        {
+            return new Respostebookapi()
+            {
+                Code = 409,
+                Message = "the book already exist"
+            };
+
+        }
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+    public async Task<Respostebookapi> InsertBookItemold(BookinsertModel datamodel)
     {
         bool force = false;
 
@@ -298,7 +397,7 @@ public class DbBookCrud : ICrudlayer
 
         var exist = await query.Where(x => x.bookAuthor.book.ISBN == datamodel.ISBN).AsNoTracking().AnyAsync();
 
-        if (!exist)
+        if (exist)
         {
             return new Respostebookapi()
             {
@@ -399,7 +498,7 @@ public class DbBookCrud : ICrudlayer
     public async Task Testapi()
     {
 
-        var test = await _context.Books.FirstOrDefaultAsync(a=>a.BookId == 1);
+        var test = await _context.Books.FirstOrDefaultAsync(a => a.BookId == 1);
 
         //var x = new Book
         //{
@@ -542,7 +641,7 @@ public class DbBookCrud : ICrudlayer
 
 
         var data = new PaymentDetails();
-       
+
 
 
 
@@ -600,8 +699,8 @@ public class DbBookCrud : ICrudlayer
                     //    Quantity = Quantity,
                     //    Price = Getdatafromdb.Where(x => x.ISBN == ISBN).Select(x => x.Price).First(),
                     //});
-                   
-                  
+
+
                 }
 
 
@@ -726,12 +825,67 @@ public class DbBookCrud : ICrudlayer
     public async Task<bool> ChangeRoles(Guid? UserID, string? email, UserRole role)
     {
 
+
+        bool check = false;
+
+
+
         var x = await _context.Customers
              .Where(b => b.Id == UserID || b.Email == email)
              .ExecuteUpdateAsync(p => p.SetProperty(a => a.RolesModelId, (int)role));
 
-        if (x == 1) return true;
-        return false;
+
+        if (x == 0) return false;
+
+        if (UserID is not null)
+        {
+            var insert = _context.Api
+                    .Where(a => a.CustomerId == UserID).AsQueryable();
+
+            int check2 = 0;
+
+            if (role == UserRole.admin)
+            {
+              check2 = await  insert.ExecuteUpdateAsync(p => p.SetProperty(s => s.SubscriptionTier, Subscription.Tier2));
+            }
+            else if (role == UserRole.user)
+            {
+              check2 =  await insert.ExecuteUpdateAsync(p => p.SetProperty(s => s.SubscriptionTier, Subscription.Tier0));
+            }
+
+            if(check2 == 0) return false;
+                
+        }
+        else if (email is not null)
+        {
+
+            var emailtoUserID = _context.Customers
+                .Where(a => a.Email == email)
+                .Select(b => b.Id).FirstOrDefault();
+
+            if(emailtoUserID == null) return false;
+
+
+
+            var insert = _context.Api
+                   .Where(a => a.CustomerId == emailtoUserID).AsQueryable();
+
+            int check2 = 0;
+
+            if (role == UserRole.admin)
+            {
+                check2 = await insert.ExecuteUpdateAsync(p => p.SetProperty(s => s.SubscriptionTier, Subscription.Tier2));
+            }
+            else if (role == UserRole.user)
+            {
+                check2 = await insert.ExecuteUpdateAsync(p => p.SetProperty(s => s.SubscriptionTier, Subscription.Tier0));
+            }
+
+            if (check2 == 0) return false;
+
+        }
+
+      return true;  
     }
 
 
@@ -759,7 +913,7 @@ public class DbBookCrud : ICrudlayer
 
         if (value is string Email)
         {
-            test = test.Where(b => b.Email == Email && b.RolesModelId != (int)UserRole.admin);
+            test = test.Where(b => b.Email == Email && (b.RolesModelId != (int)UserRole.admin));
         }
         else if (value is Guid userID)
         {
@@ -787,7 +941,7 @@ public class DbBookCrud : ICrudlayer
 
 
 
-    public async Task<bool> UpdateTier(Guid userID , Subscription subtier,HttpClient client)
+    public async Task<bool> UpdateTier(Guid userID, Subscription subtier, HttpClient? client)
     {
 
 
@@ -797,7 +951,7 @@ public class DbBookCrud : ICrudlayer
         using (var transaction = await _context.Database.BeginTransactionAsync())
         {
 
-           
+
 
             try
             {
@@ -806,12 +960,12 @@ public class DbBookCrud : ICrudlayer
                .ExecuteUpdateAsync(p => p.SetProperty(s => s.SubscriptionTier, subtier));
 
 
-               if(result == 0)return false; 
-               
+                if (result == 0) return false;
+
 
                 //await client.GetAsync("https://api.example.com/dbrecordsuccessfulsaved"); // external service to handle subscriptions
 
- 
+
 
             }
             catch (HttpRequestException externalcallex)
@@ -819,22 +973,22 @@ public class DbBookCrud : ICrudlayer
 
                 await transaction.RollbackAsync();
                 //do others stuff / rtry + count + log
-                 //Console.WriteLine(externalcallex.Message);
+                //Console.WriteLine(externalcallex.Message);
                 return false;
             }
-            catch(Exception Dbex)
+            catch (Exception Dbex)
             {
                 await transaction.RollbackAsync();
                 // call payment endpoint service to revert 
                 //.. //await _httpClient.PostAsJsonAsync("https://api.example.com/paymentportalrevertstate",userID); // a mess lol
-                return false ;
+                return false;
             }
 
 
             await transaction.CommitAsync();
 
             return true;
-            
+
 
 
         }
@@ -876,17 +1030,21 @@ public class DbBookCrud : ICrudlayer
         //    }).AsNoTracking().FirstOrDefaultAsync();
 
 
+        //var GetfromuserTableTest2 = await _context.Customers
+        //  .Where(x => x.Id == UserID).AsNoTracking().FirstOrDefaultAsync();
+
+
 
         var GetfromuserTableTest1 = await _context.Customers
           .Where(x => x.Id == UserID)
           .Join(_context.Roles,
             customer => customer.RolesModelId,
             roles => roles.Id,
-            (customer, roles) => new {customer,roles})
+            (customer, roles) => new { customer, roles })
           .Join(_context.Api,
             customer => customer.customer.Id,
             apitable => apitable.CustomerId,
-            (customer,apitable) => new UserInfo
+            (customer, apitable) => new UserInfo
                 (
                 customer.customer.FirstName,
                 customer.customer.LastName,
@@ -906,13 +1064,14 @@ public class DbBookCrud : ICrudlayer
             .AsNoTracking().FirstOrDefaultAsync();
 
 
+
         return GetfromuserTableTest1;
-        
+
     }
 
-  
 
-    public async Task<List<AuthorDto>> GetAuthorinfo( int? limit, string? search)
+
+    public async Task<List<AuthorDto>> GetAuthorinfo(int? limit, string? search)
     {
         //var data = _context.Authors.AsQueryable();
 
@@ -929,17 +1088,17 @@ public class DbBookCrud : ICrudlayer
         if (limit is not null) data = data.Take((int)limit);
         if (search is not null) data = data.Where(b => EF.Functions.Like(b.FullName, $"%{search}%"));
 
-        return await data   
+        return await data
             .Select(a => new AuthorDto
             {
                 AuthorId = a.AuthorId,
-               FullName = a.FullName,
-               Bio = a.Bio,
+                FullName = a.FullName,
+                Bio = a.Bio,
                 Books = _context.Books
                     .Where(b => b.AuthorId == a.AuthorId)
                     .Select(s => new Books
                     {
-                       book = s.Title,
+                        book = s.Title,
                     }).ToList()
 
             }).AsNoTracking().ToListAsync();
@@ -948,24 +1107,25 @@ public class DbBookCrud : ICrudlayer
 
     }
 
-    public async Task<List<Category>> GetCategoriesinfo( int? limit, string? search)
+    public async Task<List<Category>> GetCategoriesinfo(int? limit, string? search)
     {
 
         var data = _context.Categories.AsQueryable();
-  
+
         if (search is not null) data = data.Where(b => EF.Functions.Like(b.Name, $"%{search}%"));
         if (limit is not null) data = data.Take((int)limit);
         return await data
-           
-         .OrderBy(o=> o.Name)
+
+         .OrderBy(o => o.Name)
          .AsNoTracking()
          .ToListAsync();
- 
+
 
     }
 
 
-    public async Task<List<DetailedFilterBookModel>> Usersearch(/*int limit, */(string? Booktitle, string? Authorname, string? Category) Tupledata ){
+    public async Task<List<DetailedFilterBookModel>> SearchItems(int? limit, (string? Booktitle, string? Authorname, string? Category) Tupledata, CancellationToken ctoken = default)
+    {
 
 
         var query = _context.Books
@@ -984,16 +1144,12 @@ public class DbBookCrud : ICrudlayer
         if (Tupledata.Authorname is not null) query = query.Where(b => EF.Functions.Like(b.bookAuthor.author.FullName, $"%{Tupledata.Authorname}%"));
         if (Tupledata.Category is not null) query = query.Where(b => EF.Functions.Like(b.category.Name, $"%{Tupledata.Category}%"));
 
-        
-
-
-
+        if (limit is not null) query = query.Take((int)limit);
 
 
         var test = await query
-            .OrderBy(b=>b.bookAuthor.book.Title)
-            .Take(5)
-            .Select(b=> new DetailedFilterBookModel
+            .OrderBy(b => b.bookAuthor.book.Title)
+            .Select(b => new DetailedFilterBookModel
             {
                 BookTitle = b.bookAuthor.book.Title,
                 Category = b.category.Name,
@@ -1002,16 +1158,16 @@ public class DbBookCrud : ICrudlayer
                 AuthorName = b.bookAuthor.author.FullName,
                 ISBN = b.bookAuthor.book.ISBN,
                 PublicationDate = b.bookAuthor.book.PublicationDate
-            }).AsNoTracking().ToListAsync();
-            
+            }).AsNoTracking().ToListAsync(ctoken);
+
 
 
         return test;
 
     }
-  
-    
 
-   
+
+
+
 
 }

@@ -36,9 +36,16 @@ namespace Bookstore_backend.Controllers
 
         }
 
-
+        /// <summary>
+        /// substring matching with limit result hardcoded to 5 
+        /// </summary>
+        /// <param name="booktitle">optional</param>
+        /// <param name="authorname">optional</param>
+        /// <param name="category">optional</param>   
+        /// <returns></returns>
         [HttpGet]
         [Route("search")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DetailedFilterBookModel))]
         public async Task<IActionResult> SearchItems([FromQuery] string? booktitle, [FromQuery] string? authorname, [FromQuery] string? category, CancellationToken cToken)
         {
 
@@ -48,11 +55,11 @@ namespace Bookstore_backend.Controllers
 
 
 
-            var test = await dbcall.Usersearch(data);
+            var test = await dbcall.SearchItems(limit,data,cToken);
 
             return Ok(test);
 
-        }
+         }
 
         [HttpGet]
         [Route("booklist")]
@@ -84,7 +91,7 @@ namespace Bookstore_backend.Controllers
         /// Retrieves a list of books based on the specified filter criteria.
         /// </summary>   
         [HttpGet]
-        [Route("OnMatch")]
+        [Route("exactmatch")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DetailedFilterBookModel))]
         public async Task<IActionResult> GetListfiltered([FromQuery] QuerySelector selector, CancellationToken cToken)
         {

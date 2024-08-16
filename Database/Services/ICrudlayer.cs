@@ -27,7 +27,7 @@ public interface ICrudlayer
 
     //Task<bool> DeleteAccount(Guid? userid);
 
-    Task<List<DetailedFilterBookModel>> Usersearch(/*int limit, */(string? Booktitle, string? Authorname, string? Category) Tupledata);
+    Task<List<DetailedFilterBookModel>> SearchItems(int? limit, (string? Booktitle, string? Authorname, string? Category) Tupledata,CancellationToken ctoken = default);
 
     Task<List<AuthorDto>> GetAuthorinfo(int? limit, string? search);
 
@@ -41,11 +41,7 @@ public interface ICrudlayer
     Task<bool> ChangeRoles(Guid? UserID, string? email, UserRole role);
     Task UpdateOrderStatus(int OrderID, Status Ordertatus);
     Task<(PaymentDetails?, int?)> GetInvoicebooks(List<Model.ModelsDto.PaymentPartialmodels.BookItemList> BooksList , Guid GuidID);
-
-    //Task<MarketDataAPIModelbyISBN?> ApiServiceGetbyisbn(string isbn, Guid userID, UserRole role, CancellationToken token = default);
     Task<(MarketDataAPIModelbyISBN?, Respostebookapi?)> ApiServiceGetbyisbn(string isbn, Guid apikey, CancellationToken token = default);
-    //Task<MarketDataAPIModelbyISBN?> ApiServiceGetbyisbn(string isbn, Guid apikey, CancellationToken token = default);
-
     Task<List<DetailedFilterBookModel>> Filteredquery(QuerySelector selector, CancellationToken token = default);
     Task<List<BooksCatalog>> RawReturn(int page , int pagesize,CancellationToken token = default);
     Task<bool> Registration(Registration regi, CancellationToken token = default);

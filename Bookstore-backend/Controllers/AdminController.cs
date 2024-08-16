@@ -1,4 +1,5 @@
 ﻿using Database.Model;
+using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
 using Database.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -14,6 +15,7 @@ namespace Bookstore_backend.Controllers
 {
     [Route("api/")]
     [ApiController]
+    [Authorize("AdminOnly")]
     public class AdminController : ControllerBase
     {
 
@@ -26,46 +28,95 @@ namespace Bookstore_backend.Controllers
 
 
 
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="info">0 get Authors // 1 get Categories </param>
+        ///// <param name="limit"> Limit the number of batches . if null return list-all </param>
+        ///// <param name="searchbyname"> optional  </param>
+        ///// <returns></returns>
+        //[HttpGet]
+        //[Route("iteminfo")]
+        //public async Task<IActionResult> Getinfo(Info info, [FromQuery] int? limit, [FromQuery][MaxLength(20)] string? searchbyname)
+        //{
+        //    if (limit <= 0 ) return BadRequest();
+
+        //    if (info == Info.Authors)
+        //    {
+        //        return Ok(await dbcall.GetAuthorinfo(limit,searchbyname));
+        //    }
+        //    else
+        //    {
+        //        return Ok(await dbcall.GetCategoriesinfo(limit,searchbyname));
+        //    }
+
+
+        //}
+
+
         /// <summary>
-        /// 
+        /// substring matching no limit 
         /// </summary>
-        /// <param name="info">0 get Authors // 1 get Categories </param>
-        /// <param name="limit"> Limit the number of batches . if null return list-all </param>
-        /// <param name="searchbyname"> optional  </param>
+        /// <param name="booktitle">optional</param>
+        /// <param name="authorname">opt</param>
+        /// <param name="category">opt</param> 
+        /// <param name="limit">opt</param> 
         /// <returns></returns>
         [HttpGet]
-        [Route("iteminfo")]
-        public async Task<IActionResult> Getinfo(Info info, [FromQuery] int? limit, [FromQuery][MaxLength(20)] string? searchbyname)
-        {
-            if (limit <= 0 ) return BadRequest();
+        [Route("admin/search")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DetailedFilterBookModel))]
+        public async Task<IActionResult> SearchItems(
+            [FromQuery] string? booktitle,
+            [FromQuery] string? authorname,
+            [FromQuery] string? category,
+            [FromQuery] int? limit,
+            CancellationToken cToken)
+        {  
 
-            if (info == Info.Authors)
-            {
-                return Ok(await dbcall.GetAuthorinfo(limit,searchbyname));
-            }
-            else
-            {
-                return Ok(await dbcall.GetCategoriesinfo(limit,searchbyname));
-            }
+            var data = (booktitle, authorname, category);
+  
 
-           
+            var test = await dbcall.SearchItems(limit, data, cToken);
+
+            return Ok(test);
+
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="data">"role" : "admin" or "user"</param>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST /
+        ///     {
+        ///         "email" : "user2@example.com"
+        ///         "role" : "admin"
+        ///     }
+        ///    
+        /// </remarks>
+        /// <returns></returns>
         [HttpPost]
-        [Authorize("AdminOnly")]
         [Route("changerole")]
         public async Task<IActionResult> Changerole ([FromBody] Rolechanger data)
         {
             if (!ModelState.IsValid) return BadRequest(data);
+            if( data.UserID is null && data.email is  null )return BadRequest("At least one userid or email, is required");
+
 
             UserRole role;
 
             switch(data.Role.ToLower())
             {
                 case "admin": role = UserRole.admin; break;
-                case "user": role = UserRole.user; break;
+                case "user":
+                    {
+                        if (data.UserID == Guid.Parse("8233a0ab-78ac-4ee7-916f-0cbb93e85a63") || data.email == "admin@example.com") return BadRequest();
+                       
+                        role = UserRole.user;
+                    } break;
 
                 default: return BadRequest("Invalid role.  choose one: admin , user");
             }
@@ -77,7 +128,19 @@ namespace Bookstore_backend.Controllers
 
         }
 
+        /// <summary>
+        /// Upgrade or downgrade the API key tier; no payment is involved. Admin access required
+        /// </summary>
 
+        //[HttpPost]
+        //[Route("upgradekey")]
+        //public async Task<IActionResult> Updatetier([FromQuery] )
+        //{
+
+
+
+        //    return Ok();
+        //}
 
 
         /// <remarks>
@@ -86,8 +149,7 @@ namespace Bookstore_backend.Controllers
         ///    Author name and category MUST match the existing records
         ///    
         /// </remarks>
-        [HttpPost]
-        [Authorize("AdminOnly")]
+        [HttpPost]     
         [Route("book")]
         public async Task<IActionResult> InsertBook([FromBody] BookinsertModel bodydata)
         {
@@ -130,10 +192,8 @@ namespace Bookstore_backend.Controllers
         /// </summary>
         
         /// <param name="ForceOverride">if true {the "qnty" query will override the current stock in the db } else Dbstocktotal += "qnty" </param>
-        /// <param name="cToken"></param>
         /// <returns></returns>
         [HttpPatch("bookstock/{ISBN}")]
-        [Authorize("AdminOnly")]
         public async Task<IActionResult> AddOrOverrideStockQuantitybyISBN(
             [FromRoute][MaxLength(30)][RegularExpression("^[0-9]*$")] string ISBN,
             [FromQuery][Required] int qnty,
@@ -154,7 +214,7 @@ namespace Bookstore_backend.Controllers
         }
 
         [HttpPatch("bookprice/{ISBN}")]
-        [Authorize("AdminOnly")]
+     
         public async Task<IActionResult> Changeprice([FromRoute] string ISBN, [FromQuery] decimal price,CancellationToken ctoken)
         {
 
@@ -169,7 +229,7 @@ namespace Bookstore_backend.Controllers
 
 
         [HttpDelete("book/{ISBN}")]
-        [Authorize("AdminOnly")]
+     
         public async Task<IActionResult> DeletebyISBN([FromRoute][RegularExpression("^[0-9]*$")] string ISBN, CancellationToken cToken)
         {
 

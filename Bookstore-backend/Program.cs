@@ -107,7 +107,7 @@ namespace Bookstore_backend
                         var tokenBlocklist = context.HttpContext.RequestServices.GetRequiredService<TokenBlocklist>();
                         var token = ((Microsoft.IdentityModel.JsonWebTokens.JsonWebToken)context.SecurityToken).EncodedSignature;
 
-                        Console.WriteLine($"check token : {token}");
+                        //Console.WriteLine($"check token : {token}");
 
                         if (tokenBlocklist.TokenListCheck(token))
                         {

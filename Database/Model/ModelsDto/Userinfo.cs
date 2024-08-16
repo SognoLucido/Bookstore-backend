@@ -15,7 +15,7 @@ namespace Database.Model.ModelsDto
             string Role,
             Apiinfo ApiInfo
         );
-
+   
 
     public record Apiinfo
         (

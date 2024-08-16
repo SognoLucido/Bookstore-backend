@@ -54,7 +54,7 @@ namespace Database.ApplicationDbcontext
             modelBuilder.Entity<Customer>().HasData(
                 new Customer
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"),
                     FirstName = "Admin",
                     LastName = "Admin",
                     Email = "admin@example.com",
@@ -66,6 +66,16 @@ namespace Database.ApplicationDbcontext
 
 
                 });
+
+            modelBuilder.Entity<Apiservice>().HasData(
+                new Apiservice
+                {
+                    CustomerId = Guid.Parse("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"),
+                    Apikey = Guid.NewGuid(),
+                    SubscriptionTier = Subscription.Tier2,
+                    Calls = 0
+
+                }) ;
 
 
 
