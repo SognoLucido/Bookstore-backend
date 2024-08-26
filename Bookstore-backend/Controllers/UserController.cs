@@ -11,6 +11,7 @@ using Database.Model;
 using Database.Mapperdtotodb;
 using System.Security.Claims;
 using System.Reflection.Metadata.Ecma335;
+using System.Data;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -189,97 +190,131 @@ namespace Bookstore_backend.Controllers
 
 
 
+
         [HttpDelete]
-        [Authorize]
-        [Route("account")]
-        public async Task<IActionResult> DeleteAccount(
-            [FromQuery] Guid? userid, 
-            [FromQuery][EmailAddress] string? email,
-            [FromServices] TokenBlocklist block, CancellationToken ctoken)
+        [Authorize("UserOnly")]
+        [Route("accountself")]
+        public async Task<IActionResult> DeleteAccountSelf([FromServices] TokenBlocklist block)
         {
-            
-
-            var Usercheck = User.HasClaim("ruoli", "user");
-
-
-            var Admincheck = User.HasClaim("ruoli", "admin");
-
             var UserIDdata = User.FindFirst("UserID").Value;
-            if(!Guid.TryParse(UserIDdata, out Guid GuidUserID))return BadRequest();
-
-
-            if (Usercheck && userid is not null && email is not null) return Unauthorized("only admins can delete other users , leave it blank");
-            if(Admincheck && GuidUserID == userid) return BadRequest();
+            if (!Guid.TryParse(UserIDdata, out Guid GuidUserID)) return BadRequest();
 
 
 
-            var Role = Usercheck ? UserRole.user : UserRole.admin;
-            
-
-            //foreach (var claims in User.Claims)
-            //{
-
-            //    switch (claims.Type)
-            //    {
-            //        case "UserID":
-            //            {
-            //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
-            //                else UserdbGuid = Guid.Parse(claims.Value);
-            //            }; break;
-            //        case "ruoli":
-            //            {
-            //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
-            //                else Role = claims.Value;
-            //            }; break;
-
-            //    }
-
-            //}
-
-
-            if(Role == UserRole.user)
+            if (await dbcall.DeleteAccount(GuidUserID))
             {
                 var rawtoken = Request.Headers.Authorization.First();
 
                 string EncodedSignature = rawtoken.Substring(rawtoken.Length - 43);
 
                 block.TokenInsert(EncodedSignature);
+
+                return Ok("Deletion was successful");
             }
+            else return StatusCode(500, "Unsuccessful");
+
+
+        }
+
+
+
+
+
+        //OLD
+
+        //[HttpDelete]
+        //[Authorize]
+        //[Route("account")]
+        //public async Task<IActionResult> DeleteAccount(
+        //    [FromQuery] Guid? userid, 
+        //    [FromQuery][EmailAddress] string? email,
+        //    [FromServices] TokenBlocklist block, CancellationToken ctoken)
+        //{
+            
+
+        //    var Usercheck = User.HasClaim("ruoli", "user");
+
+
+        //    var Admincheck = User.HasClaim("ruoli", "admin");
+
+        //    var UserIDdata = User.FindFirst("UserID").Value;
+        //    if(!Guid.TryParse(UserIDdata, out Guid GuidUserID))return BadRequest();
+
+
+        //    if (Usercheck && (userid is not null || email is not null)) return Unauthorized("only admins can delete other users , leave it blank");
+        //    if(Admincheck && GuidUserID == userid) return BadRequest();
+
+
+
+        //    var Role = Usercheck ? UserRole.user : UserRole.admin;
+            
+
+        //    //foreach (var claims in User.Claims)
+        //    //{
+
+        //    //    switch (claims.Type)
+        //    //    {
+        //    //        case "UserID":
+        //    //            {
+        //    //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
+        //    //                else UserdbGuid = Guid.Parse(claims.Value);
+        //    //            }; break;
+        //    //        case "ruoli":
+        //    //            {
+        //    //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
+        //    //                else Role = claims.Value;
+        //    //            }; break;
+
+        //    //    }
+
+        //    //}
+
+
+
+
+        //    if(Role == UserRole.user)
+        //    {
+        //        var rawtoken = Request.Headers.Authorization.First();
+
+        //        string EncodedSignature = rawtoken.Substring(rawtoken.Length - 43);
+
+        //        block.TokenInsert(EncodedSignature);
+        //    }
 
             
 
 
 
-            switch (Role)
-            {
-                case UserRole.user:
-                    {
-                        if (await dbcall.DeleteAccount(GuidUserID)) return Ok("Deletion was successful");
+        //    switch (Role)
+        //    {
+        //        case UserRole.user:
+        //            {
+        //                if (await dbcall.DeleteAccount(GuidUserID)) return Ok("Deletion was successful");
 
-                    }; break;
+        //            }; break;
 
-                case UserRole.admin:
-                    {
-                        if (email is not null)
-                        {
-                            if (await dbcall.DeleteAccount(email)) return Ok("Deletion was successful");
-                        }
-                        else
-                        {
-                            if (await dbcall.DeleteAccount(GuidUserID)) return Ok("Deletion was successful");
+        //        case UserRole.admin:
+        //            {
+        //                if (email is not null)
+        //                {
+        //                    if (await dbcall.DeleteAccount(email)) return Ok("Deletion was successful");
+        //                }
+        //                else
+        //                {
+        //                    if (await dbcall.DeleteAccount(GuidUserID)) return Ok("Deletion was successful");
 
-                        }
+        //                }
 
-                    }; break;
+        //            }; break;
 
-            };
-
-
+        //    };
 
 
 
-            return StatusCode(500, "Deletion failed");
-        }
+
+
+        //    return StatusCode(500, "Deletion failed");
+        //}
 
 
 

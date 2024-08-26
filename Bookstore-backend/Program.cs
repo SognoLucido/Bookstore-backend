@@ -133,7 +133,7 @@ namespace Bookstore_backend
 
                 ////x.AddPolicy( new AuthTokenblock());
 
-                //x.AddPolicy("Userlogged", p => p.RequireClaim("ruoli", "user", "admin"));
+                x.AddPolicy("UserOnly", p => p.RequireClaim("ruoli", "user"));
                 x.AddPolicy("AdminOnly", p => p.RequireClaim("ruoli", "admin"));
             });
 

@@ -242,10 +242,38 @@ namespace Bookstore_backend.Controllers
 
         }
 
-   
 
 
-    
+
+        [HttpDelete]
+        [Route("account")]
+        public async Task<IActionResult> DeleteAccount
+            (
+            [FromQuery] Guid? userid,
+            [FromQuery][EmailAddress] string? email
+            )
+        {
+            if (userid is null && email is null)return BadRequest();   
+            if (!User.HasClaim("ruoli", "admin")) return BadRequest();
+
+
+
+
+            if(userid is not null)
+            {
+                if (await dbcall.DeleteAccount(userid)) return Ok("Deletion was successful");
+                else return NotFound();
+            }
+            else if (email is not null) 
+            {
+                if (await dbcall.DeleteAccount(email)) return Ok("Deletion was successful");
+                else return NotFound();
+            }
+
+
+            return StatusCode(500);
+        }
+
 
 
 
