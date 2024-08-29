@@ -303,14 +303,14 @@ public class DbBookCrud : ICrudlayer
             if (authorid is null)
             {
                 message.Code = 404;
-                message.Message = " Author name not Found \n";
+                message.Message = " Author name not Found ";
 
 
             }
             if (categorid is null)
             {
                 message.Code = 404;
-                message.Message += " Author name not Found";
+                message.Message += " && Category name not Found";
 
 
             }
@@ -1140,9 +1140,9 @@ public class DbBookCrud : ICrudlayer
            (bookAuthor, category) => new { bookAuthor, category }).AsQueryable();
 
 
-        if (Tupledata.Booktitle is not null) query = query.Where(b => EF.Functions.Like(b.bookAuthor.book.Title, $"%{Tupledata.Booktitle}%"));
-        if (Tupledata.Authorname is not null) query = query.Where(b => EF.Functions.Like(b.bookAuthor.author.FullName, $"%{Tupledata.Authorname}%"));
-        if (Tupledata.Category is not null) query = query.Where(b => EF.Functions.Like(b.category.Name, $"%{Tupledata.Category}%"));
+        if (Tupledata.Booktitle is not null) query = query.Where(b => EF.Functions.Like(b.bookAuthor.book.Title, $"%{Tupledata.Booktitle.ToLower()}%"));
+        if (Tupledata.Authorname is not null) query = query.Where(b => EF.Functions.Like(b.bookAuthor.author.FullName, $"%{Tupledata.Authorname.ToLower()}%"));
+        if (Tupledata.Category is not null) query = query.Where(b => EF.Functions.Like(b.category.Name, $"%{Tupledata.Category.ToLower()}%"));
 
         if (limit is not null) query = query.Take((int)limit);
 

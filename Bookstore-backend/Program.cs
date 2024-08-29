@@ -1,17 +1,13 @@
 using Auth;
 using Auth._3rdpartyPaymentportal;
+using Bookstore_backend.MigrationInit;
 using Database.ApplicationDbcontext;
 using Database.DatabaseLogic;
-using Database.Model;
 using Database.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Text;
 

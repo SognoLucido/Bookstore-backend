@@ -1,8 +1,5 @@
 ﻿using Database.Model;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using System.Reflection.Metadata;
-
 
 
 namespace Database.ApplicationDbcontext
@@ -34,48 +31,48 @@ namespace Database.ApplicationDbcontext
 
 
 
-            //modelBuilder.Entity<RolesModel>().HasData(
-            //    new RolesModel
-            //    {
-            //        Id = 1,
-            //        Roles = "admin"
-            //    },
-            //    new RolesModel
-            //    {
-            //        Id= 2,
-            //        Roles = "user"
-            //    }
+            modelBuilder.Entity<RolesModel>().HasData(
+                new RolesModel
+                {
+                    Id = 1,
+                    Roles = "admin"
+                },
+                new RolesModel
+                {
+                    Id = 2,
+                    Roles = "user"
+                }
 
-            //    );
+                );
 
 
             ////admin login = user :admin@example.com, psswd: admin
 
-            modelBuilder.Entity<Customer>().HasData(
-                new Customer
-                {
-                    Id = Guid.Parse("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"),
-                    FirstName = "Admin",
-                    LastName = "Admin",
-                    Email = "admin@example.com",
-                    Password = "7fb1cf92faf20c657c1fee16d6e975eb5c8b61a82cbaaf66a2c9a2c2c19addf1",
-                    Salt = "e1ed2b31",
-                    Phone = "yes331",
-                    Address = "here",
-                    RolesModelId = 1,
+            //modelBuilder.Entity<Customer>().HasData(
+            //    new Customer
+            //    {
+            //        Id = Guid.Parse("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"),
+            //        FirstName = "Admin",
+            //        LastName = "Admin",
+            //        Email = "admin@example.com",
+            //        Password = "7fb1cf92faf20c657c1fee16d6e975eb5c8b61a82cbaaf66a2c9a2c2c19addf1",
+            //        Salt = "e1ed2b31",
+            //        Phone = "yes331",
+            //        Address = "here",
+            //        RolesModelId = 1,
 
 
-                });
+            //    });
 
-            modelBuilder.Entity<Apiservice>().HasData(
-                new Apiservice
-                {
-                    CustomerId = Guid.Parse("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"),
-                    Apikey = Guid.NewGuid(),
-                    SubscriptionTier = Subscription.Tier2,
-                    Calls = 0
+            //modelBuilder.Entity<Apiservice>().HasData(
+            //    new Apiservice
+            //    {
+            //        CustomerId = Guid.Parse("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"),
+            //        Apikey = Guid.NewGuid(),
+            //        SubscriptionTier = Subscription.Tier2,
+            //        Calls = 0
 
-                }) ;
+            //    });
 
 
 

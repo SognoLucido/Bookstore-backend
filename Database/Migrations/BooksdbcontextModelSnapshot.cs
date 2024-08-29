@@ -43,15 +43,6 @@ namespace Database.Migrations
                         .HasName("UserID");
 
                     b.ToTable("Api");
-
-                    b.HasData(
-                        new
-                        {
-                            CustomerId = new Guid("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"),
-                            Apikey = new Guid("33dcddeb-8f60-41d7-ad33-7bf7b34aaf20"),
-                            Calls = 0,
-                            SubscriptionTier = 2
-                        });
                 });
 
             modelBuilder.Entity("Database.Model.Author", b =>
@@ -193,20 +184,6 @@ namespace Database.Migrations
                     b.HasIndex("RolesModelId");
 
                     b.ToTable("Customers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("8233a0ab-78ac-4ee7-916f-0cbb93e85a63"),
-                            Address = "here",
-                            Email = "admin@example.com",
-                            FirstName = "Admin",
-                            LastName = "Admin",
-                            Password = "7fb1cf92faf20c657c1fee16d6e975eb5c8b61a82cbaaf66a2c9a2c2c19addf1",
-                            Phone = "yes331",
-                            RolesModelId = 1,
-                            Salt = "e1ed2b31"
-                        });
                 });
 
             modelBuilder.Entity("Database.Model.Order", b =>
@@ -277,6 +254,18 @@ namespace Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Roles = "admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Roles = "user"
+                        });
                 });
 
             modelBuilder.Entity("Database.Model.Apiservice", b =>

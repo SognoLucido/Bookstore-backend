@@ -87,32 +87,32 @@ namespace Bookstore_backend.Controllers
 
 
 
-        /// <summary>
-        /// Retrieves a list of books based on the specified filter criteria.
-        /// </summary>   
-        [HttpGet]
-        [Route("exactmatch")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DetailedFilterBookModel))]
-        public async Task<IActionResult> GetListfiltered([FromQuery] QuerySelector selector, CancellationToken cToken)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        ///// <summary>
+        ///// Retrieves a list of books based on the specified filter criteria.
+        ///// </summary>   
+        //[HttpGet]
+        //[Route("exactmatch")]
+        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DetailedFilterBookModel))]
+        //public async Task<IActionResult> GetListfiltered([FromQuery] QuerySelector selector, CancellationToken cToken)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            var data = await dbcall.Filteredquery(selector, cToken);
+        //    var data = await dbcall.Filteredquery(selector, cToken);
 
-            if (data.Count == 0)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Ok(data);
-            }
+        //    if (data.Count == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    else
+        //    {
+        //        return Ok(data);
+        //    }
 
-            //var x = new BooksContextFactory();
-        }
+        //    //var x = new BooksContextFactory();
+        //}
 
 
 
@@ -208,160 +208,6 @@ namespace Bookstore_backend.Controllers
         }
 
        
-
-
-
-
-
-        
-        //[HttpPost]
-        //[Authorize]
-        //[Route("buybook")]
-        //public async Task<IActionResult> UserBuyTransaction([FromBody] BookPartialPaymentModel data ,[FromServices] PaymentPortalx portalpay) 
-        //{
-
-        //    var UserID = User.Claims.SingleOrDefault(x => x.Type == "UserID");
-
-
-        //    if (UserID is null) return BadRequest();
-        //    if (!Guid.TryParse(UserID.Value, out Guid GuidUserID))return BadRequest();
-
-         
-
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-            
-
-        //    var dbdata = await dbcall.GetInvoicebooks(data.BookItemList, GuidUserID);
-        //    if(dbdata.Item1 is null || dbdata.Item2 is null) return BadRequest();
-
-
-
-        //    dbdata.Item1.Fillcardinfo(data.PaymentDetails);
-
-
-        //    var message = await portalpay.BookPaymentportal(dbdata.Item1, (int)dbdata.Item2, dbcall);
-
-
-            
-
-
-        //    switch (message.Code)
-        //    {
-        //        //case 200: return Ok((dbdata.Item1.Invoce,dbdata.Item1.TotalAmount))
-        //        case 200: return Ok(new Invoicev2(dbdata.Item1.Invoce,dbdata.Item1.TotalAmount));   
-        //        case 400: return StatusCode(400, message.Message);
-
-        //        default: return StatusCode(500);
-        //    };
-
-
-            
-            
-        //}
-
-        ////rip
-        //private record Invoicev2(List<Invoice> Invoice,decimal Total);
-
-
-
-
-        ////tier 0 : 5 calls per 5 min 
-        ////tier 1 : 10 calls per 5 min (monthly bill)
-        ////tier 2 no limit (monthly bill || admin)
-        ////not implemented //tier 3 : $ per call (monthly bill || per call bill)
-
-        ///// <param name="subscriptionTier">
-        ///// - <c>Tier0</c>: Represents the basic subscription tier.
-        ///// - <c>Tier1</c>: Represents the standard subscription tier.
-        ///// - <c>Tier2</c>: Represents the premium subscription tier.
-        ///// </param>
-        //[HttpPost]
-        ////[Authorize]
-        //[Route("buysubTier")] // default = 0 XX
-        //[Authorize]
-        //public async Task<IActionResult> BuySubscriptions([FromBody] PartialPaymentDetails data,[FromQuery] Subscription subscriptionTier, [FromServices] PaymentPortalx portalpay) 
-        //{
-
-
-
-        //    Guid UserdbGuid = Guid.Empty;
-
-        //    foreach (var claims in User.Claims)
-        //    {
-
-        //        switch (claims.Type)
-        //        {
-        //            case "UserID":
-        //                {
-        //                    if (claims.Value.IsNullOrEmpty()) return BadRequest();
-        //                    else UserdbGuid = Guid.Parse(claims.Value);
-        //                }; break;
-        //            case "ruoli":
-        //                {
-        //                    if (claims.Value.IsNullOrEmpty()) return BadRequest();
-
-        //                    if (claims.Value == "user") break;
-        //                    else if (claims.Value == "admin") return BadRequest("admin account doesn't need a subscription");
-        //                    else return BadRequest();
-
-
-        //                };
-
-        //        }
-
-        //    }
-
-        //    //var backdata = await portalpay.Subpayment(Guid.Parse("4a60ac31-5117-4bc5-ad7b-e09f861e6651"), subscriptionTier, dbcall);
-        //    var backdata = await portalpay.Subpayment(UserdbGuid, subscriptionTier, dbcall);
-
-
-        //    return backdata.Code == 200 ? Ok():StatusCode(500) ;
-        //}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            //[HttpGet]
-            //[Route("testConcurr/{delay}/{qnty}")]
-
-            //public async Task<IActionResult> Testapi([FromRoute]int delay, [FromRoute] int qnty)
-            //{
-
-            //  await  dbcall.ConcurTest(delay,qnty);    
-
-            //    return Ok();
-            //}
-
-
-
-            //[HttpGet]
-            //[Route("test")]
-
-            //public async Task<IActionResult> Testapi()
-            //{
-            //    await dbcall.Testapi();
-
-
-
-
-            //    return Ok();
-            //}
-
-
 
 
 

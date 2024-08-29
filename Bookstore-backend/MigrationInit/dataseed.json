@@ -1,0 +1,217 @@
+{
+  "authors": [
+    {
+      "AuthorId": 1,
+      "FullName": "john smith",
+      "Bio": "John Smith is a prolific writer known for his captivating mystery novels that keep readers on the edge of their seats."
+    },
+    {
+      "AuthorId": 2,
+      "FullName": "jane doe",
+      "Bio": "Jane Doe specializes in science fiction, exploring futuristic worlds and advanced technologies with a human touch."
+    },
+    {
+      "AuthorId": 3,
+      "FullName": "robert johnson",
+      "Bio": "Robert Johnson is a historian who brings the past to life through his detailed and engaging historical narratives."
+    },
+    {
+      "AuthorId": 4,
+      "FullName": "emily davis",
+      "Bio": "Emily Davis writes heartwarming romance novels that celebrate love, life, and the beautiful complexities of relationships."
+    },
+    {
+      "AuthorId": 5,
+      "FullName": "michael brown",
+      "Bio": "Michael Brown is a culinary expert and author, known for his bestselling cookbooks and expertise in gourmet cooking."
+    },
+    {
+      "AuthorId": 6,
+      "FullName": "linda green",
+      "Bio": "Linda Green is an author of self-help books focused on personal growth, mindfulness, and achieving a balanced life."
+    },
+    {
+      "AuthorId": 7,
+      "FullName": "william wilson",
+      "Bio": "William Wilson's thriller novels are known for their fast-paced action, intricate plots, and unexpected twists."
+    },
+    {
+      "AuthorId": 8,
+      "FullName": "patricia taylor",
+      "Bio": "Patricia Taylor is a celebrated children's book author whose works are loved for their imaginative stories and colorful characters."
+    },
+    {
+      "AuthorId": 9,
+      "FullName": "steven lee",
+      "Bio": "Steven Lee is a fitness and wellness author, providing insightful advice and practical tips for a healthier lifestyle."
+    },
+    {
+      "AuthorId": 10,
+      "FullName": "barbara martinez",
+      "Bio": "Barbara Martinez writes philosophical essays and thought-provoking books that delve into the nature of human existence."
+    }
+  ],
+
+ 
+
+  "categories": [
+    {
+      "CategoryId": 1,
+      "Name": "fiction"
+    },
+    {
+      "CategoryId": 2,
+      "Name": "science fiction"
+    },
+    {
+      "CategoryId": 3,
+      "Name": "fantasy"
+    },
+    {
+      "CategoryId": 4,
+      "Name": "mystery"
+    },
+    {
+      "CategoryId": 5,
+      "Name": "biography"
+    },
+    {
+      "CategoryId": 6,
+      "Name": "history"
+    },
+    {
+      "CategoryId": 7,
+      "Name": "self-help"
+    },
+    {
+      "CategoryId": 8,
+      "Name": "romance"
+    },
+    {
+      "CategoryId": 9,
+      "Name": "horror"
+    },
+    {
+      "CategoryId": 10,
+      "Name": "children's books"
+    }
+  ],
+
+
+  "books": [
+    {
+      "BookId": 1,
+      "Title": "the great adventure",
+      "AuthorId": 1,
+      "CategoryId": 1,
+      "ISBN": "9783161484100",
+      "Price": 19.99,
+      "StockQuantity": 50,
+      "PublicationDate": "2023-05-01",
+      "Description": "An exhilarating journey through the uncharted territories."
+    },
+    {
+      "BookId": 2,
+      "Title": "mystery in the shadows",
+      "AuthorId": 2,
+      "CategoryId": 2,
+      "ISBN": "9781234567897",
+      "Price": 14.99,
+      "StockQuantity": 30,
+      "PublicationDate": "2021-08-15",
+      "Description": "A gripping tale of suspense and intrigue."
+    },
+    {
+      "BookId": 3,
+      "Title": "science of tomorrow",
+      "AuthorId": 3,
+      "CategoryId": 3,
+      "ISBN": "9780123456789",
+      "Price": 29.99,
+      "StockQuantity": 20,
+      "PublicationDate": "2022-03-22",
+      "Description": "Exploring the future of science and technology."
+    },
+    {
+      "BookId": 4,
+      "Title": "romance in the air",
+      "AuthorId": 4,
+      "CategoryId": 4,
+      "ISBN": "9782345678901",
+      "Price": 9.99,
+      "StockQuantity": 100,
+      "PublicationDate": "2020-06-10",
+      "Description": "A heartwarming love story that transcends time."
+    },
+    {
+      "BookId": 5,
+      "Title": "the art of cooking",
+      "AuthorId": 5,
+      "CategoryId": 5,
+      "ISBN": "9784567890123",
+      "Price": 24.99,
+      "StockQuantity": 75,
+      "PublicationDate": "2019-11-30",
+      "Description": "A guide to culinary excellence."
+    },
+    {
+      "BookId": 6,
+      "Title": "history uncovered",
+      "AuthorId": 6,
+      "CategoryId": 6,
+      "ISBN": "9785678901234",
+      "Price": 34.99,
+      "StockQuantity": 15,
+      "PublicationDate": "2018-09-25",
+      "Description": "Unraveling the mysteries of ancient civilizations."
+    },
+    {
+      "BookId": 7,
+      "Title": "thrilling espionage",
+      "AuthorId": 7,
+      "CategoryId": 7,
+      "ISBN": "9786789012345",
+      "Price": 12.99,
+      "StockQuantity": 45,
+      "PublicationDate": "2024-01-05",
+      "Description": "A fast-paced spy thriller with unexpected twists."
+    },
+    {
+      "BookId": 8,
+      "Title": "children's world",
+      "AuthorId": 8,
+      "CategoryId": 8,
+      "ISBN": "9787890123456",
+      "Price": 7.99,
+      "StockQuantity": 150,
+      "PublicationDate": "2017-07-14",
+      "Description": "A delightful collection of children's stories."
+    },
+    {
+      "BookId": 9,
+      "Title": "fitness and health",
+      "AuthorId": 9,
+      "CategoryId": 9,
+      "ISBN": "9788901234567",
+      "Price": 18.99,
+      "StockQuantity": 60,
+      "PublicationDate": "2022-02-28",
+      "Description": "Your guide to a healthier and fitter lifestyle."
+    },
+    {
+      "BookId": 10,
+      "Title": "the mind's eye",
+      "AuthorId": 10,
+      "CategoryId": 10,
+      "ISBN": "9789012345678",
+      "Price": 21.99,
+      "StockQuantity": 40,
+      "PublicationDate": "2023-10-18",
+      "Description": "An exploration of the human mind and its potential."
+    }
+  ]
+
+
+
+
+}

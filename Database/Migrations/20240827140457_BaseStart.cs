@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Database.Migrations
 {
     /// <inheritdoc />
@@ -62,6 +64,7 @@ namespace Database.Migrations
                     AuthorId = table.Column<int>(type: "integer", nullable: false),
                     CategoryId = table.Column<int>(type: "integer", nullable: false),
                     ISBN = table.Column<string>(type: "text", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     Price = table.Column<decimal>(type: "numeric(8,2)", nullable: false),
                     StockQuantity = table.Column<int>(type: "integer", nullable: false),
                     PublicationDate = table.Column<DateOnly>(type: "date", nullable: false),
@@ -105,6 +108,27 @@ namespace Database.Migrations
                         name: "FK_Customers_Roles_RolesModelId",
                         column: x => x.RolesModelId,
                         principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Api",
+                columns: table => new
+                {
+                    CustomerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Apikey = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriptionTier = table.Column<int>(type: "integer", nullable: false),
+                    Calls = table.Column<int>(type: "integer", nullable: false),
+                    DateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("UserID", x => x.CustomerId);
+                    table.ForeignKey(
+                        name: "FK_Api_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -158,6 +182,15 @@ namespace Database.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "Id", "Roles" },
+                values: new object[,]
+                {
+                    { 1, "admin" },
+                    { 2, "user" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Books_AuthorId",
                 table: "Books",
@@ -192,6 +225,9 @@ namespace Database.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Api");
+
             migrationBuilder.DropTable(
                 name: "OrderItems");
 
