@@ -4,10 +4,8 @@ using Database.Model.ModelsDto;
 using Database.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Reflection.Metadata.Ecma335;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

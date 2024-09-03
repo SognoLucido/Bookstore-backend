@@ -14,30 +14,8 @@ namespace Bookstore_backend.MigrationInit
             using Booksdbcontext dbContext = scope.ServiceProvider.GetRequiredService<Booksdbcontext>();
 
 
-            Console.WriteLine($"database CanConnect : {dbContext.Database.CanConnect()}");
+            Console.WriteLine($"database available : {dbContext.Database.CanConnect()}");
             //Console.WriteLine($"database CanConnect : {dbContext.Database.EnsureCreated()}");
-
-            //test
-            //try
-            //{
-              
-            //    var des = new JsonDataseedParser();
-            //    var adminjsondata = des.AdminDeserialize() ?? throw new JsonException();
-            //    var booksjsondata = des.BooksDeserialize() ?? throw new JsonException();
-
-            //    await dbContext.Customers.AddAsync(adminjsondata.Admindata);
-            //    await dbContext.Api.AddAsync(adminjsondata.Adminapidata);
-            //    //await dbContext.Authors.AddRangeAsync(booksjsondata.authors);
-            //    //await dbContext.Categories.AddRangeAsync(booksjsondata.categories);
-            //    await dbContext.Books.AddRangeAsync(booksjsondata.books);
-
-            //    await dbContext.SaveChangesAsync();
-
-            //}
-            //catch (JsonException ex) { Console.WriteLine($"Invalid Jsonfile , parse failed \n ERROR : {ex.Message}"); Environment.Exit(1); }
-            //catch (NpgsqlException ex) { Console.WriteLine(ex.Message); Environment.Exit(1); }
-            //catch (Exception ex) { Console.WriteLine(ex.Message); Environment.Exit(1); }
-
 
             bool check = false;
 

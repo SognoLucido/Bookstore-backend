@@ -187,7 +187,10 @@ public class DbBookCrud : ICrudlayer
 
         }
 
-        if (checkkey.SubscriptionTier == Subscription.Tier2) { }
+        if (checkkey.SubscriptionTier == Subscription.Tier2) 
+        { 
+            await dbresult.ExecuteUpdateAsync(p => p.SetProperty(a => a.Calls, a => a.Calls + 1), token); 
+        }
         else
         {
 

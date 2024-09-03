@@ -1,22 +1,8 @@
 ﻿using Database.Services;
 using Microsoft.AspNetCore.Mvc;
-using Database.ApplicationDbcontext;
-
 using Database.Model.Apimodels;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Authorization;
-using Auth._3rdpartyPaymentportal;
-using Database.Model;
-using Database.Model.ModelsDto;
-using Database.Model.ModelsDto.PaymentPartialmodels;
-using Database.Mapperdtotodb;
-using System.Diagnostics.Eventing.Reader;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Data.SqlTypes;
-using System.ComponentModel;
-using Database.Model.ModelsDto.Paymentmodels;
-using Microsoft.EntityFrameworkCore.Storage.Json;
+
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -147,63 +133,17 @@ namespace Bookstore_backend.Controllers
         {
 
 
-            //(Guid UserdbGuid, UserRole role) = (Guid.Empty,UserRole.user);
+          
+            if(!Guid.TryParse(apikey, out var key))return BadRequest("invalid key");
 
-            //foreach (var claims in User.Claims)
-            //{
-
-            //    switch (claims.Type)
-            //    {
-            //        case "UserID":
-            //            {
-            //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
-            //                else UserdbGuid = Guid.Parse(claims.Value);
-            //            }; break;
-            //        case "ruoli":
-            //            {
-            //                if (claims.Value.IsNullOrEmpty()) return BadRequest();
-
-            //                if (claims.Value == "user") role = UserRole.user;
-            //                else if (claims.Value == "admin") role = UserRole.admin;
-            //                else return BadRequest();
-
-
-            //            }; break;
-
-            //    }
-
-            //}
-
-
-            //var data = await dbcall.ApiServiceGetbyisbn(ISBN,UserdbGuid,role, cToken);
-
-            //if (data is null)
-            //{
-            //    return NotFound(data);
-            //}
-            //return Ok(data);
-           var(data,Errors)  =  await dbcall.ApiServiceGetbyisbn(ISBN , Guid.Parse(apikey) , cToken);
+           
+           var(data,Errors)  =  await dbcall.ApiServiceGetbyisbn(ISBN , key , cToken);
 
 
             return data is not null ? Ok(data) :  StatusCode(Errors!.Code, Errors);
 
 
-            //if(data is not null) return Ok(data);
-
-            //switch (Errors!.Code)
-            //{
-            //    case 400: return BadRequest(Errors);
-            //    case 403: return Forbid();
-            //    case 404: return NotFound(Errors);
-            //    case 409: return Conflict(Errors);
-            //    case 0: return StatusCode(Errors.Code,Errors);   
-            //    default:
-            //        break;
-            //}
-
-           
-
-            //return StatusCode(500);
+         
 
         }
 

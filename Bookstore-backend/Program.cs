@@ -30,30 +30,30 @@ namespace Bookstore_backend
 
                 opt.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Version = "v1",    
+                    Version = "v1",
                     Title = "Bookstore-backend DEMO",
-                    Description = "ASP.NET Core Web API",                
+                    Description = "ASP.NET Core Web API",
                     Contact = new OpenApiContact
                     {
                         Name = "Francesco Barbano",
                         //Url = new Uri("https://example.com/contact")
                     }
-                  
+
                 });
 
 
                 opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    In = ParameterLocation.Header,
                     Description = "Login using Bearer-token (/auth/login)",
                     Name = "Authorization",
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Type = SecuritySchemeType.Http,
                     BearerFormat = "JWT",
                     Scheme = "Bearer"
 
                 });
 
-             
+
 
 
                 opt.OperationFilter<AuthResponsesOperationFilter>();
@@ -66,9 +66,6 @@ namespace Bookstore_backend
             builder.Services.AddHttpClient<PaymentPortalx>();
             builder.Services.AddScoped<ICrudlayer, DbBookCrud>();
             builder.Services.AddSingleton<TokenBlocklist>();
-           
-            
-
 
 
 
@@ -78,47 +75,46 @@ namespace Bookstore_backend
                     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                     opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+
                 }).AddJwtBearer(opt =>
-            {
-                opt.TokenValidationParameters = new()
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = true,
-                    ValidIssuer = builder.Configuration["Authentication:Issuer"],
-                    ValidAudience = builder.Configuration["Authentication:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SecretKey"]!))
-                };
-
-
-                
-               
-
-                opt.Events = new JwtBearerEvents
-                {
-                    OnTokenValidated = context =>
                     {
-                        
-                        var tokenBlocklist = context.HttpContext.RequestServices.GetRequiredService<TokenBlocklist>();
-                        var token = ((Microsoft.IdentityModel.JsonWebTokens.JsonWebToken)context.SecurityToken).EncodedSignature;
+                    opt.TokenValidationParameters = new()
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = true,
+                        ValidIssuer = builder.Configuration["Authentication:Issuer"],
+                        ValidAudience = builder.Configuration["Authentication:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SecretKey"]!))
+                    };
 
-                        //Console.WriteLine($"check token : {token}");
 
-                        if (tokenBlocklist.TokenListCheck(token))
+
+
+
+                    opt.Events = new JwtBearerEvents
+                    {
+                        OnTokenValidated = context =>
                         {
-                            context.Fail("Token is blacklisted.");
+
+                            var tokenBlocklist = context.HttpContext.RequestServices.GetRequiredService<TokenBlocklist>();
+                            var token = ((Microsoft.IdentityModel.JsonWebTokens.JsonWebToken)context.SecurityToken).EncodedSignature;
+
+                            //Console.WriteLine($"check token : {token}");
+
+                            if (tokenBlocklist.TokenListCheck(token))
+                            {
+                                context.Fail("Token is blacklisted.");
+                            }
+
+                            return Task.CompletedTask;
                         }
-
-                        return Task.CompletedTask;
-                    }
-                };
+                    };
 
 
-            });
+                });
 
-
-           
 
 
 
@@ -147,27 +143,20 @@ namespace Bookstore_backend
 
 
 
-
-
-
-
-
-
-
             var app = builder.Build();
 
             app.ApplyMigration();
 
 
-            if (app.Environment.IsDevelopment())
+            //if (app.Environment.IsDevelopment())
+            //{
+            app.UseSwagger();
+            app.UseSwaggerUI(opt =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI(opt =>
-                {
-                    opt.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore_v1");
-                    opt.RoutePrefix = string.Empty;
-                });
-            }
+                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore_v1");
+                opt.RoutePrefix = string.Empty;
+            });
+            //}
 
 
 

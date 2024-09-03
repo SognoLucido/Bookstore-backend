@@ -10,22 +10,7 @@ namespace Database.Services;
 
 public interface ICrudlayer 
 {
-    Task Testapi();
-
-    Task ConcurTest(int delay,int qnty);
-
-
-
-
-    //Task<decimal?> Getpricebooks(List<BookItemList> bookitem);
-
-
-    //Task<Model.PaymentDetails?> GetInvoicebooks(List<Model.ModelsDto.Paymentmodels.BookItemList> bookitem);
-    //Task<BookPaymentModel?> GetInvoicebooks(List<BookItemList> bookitem);
-
-
-
-    //Task<bool> DeleteAccount(Guid? userid);
+  
 
     Task<List<DetailedFilterBookModel>> SearchItems(int? limit, (string? Booktitle, string? Authorname, string? Category) Tupledata,CancellationToken ctoken = default);
 

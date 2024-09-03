@@ -2,16 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.DataAnnotations;
 using Database.Model.ModelsDto.Paymentmodels;
 using Database.Model.ModelsDto;
 using Auth._3rdpartyPaymentportal;
 using Database.Model.ModelsDto.PaymentPartialmodels;
 using Database.Model;
 using Database.Mapperdtotodb;
-using System.Security.Claims;
-using System.Reflection.Metadata.Ecma335;
-using System.Data;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -190,7 +187,10 @@ namespace Bookstore_backend.Controllers
 
 
 
-
+        /// <summary>
+        /// Only the account with the "user" role as flag can delete itself. To delete an admin account, you must first downgrade the role from admin to user
+        /// </summary>
+        /// <returns></returns>
         [HttpDelete]
         [Authorize("UserOnly")]
         [Route("accountself")]
