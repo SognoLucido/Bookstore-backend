@@ -3,19 +3,16 @@ version: '3.4'
 services:
   bookstore-backend:
     image: ${DOCKER_REGISTRY-}bookstorebackend
-    container_name: BookStore-API
+    container_name: "Books-API"
     build:
       context: .
       dockerfile: Bookstore-backend/Dockerfile 
-      args:
-        - DOTNET_ENV=Production
-    depends_on:
-         - db.books
+    ports:
+      - "8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-    ports: 
-        - "8080:8080"
-        - "8081:8081"  
+      - ASPNETCORE_HTTP_PORTS=8080
+    restart: unless-stopped
   
   db.books:
       image: postgres:latest

@@ -9,6 +9,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+	
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Auth\Auth.csproj" />
+  
+    <ProjectReference Include="..\Auth\Auth.csproj" />
+  
     <ProjectReference Include="..\Database\Database.csproj" />
   </ItemGroup>
 

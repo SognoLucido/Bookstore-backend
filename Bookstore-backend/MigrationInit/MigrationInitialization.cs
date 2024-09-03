@@ -32,6 +32,8 @@ namespace Bookstore_backend.MigrationInit
             if (check is false)
                 try
                 {
+                    await Task.Delay(5000);
+
                    await dbContext.Database.MigrateAsync();
 
                     var des = new JsonDataseedParser();
@@ -45,6 +47,8 @@ namespace Bookstore_backend.MigrationInit
                     await dbContext.Books.AddRangeAsync(booksjsondata.books);
 
                     await dbContext.SaveChangesAsync();
+
+                    
 
                 }
                 catch (JsonException ex) { Console.WriteLine($"Invalid Jsonfile , parse failed \n ERROR : {ex.Message}"); Environment.Exit(1); }

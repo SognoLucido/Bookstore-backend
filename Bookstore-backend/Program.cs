@@ -145,9 +145,11 @@ namespace Bookstore_backend
 
             var app = builder.Build();
 
+          
+
             app.ApplyMigration();
 
-
+            //app.UseHttpsRedirection();
             //if (app.Environment.IsDevelopment())
             //{
             app.UseSwagger();
@@ -161,7 +163,7 @@ namespace Bookstore_backend
 
 
 
-            app.UseHttpsRedirection();
+           
 
 
             app.UseAuthentication();

@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Database", "Database\Databa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dblibrary.test", "..\Dblibrary.test\Dblibrary.test.csproj", "{14BF16C2-1EE6-4577-A5A9-12363B36236E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auth", "..\Auth\Auth.csproj", "{A159156B-52D7-442B-B263-D8A91B50ECBE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auth", "Auth\Auth.csproj", "{9E703D6E-8166-4585-AF18-E166CB1EF72F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{14BF16C2-1EE6-4577-A5A9-12363B36236E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14BF16C2-1EE6-4577-A5A9-12363B36236E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14BF16C2-1EE6-4577-A5A9-12363B36236E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A159156B-52D7-442B-B263-D8A91B50ECBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A159156B-52D7-442B-B263-D8A91B50ECBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A159156B-52D7-442B-B263-D8A91B50ECBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A159156B-52D7-442B-B263-D8A91B50ECBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E703D6E-8166-4585-AF18-E166CB1EF72F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E703D6E-8166-4585-AF18-E166CB1EF72F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E703D6E-8166-4585-AF18-E166CB1EF72F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E703D6E-8166-4585-AF18-E166CB1EF72F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
