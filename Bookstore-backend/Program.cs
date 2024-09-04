@@ -36,7 +36,7 @@ namespace Bookstore_backend
                     Contact = new OpenApiContact
                     {
                         Name = "Francesco Barbano",
-                        //Url = new Uri("https://example.com/contact")
+                        Url = new Uri("https://github.com/SognoLucido/Bookstore-backend")
                     }
 
                 });

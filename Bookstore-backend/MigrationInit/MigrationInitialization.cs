@@ -32,7 +32,7 @@ namespace Bookstore_backend.MigrationInit
             if (check is false)
                 try
                 {
-                    await Task.Delay(5000);
+                   // await Task.Delay(5000);
 
                    await dbContext.Database.MigrateAsync();
 
