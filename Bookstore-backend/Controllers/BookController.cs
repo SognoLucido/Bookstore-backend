@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bookstore_backend.Controllers
 {
-    [Route("api")]
+   
     [ApiController]
     public class BookStoreController : ControllerBase
     {
@@ -30,7 +30,7 @@ namespace Bookstore_backend.Controllers
         /// <param name="category">optional</param>   
         /// <returns></returns>
         [HttpGet]
-        [Route("search")]
+        [Route("api/search")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DetailedFilterBookModel))]
         public async Task<IActionResult> SearchItems([FromQuery] string? booktitle, [FromQuery] string? authorname, [FromQuery] string? category, CancellationToken cToken)
         {
@@ -48,7 +48,7 @@ namespace Bookstore_backend.Controllers
          }
 
         [HttpGet]
-        [Route("booklist")]
+        [Route("api/booklist")]
         
         public async Task<ActionResult<BooksCatalog>> GetBookList([FromQuery] Pagemodel pagesettings, CancellationToken cToken)
         {
@@ -112,7 +112,7 @@ namespace Bookstore_backend.Controllers
         //todo : free books,
         //todo : coupon code like(30% off all fantasy books /specific author name)
         /// <summary>
-        ///
+        ///Simulates a premium service. It requires the x-api-key header for authentication. Check the /api/userinfo endpoint (login required) for the API key
         /// </summary>   
         /// <param name="apikey">The API key used to authenticate the request.</param>   
         /// <remarks>
@@ -126,7 +126,7 @@ namespace Bookstore_backend.Controllers
         ///    -H 'x-api-key: 000000000000000000004ae86ca65fc2'
         ///    
         /// </remarks>
-        [HttpGet("{ISBN}")]
+        [HttpGet("apikey/{ISBN}")]
         //[Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MarketDataAPIModelbyISBN))]
         public async Task<IActionResult> ApiService([FromRoute][RegularExpression("^[0-9]*$")] string ISBN, [FromHeader(Name = "x-api-key")] string apikey , CancellationToken cToken)

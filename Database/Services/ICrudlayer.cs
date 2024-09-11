@@ -38,4 +38,6 @@ public interface ICrudlayer
 
     Task<Respostebookapi> InsertBookItem(BookinsertModel datamodel);
 
+    Task<bool> UpinsertAuthorsxCategories(CategoryandAuthorDto data, bool AuthorUpinsert);
+
 }

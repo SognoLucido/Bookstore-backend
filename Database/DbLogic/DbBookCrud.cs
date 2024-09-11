@@ -187,9 +187,9 @@ public class DbBookCrud : ICrudlayer
 
         }
 
-        if (checkkey.SubscriptionTier == Subscription.Tier2) 
-        { 
-            await dbresult.ExecuteUpdateAsync(p => p.SetProperty(a => a.Calls, a => a.Calls + 1), token); 
+        if (checkkey.SubscriptionTier == Subscription.Tier2)
+        {
+            await dbresult.ExecuteUpdateAsync(p => p.SetProperty(a => a.Calls, a => a.Calls + 1), token);
         }
         else
         {
@@ -849,15 +849,15 @@ public class DbBookCrud : ICrudlayer
 
             if (role == UserRole.admin)
             {
-              check2 = await  insert.ExecuteUpdateAsync(p => p.SetProperty(s => s.SubscriptionTier, Subscription.Tier2));
+                check2 = await insert.ExecuteUpdateAsync(p => p.SetProperty(s => s.SubscriptionTier, Subscription.Tier2));
             }
             else if (role == UserRole.user)
             {
-              check2 =  await insert.ExecuteUpdateAsync(p => p.SetProperty(s => s.SubscriptionTier, Subscription.Tier0));
+                check2 = await insert.ExecuteUpdateAsync(p => p.SetProperty(s => s.SubscriptionTier, Subscription.Tier0));
             }
 
-            if(check2 == 0) return false;
-                
+            if (check2 == 0) return false;
+
         }
         else if (email is not null)
         {
@@ -866,7 +866,7 @@ public class DbBookCrud : ICrudlayer
                 .Where(a => a.Email == email)
                 .Select(b => b.Id).FirstOrDefault();
 
-            if(emailtoUserID == null) return false;
+            if (emailtoUserID == null) return false;
 
 
 
@@ -888,7 +888,7 @@ public class DbBookCrud : ICrudlayer
 
         }
 
-      return true;  
+        return true;
     }
 
 
@@ -1168,6 +1168,124 @@ public class DbBookCrud : ICrudlayer
         return test;
 
     }
+
+
+
+
+
+    public async Task<bool> UpinsertAuthorsxCategories(CategoryandAuthorDto data, bool AuthorUpinsert)
+    {
+
+       
+
+
+
+        if (data.Author is not null)
+        {
+
+            var filteredDataList = data.Author
+                .DistinctBy(a => a.FullName.ToLower())
+                .Select(x => new
+                {
+                    x.FullName,
+                    x.Bio
+
+                }).ToDictionary(z => z.FullName, z => z.Bio);
+
+
+            var KeystoRemove = _context.Authors
+                .Where(a => filteredDataList.Keys.Contains(a.FullName))
+                .Select(p => new { p.AuthorId, p.FullName })
+                .ToDictionary(x => x.FullName, x => x.AuthorId);
+
+            if (AuthorUpinsert is false)
+                foreach (var key in KeystoRemove)
+                {
+                    filteredDataList.Remove(key.Key);
+                }
+
+            if (filteredDataList.Count > 0)
+            {
+
+
+              //  var AuthortoInsert = new List<Author>();
+
+
+                foreach (var author in filteredDataList)
+                {
+                    //AuthortoInsert.Add(new Author { Bio = author.Value, FullName = author.Key });
+                    if (AuthorUpinsert)
+                        if (KeystoRemove.TryGetValue(author.Key, out int value))
+                        {
+                            _context.Authors.Update(new() { AuthorId = value, Bio = author.Value ,FullName = author.Key });
+                            continue;
+                        }
+                    _context.Authors.Add(new() { Bio = author.Value, FullName = author.Key });
+
+                }
+
+                //_context.Authors.AddRange(AuthortoInsert);
+            }
+        }
+
+
+        if (data.Category is not null)
+        {
+            var filterdatadist = data.Category
+                .DistinctBy(a => a.Name.ToLower())
+                .Select(x => x.Name).ToList();
+
+
+            var CategoriestoRemove = _context.Categories.Where(a => filterdatadist.Contains(a.Name)).Select(p => p.Name).ToList();
+
+
+            foreach (var x in CategoriestoRemove)
+            {
+                filterdatadist.Remove(x);
+            }
+
+            if (filterdatadist.Count > 0)
+            {
+
+                var categoriesToInsertList = new List<Category>();
+
+
+                foreach (var cat in filterdatadist)
+                {
+                    categoriesToInsertList.Add(new Category { Name = cat });
+                }
+
+                _context.Categories.AddRange(categoriesToInsertList);
+            }
+        }
+
+
+
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return true;
+        }
+       catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 

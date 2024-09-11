@@ -17,8 +17,8 @@ namespace Database.Model
 
     public class Author
         {
-            [Key]
-            public int AuthorId { get; set; }
+        [Key]
+            public int AuthorId { get; set; } 
 
             [MaxLength(30)]
             public string FullName { get; set; }
