@@ -4,9 +4,9 @@ namespace Bookstore_backend.MigrationInit.Model
 {
     public class Booksdataseed
     {
-        public IEnumerable<Book> books { get; set; }
-        public IEnumerable<Author> authors { get; set; }
-        public IEnumerable<Category> categories { get; set; }
+        public List<Book> books { get; set; }
+        public List<Author> authors { get; set; }
+        public List<Category> categories { get; set; }
 
     }
 }
