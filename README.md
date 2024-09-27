@@ -1,2 +1,6 @@
 # Bookstore-backend
-***TODO***: Minimal APIs && xunit testing
+Simple backend api service for a bookstore 
+
+***TODO***: 
+- [x] Minimal APIs (check branch)
+- [ ] unit/inte testing
