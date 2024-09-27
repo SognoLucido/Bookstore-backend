@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dblibrary.test
+namespace DatabaseLibrary.Test
 {
     public class HashpassTest
     {
@@ -26,11 +26,11 @@ namespace Dblibrary.test
 
         [Theory]
         [InlineData("home", "dYVDYcoG", "51231b21a8c9215629fb3effabf5afbe7b7ce4af9425f5e694883baee43ab4f8")]
-        public async Task Testinghash256pass2(string pass,string salt,string hashedpassplussalt)
+        public async Task Testinghash256pass2(string pass, string salt, string hashedpassplussalt)
         {
             Passhasher hasher = new();
 
-            string actual = await hasher.HashAlgorithm(pass,salt);
+            string actual = await hasher.HashAlgorithm(pass, salt);
 
             Assert.Equal(hashedpassplussalt, actual);
 

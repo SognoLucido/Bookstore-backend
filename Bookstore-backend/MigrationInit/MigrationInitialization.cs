@@ -8,7 +8,7 @@ namespace Bookstore_backend.MigrationInit
 {
     public static class MigrationInitialization
     {
-        public static async void ApplyMigration(this IApplicationBuilder app)
+        public static async Task ApplyMigration(this IApplicationBuilder app)
         {
             using IServiceScope scope = app.ApplicationServices.CreateScope();
 
@@ -29,7 +29,7 @@ namespace Bookstore_backend.MigrationInit
             catch (NpgsqlException ex) { Console.WriteLine(ex.Message); Environment.Exit(1); }
             catch (Exception ex) { Console.WriteLine(ex.Message); Environment.Exit(1); }
 
-            //FIXXXXXXXXXXXXXXXXXXXXXXXX TO DO se aggiung addrange il database non salva la posizione dell'id con booksderialize , invece con test list salva 
+          
             if (check is false)
                 try
                 {

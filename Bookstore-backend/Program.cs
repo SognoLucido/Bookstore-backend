@@ -14,9 +14,9 @@ using System.Text;
 
 namespace Bookstore_backend
 {
-    public class Program
+    public partial class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -147,7 +147,7 @@ namespace Bookstore_backend
 
           
 
-            app.ApplyMigration();
+            await app.ApplyMigration();
 
             //app.UseHttpsRedirection();
             //if (app.Environment.IsDevelopment())
@@ -162,10 +162,6 @@ namespace Bookstore_backend
 
 
 
-
-           
-
-
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -173,6 +169,12 @@ namespace Bookstore_backend
             app.MapControllers();
 
             app.Run();
+
+
+
         }
     }
+
+    public partial class Program { }
+
 }
