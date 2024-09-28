@@ -1,4 +1,5 @@
 
+using Bookstore.Api.Integration.test.Model;
 using Database.Model.Apimodels;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
@@ -49,7 +50,7 @@ public class AuthTests : IClassFixture<ProgramTestApplicationFactory>
 
         ////////////////////////
         
-        //token roles valodation logic
+        //token roles validation logic
         var InsertUserBody = await _client.PostAsJsonAsync("auth/register", TestUser);
         var UserTokenBody = await _client.PostAsJsonAsync("auth/login",UserCredentials );
         var AdminTokenBody = await _client.PostAsJsonAsync("auth/login", AdminCredentials);
@@ -83,8 +84,7 @@ public class AuthTests : IClassFixture<ProgramTestApplicationFactory>
 
     }
 
-    private record Tokenlogin (string result);
-    private record Data  (string firstname , string lastname);
+   
 
 
 
