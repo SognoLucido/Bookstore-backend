@@ -1,13 +1,11 @@
 
 using Bookstore.Api.Integration.test.Model;
 using Database.Model.Apimodels;
-using Newtonsoft.Json.Linq;
-using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text.Json;
+
 
 namespace Bookstore.Api.Integration.test;
 
@@ -67,12 +65,10 @@ public class AuthTests : IClassFixture<ProgramTestApplicationFactory>
         //user data validation logic
 
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", UserTokenraw.Result.result);
-        var UserAccountInfo = await _client.GetAsync("api/userinfo");
-        var Userdata = await UserAccountInfo.Content.ReadFromJsonAsync<Data>();
-
+        var Userdata = await _client.GetFromJsonAsync<Data>("api/userinfo");
+     
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AdminTokenraw.Result.result);
-        var AdminAccountInfo = await _client.GetAsync("api/userinfo");
-        var Admindata = await AdminAccountInfo.Content.ReadFromJsonAsync<Data>();
+        var Admindata = await _client.GetFromJsonAsync<Data>("api/userinfo");
 
         ////////////////////////
 

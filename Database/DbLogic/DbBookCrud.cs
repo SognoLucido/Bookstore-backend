@@ -231,7 +231,17 @@ public class DbBookCrud : ICrudlayer
 
               }).AsNoTracking().FirstOrDefaultAsync(token);
 
-        return (bookdata, new Respostebookapi { Code = 200, Message = null });
+
+        Console.WriteLine();
+
+        if(bookdata is null )
+            return (null, new Respostebookapi
+            {
+                Code = 404,
+                Message = $"book not found"
+            });
+
+        return (bookdata, null);
     }
 
 
@@ -253,27 +263,6 @@ public class DbBookCrud : ICrudlayer
 
     }
 
-
-
-    //WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-
-
-    public async Task ConcurTest(int delay, int qnty)
-    {
-
-
-
-        await Task.Delay(TimeSpan.FromSeconds(delay));
-
-        await _context.Books
-               .Where(b => b.ISBN == "9783161484100")
-               .ExecuteUpdateAsync(x => x.SetProperty(a => a.StockQuantity, a => a.StockQuantity + qnty));
-
-
-
-        await _context.SaveChangesAsync();
-
-    }
 
 
 
@@ -496,34 +485,6 @@ public class DbBookCrud : ICrudlayer
 
 
     }
-
-
-    public async Task Testapi()
-    {
-
-        var test = await _context.Books.FirstOrDefaultAsync(a => a.BookId == 1);
-
-        //var x = new Book
-        //{
-        //    Title = "test",
-        //    AuthorId = 1,
-        //    CategoryId = 1,
-        //    ISBN = "9783161484199",
-        //    Price = 5.5M,
-        //    StockQuantity = 30,
-        //    PublicationDate = new DateOnly(2010, 12, 12),
-        //    Description = "test",
-        //};
-
-
-        //_context.Books.Add(x);
-        //await _context.SaveChangesAsync();
-
-
-    }
-
-
-    //pkkkkkkkkkkkkkkkkkkkkkkkk
 
 
 

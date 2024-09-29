@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bookstore_backend.Controllers
 {
-   
+
     [ApiController]
     public class BookStoreController : ControllerBase
     {
@@ -37,20 +37,22 @@ namespace Bookstore_backend.Controllers
 
             const int limit = 5;
 
-            var data = (booktitle, authorname, category);
+            var dataToinsert = (booktitle, authorname, category);
 
 
 
-            var test = await dbcall.SearchItems(limit,data,cToken);
+            var databack = await dbcall.SearchItems(limit,dataToinsert,cToken);
 
-            return Ok(test);
+
+
+            return databack.Count > 0 ?  Ok(databack) : NotFound();
 
          }
 
         [HttpGet]
         [Route("api/booklist")]
-        
-        public async Task<ActionResult<BooksCatalog>> GetBookList([FromQuery] Pagemodel pagesettings, CancellationToken cToken)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<BooksCatalog>))]
+        public async Task<IActionResult> GetBookList([FromQuery] Pagemodel pagesettings, CancellationToken cToken)
         {
 
             if (!ModelState.IsValid)
@@ -60,47 +62,10 @@ namespace Bookstore_backend.Controllers
 
             var data = await dbcall.RawReturn(pagesettings.Page, pagesettings.Pagesize, cToken);
 
-            if (data.Count == 0)
-            {
-                return NotFound();
-            }
-            else return Ok(data);
+           
 
-            //var x = new BooksContextFactory();
+           return data.Count() > 0 ? Ok(data) : NotFound();
         }
-
-
-
-
-
-        ///// <summary>
-        ///// Retrieves a list of books based on the specified filter criteria.
-        ///// </summary>   
-        //[HttpGet]
-        //[Route("exactmatch")]
-        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DetailedFilterBookModel))]
-        //public async Task<IActionResult> GetListfiltered([FromQuery] QuerySelector selector, CancellationToken cToken)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    var data = await dbcall.Filteredquery(selector, cToken);
-
-        //    if (data.Count == 0)
-        //    {
-        //        return NotFound();
-        //    }
-        //    else
-        //    {
-        //        return Ok(data);
-        //    }
-
-        //    //var x = new BooksContextFactory();
-        //}
-
-
 
 
 
@@ -115,13 +80,13 @@ namespace Bookstore_backend.Controllers
         ///Simulates a premium service. It requires the x-api-key header for authentication. Check the /api/userinfo endpoint (login required) for the API key
         /// </summary>   
         /// <param name="apikey">The API key used to authenticate the request.</param>   
-        /// <remarks>
+        /// <remarks>Is
         /// Sample request:
         /// 
         ///     GET /
         ///     
         ///    curl -X 'GET' /  
-        ///    'https://localhost:7178/api/0000000000001'
+        ///    'https://localhost:7178/apikey/0000000000001'
         ///    -H 'accept: application/json' 
         ///    -H 'x-api-key: 000000000000000000004ae86ca65fc2'
         ///    
@@ -129,7 +94,7 @@ namespace Bookstore_backend.Controllers
         [HttpGet("apikey/{ISBN}")]
         //[Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MarketDataAPIModelbyISBN))]
-        public async Task<IActionResult> ApiService([FromRoute][RegularExpression("^[0-9]*$")] string ISBN, [FromHeader(Name = "x-api-key")] string apikey , CancellationToken cToken)
+        public async Task<IActionResult> ApiService([FromRoute][RegularExpression("^[0-9]{13}$")] string ISBN, [FromHeader(Name = "x-api-key")] string apikey , CancellationToken cToken)
         {
 
 
@@ -147,7 +112,6 @@ namespace Bookstore_backend.Controllers
 
         }
 
-       
 
 
 
@@ -159,7 +123,8 @@ namespace Bookstore_backend.Controllers
 
 
 
-        }
+
+    }
 
 
 }

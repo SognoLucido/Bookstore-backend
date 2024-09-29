@@ -114,7 +114,7 @@ namespace Bookstore_backend.Controllers
         /// </remarks>
         [HttpPost]     
         [Route("book")]
-        public async Task<IActionResult> InsertBook([FromBody] BookinsertModel bodydata)
+        public async Task<IActionResult> InsertBook([FromBody] BookinsertModel bodydata) //TODO insert multiple books at once list<T> addrange
         {
 
             if (!ModelState.IsValid) return BadRequest(bodydata);
