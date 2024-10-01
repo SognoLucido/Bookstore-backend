@@ -44,10 +44,10 @@ namespace Bookstore_backend.Controllers
             [FromQuery] string? category,
             [FromQuery] int? limit,
             CancellationToken cToken)
-        {  
+        {
 
             var data = (booktitle, authorname, category);
-  
+
 
             var test = await dbcall.SearchItems(limit, data, cToken);
 
@@ -76,21 +76,21 @@ namespace Bookstore_backend.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("changerole")]
-        public async Task<IActionResult> Changerole ([FromBody] Rolechanger data)
+        public async Task<IActionResult> Changerole([FromBody] Rolechanger data)
         {
             if (!ModelState.IsValid) return BadRequest(data);
-            if( data.UserID is null && data.email is  null )return BadRequest("At least one userid or email, is required");
+            if (data.UserID is null && data.email is null) return BadRequest("At least one userid or email, is required");
 
 
             UserRole role;
 
-            switch(data.Role.ToLower())
+            switch (data.Role.ToLower())
             {
                 case "admin": role = UserRole.admin; break;
                 case "user":
                     {
                         if (data.UserID == Guid.Parse("8233a0ab-78ac-4ee7-916f-0cbb93e85a63") || data.email == "admin@example.com") return BadRequest();
-                       
+
                         role = UserRole.user;
                     } break;
 
@@ -104,7 +104,7 @@ namespace Bookstore_backend.Controllers
 
         }
 
-   
+
 
         /// <remarks>
         /// Sample request:
@@ -112,40 +112,30 @@ namespace Bookstore_backend.Controllers
         ///    Author name and category MUST match the existing records
         ///    
         /// </remarks>
-        [HttpPost]     
+        [HttpPost]
         [Route("book")]
-        public async Task<IActionResult> InsertBook([FromBody] BookinsertModel bodydata) //TODO insert multiple books at once list<T> addrange
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(List<DetailedFilterBookModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(Respostebookapi))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(Respostebookapi))]
+        public async Task<IActionResult> InsertBook([FromBody][Required] List<BookinsertModel?> bodydata) 
         {
 
-            if (!ModelState.IsValid) return BadRequest(bodydata);
+            if (bodydata.Count  == 0 ) return BadRequest();
 
-            if (bodydata.PublicationDate.year > DateTime.UtcNow.Year) return BadRequest("wrong year");
+            foreach (var item in bodydata)
+            {
+                if (item.PublicationDate.year > DateTime.UtcNow.Year) return BadRequest("wrong year");
+            }
 
-            //try
-            //{
-            //    _ = new DateOnly(bodydata.PublicationDate.year, bodydata.PublicationDate.month, bodydata.PublicationDate.day);
-            //}
-            //catch (Exception)
-            //{
-            //    return BadRequest(" invalid date ");
-            //}
+        
 
-            var message = await dbcall.InsertBookItem(bodydata);
+            var (booklist,ErrStatuscode) = await dbcall.InsertBooksItem(bodydata);
 
 
+            return booklist is null ? StatusCode(ErrStatuscode.Code, ErrStatuscode) : StatusCode(201, booklist);
+            
 
-
-            return StatusCode(message.Code, message);
-
-            //switch (message.Code)
-            //{
-            //    case 200: return Ok(message.Message);
-            //    case 500: return StatusCode(500, message.Message);
-            //    case 404: return NotFound(message.Message);
-            //    case 409: return StatusCode(409, message.Message);
-
-            //    default: return BadRequest();
-            //}
 
 
 

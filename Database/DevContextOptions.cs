@@ -11,7 +11,7 @@ namespace Database
 
 
      
-        //development dotnet ef migrations only
+        //for development , manual dotnet ef migrations only
         public Booksdbcontext CreateDbContext(string[] args)
         {
 

@@ -13,12 +13,8 @@ public interface ICrudlayer
   
 
     Task<List<DetailedFilterBookModel>> SearchItems(int? limit, (string? Booktitle, string? Authorname, string? Category) Tupledata,CancellationToken ctoken = default);
-
     Task<List<AuthorDto>> GetAuthorinfo(int? limit, string? search);
-
     Task<List<Category>> GetCategoriesinfo(int? limit, string? search);
-    
-
     Task<UserInfo?> GetUserInfoAccount(Guid UserID);
     Task<bool> UpdateTier(Guid userID, Subscription subtier ,HttpClient client);
     Task<bool> Pricebookset(string isbn, decimal price,CancellationToken token = default);
@@ -31,13 +27,10 @@ public interface ICrudlayer
     Task<List<BooksCatalog>> RawReturn(int page , int pagesize,CancellationToken token = default);
     Task<bool> Registration(Registration regi, CancellationToken token = default);
     Task<(string?, string?)> Login(Login login, CancellationToken token = default);
-
     Task<bool> Deletebyisbn(string isbn, CancellationToken token = default);
-
     Task<bool> AddOrOverrideStockQuantitybyISBN(string isbn, int qnty, bool Forcerewrite, CancellationToken token = default);
-
-    Task<Respostebookapi> InsertBookItem(BookinsertModel datamodel);
-
+    Task<(List<DetailedFilterBookModel>?,Respostebookapi?)> InsertBooksItem(List<BookinsertModel> datamodel);
     Task<bool> UpinsertAuthorsxCategories(CategoryandAuthorDto data, bool AuthorUpinsert);
+
 
 }

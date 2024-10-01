@@ -31,20 +31,40 @@ namespace Database.Mapperdtotodb
             };
         }
 
-        public static Book MapTobook(this BookinsertModel model)
+        public static List<Book> MapTobookList(this IEnumerable<BookinsertModel> data)
         {
-            return new Book
-            {
-                 Title = model.Title,
-                // AuthorId
-                //CategoryId
-                ISBN = model.ISBN,
-                Price = model.Price,
-                StockQuantity = model.StockQuantity,
-                PublicationDate = new DateOnly(model.PublicationDate.year, model.PublicationDate.month, model.PublicationDate.day),
-                Description = model.Description,
+            List<Book> books = [];
+            
 
-            };
+            foreach (var model in data) 
+            {
+                books.Add(new Book
+                {
+                    Title = model.Title,
+                    
+                    
+                    Author = new()
+                    {
+                        // AuthorId
+                        FullName = model.Author
+                    },
+                    Category = new()
+                    {
+                        //CategoryId
+                        Name = model.Category
+                    },
+                    ISBN = model.ISBN,
+                    Price = model.Price,
+                    StockQuantity = model.StockQuantity,
+                    PublicationDate = new DateOnly(model.PublicationDate.year, model.PublicationDate.month, model.PublicationDate.day),
+                    Description = model.Description,
+
+                });
+            }
+
+            return books;
+
+
 
         }
 
@@ -65,7 +85,20 @@ namespace Database.Mapperdtotodb
         }
 
 
+        public static DetailedFilterBookModel DbbookmodelToApireturnBookmodel(this Book data)
+        {
 
+            return new DetailedFilterBookModel
+            {
+                BookTitle = data.Title,
+                Category = data.Category.Name,
+                Price = data.Price.ToString() + "$",
+                Description = data.Description,
+                AuthorName = data.Author.FullName,
+                ISBN = data.ISBN,
+                PublicationDate  = data.PublicationDate,
+            };
+        }
 
 
 

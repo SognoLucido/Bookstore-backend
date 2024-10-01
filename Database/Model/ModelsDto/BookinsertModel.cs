@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Database.Model.ModelsDto
 {
+    
     public class BookinsertModel
     {
         public string Title { get; set; } 

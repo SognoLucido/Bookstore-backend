@@ -110,41 +110,6 @@ public class DbBookCrud : ICrudlayer
 
 
 
-    //public async Task<MarketDataAPIModelbyISBN?> ApiServiceGetbyisbn(string isbn,Guid userID,UserRole role, CancellationToken token = default)
-    //{
-    //    bool Okcheck ;
-
-    //    if(role == UserRole.user)
-    //    {
-    //        var keyexist = _context.Api.Where(a=>a.CustomerId == userID).FirstOrDefault();
-
-    //        //var result = await _context.Api.AsQueryable()
-
-    //        //    .Where(a => a.CustomerId == userID)
-    //        //    .Where(b => 
-    //        //    b.SubscriptionTier == Subscription.Tier0 && b.Calls < 5 )
-    //        //    .ExecuteUpdateAsync(x => x.SetProperty(p => p.Calls, p => p.Calls + 1),token);
-
-
-
-    //    }
-
-
-    //  var x = await _context.Books.Where(a => a.ISBN == isbn)
-    //        .Select(a => new MarketDataAPIModelbyISBN
-    //        {
-    //            ISBN = a.ISBN,
-    //            Price = a.Price.ToString() + "$",
-    //            StockQuantity = a.StockQuantity
-
-    //        }).FirstOrDefaultAsync(token);
-
-    //    return x;
-
-
-
-    //}
-
 
 
     public async Task<(MarketDataAPIModelbyISBN?, Respostebookapi?)> ApiServiceGetbyisbn(string isbn, Guid apikey, CancellationToken token = default)
@@ -232,7 +197,7 @@ public class DbBookCrud : ICrudlayer
               }).AsNoTracking().FirstOrDefaultAsync(token);
 
 
-        Console.WriteLine();
+     
 
         if(bookdata is null )
             return (null, new Respostebookapi
@@ -266,98 +231,117 @@ public class DbBookCrud : ICrudlayer
 
 
 
-    public async Task<Respostebookapi> InsertBookItem(BookinsertModel datamodel) //new version
+    public async Task<(List<DetailedFilterBookModel>?, Respostebookapi?)> InsertBooksItem(List<BookinsertModel> datamodel) 
     {
 
 
         var message = new Respostebookapi();
 
-        var exist = await _context.Books.AnyAsync(b => b.ISBN == datamodel.ISBN);
+
+        var Bookfulllist = datamodel.MapTobookList();
+
+        var BooksFreecloneList = Bookfulllist.DistinctBy(a => a.ISBN);
+
+        var Booklistisbn = BooksFreecloneList.Select(x=>x.ISBN).ToList();
+
+        var FilteredList = await  _context.Books
+            .Where(x=> Booklistisbn.Contains(x.ISBN))
+            .Select(x => x.ISBN)
+            .ToListAsync();
 
 
-        if (!exist)
+        //if (FilteredList.Count > 0)
+        var Booklist = BooksFreecloneList.Where(x => !FilteredList.Contains(x.ISBN)).ToList();
+
+        var Authorlist = Booklist.DistinctBy(d=>d.Author.FullName).Select(a=>a.Author.FullName.ToLower());
+        var Categorylist = Booklist.DistinctBy(d => d.Category.Name).Select(a => a.Category.Name.ToLower());
+
+        var Getauthor = _context.Authors
+             .Where(x => Authorlist.Contains(x.FullName))
+             .Select(c => new
+             {
+                 c.AuthorId,
+                 c.FullName,
+             })
+             .AsNoTracking()
+             .ToDictionary(x=>x.FullName,v=>v.AuthorId);
+
+        var GetCategory = _context.Categories
+             .Where(x => Categorylist.Contains(x.Name))
+             .Select(c => new
+             {
+                 c.CategoryId,
+                 c.Name,
+             })
+             .AsNoTracking()
+             .ToDictionary(x => x.Name, v => v.CategoryId);
+
+
+
+        List<DetailedFilterBookModel> BookdataToReturn = [];
+
+
+        for (int i = Booklist.Count - 1; i >= 0; i--)
         {
 
-
-            var authorid = await _context.Authors
-                                .Where(b => b.FullName == datamodel.Author.ToLower())
-                                .Select(s => new { s.AuthorId })
-                                .AsNoTracking()
-                                .FirstOrDefaultAsync();
-
-            var categorid = await _context.Categories
-                               .Where(b => b.Name == datamodel.Category.ToLower())
-                               .Select(s => new { s.CategoryId })
-                               .AsNoTracking()
-                               .FirstOrDefaultAsync();
-
-
-            if (authorid is null)
+            if (Getauthor.TryGetValue(Booklist[i].Author.FullName, out int _authorid))
             {
-                message.Code = 404;
-                message.Message = " Author name not Found ";
-
-
+                Booklist[i].AuthorId = _authorid;
             }
-            if (categorid is null)
-            {
-                message.Code = 404;
-                message.Message += " && Category name not Found";
-
-
-            }
-
-            if (authorid is null || categorid is null) return message;
             else
             {
+                Booklist.RemoveAt(i);
+                continue;
+            }
 
-                var modeltoinsert = datamodel.MapTobook();
-
-                modeltoinsert.AuthorId = authorid.AuthorId;
-                modeltoinsert.CategoryId = categorid.CategoryId;
-
-
-                await _context.Books.AddAsync(modeltoinsert);
-
-
-                try
-                {
-
-                    await _context.SaveChangesAsync();
-
-                    message.Code = 200;
-                    message.Message = "Sucessful inserted";
-
-                    return message;
-
-                }
-                catch (Exception ex)
-                {
-                    message.Code = 500;
-                    message.Message = ex.Message;
-
-                    return message;
-                }
-
-
-
+            if (GetCategory.TryGetValue(Booklist[i].Category.Name, out int _categoryid))
+            {
+                Booklist[i].CategoryId = _categoryid;
+            }
+            else
+            {
+                Booklist.RemoveAt(i);
+                continue;
             }
 
 
 
+            BookdataToReturn.Add(Booklist[i].DbbookmodelToApireturnBookmodel());
+
+            Booklist[i].Author = default!;
+            Booklist[i].Category = default!;
+
         }
-        else
+
+        if (Booklist.Count is 0) return (null, new Respostebookapi()
         {
-            return new Respostebookapi()
-            {
-                Code = 409,
-                Message = "the book already exist"
-            };
+            Code = 400,
+            Message = "Invalid records: Nothing to add"
+        });
 
+        try 
+        { 
+
+             await _context.Books.AddRangeAsync(Booklist);
+             await _context.SaveChangesAsync();
+
+
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Failed to insert a range of books (api/book) into the db \n" + ex.Message);
+            return (null,new Respostebookapi()
+            {
+                Code = 500,
+                Message = "Failed insertion"
+            });
         }
 
 
 
+
+
+        return (BookdataToReturn, null);
 
     }
 
@@ -368,123 +352,6 @@ public class DbBookCrud : ICrudlayer
 
 
 
-
-    public async Task<Respostebookapi> InsertBookItemold(BookinsertModel datamodel)
-    {
-        bool force = false;
-
-
-        var query = _context.Books
-            .Where(x => x.StockQuantity > 0)
-             .Join(_context.Authors,
-              book => book.AuthorId,
-              author => author.AuthorId,
-              (book, author) => new { book, author })
-            .Join(_context.Categories,
-              book => book.book.CategoryId,
-              category => category.CategoryId,
-              (bookAuthor, category) => new { bookAuthor, category }).AsQueryable();
-
-
-
-        var exist = await query.Where(x => x.bookAuthor.book.ISBN == datamodel.ISBN).AsNoTracking().AnyAsync();
-
-        if (exist)
-        {
-            return new Respostebookapi()
-            {
-                Code = 409,
-                Message = "the book already exist"
-            };
-        }
-
-        if (!force)
-        {
-            var getAuthorId = await _context.Authors.Where(a => a.FullName == datamodel.Author).AsNoTracking().FirstOrDefaultAsync();
-            var getcategoryId = await _context.Categories.Where(a => a.Name == datamodel.Category).AsNoTracking().FirstOrDefaultAsync();
-
-
-            var message = new Respostebookapi();
-
-
-            if (getAuthorId is null)
-            {
-                message.Code = 404;
-                message.Message = " Author name not Found \n";
-
-
-            }
-            if (getcategoryId is null)
-            {
-                message.Code = 404;
-                message.Message += " Author name not Found";
-
-
-            }
-
-            if (getAuthorId is null || getcategoryId is null) return message;
-
-            if (getAuthorId is not null && getcategoryId is not null)
-            {
-
-                var modeltoinsert = datamodel.MapTobook();
-
-                modeltoinsert.AuthorId = getAuthorId.AuthorId;
-                modeltoinsert.CategoryId = getcategoryId.CategoryId;
-
-
-                await _context.Books.AddAsync(modeltoinsert);
-
-
-                try
-                {
-
-                    await _context.SaveChangesAsync();
-
-                    message.Code = 200;
-                    message.Message = "Sucessful inserted";
-
-                    return message;
-
-                }
-                catch (Exception ex)
-                {
-                    message.Code = 500;
-                    message.Message = ex.Message;
-
-                    return message;
-                }
-
-
-
-                //await 
-
-
-            }
-
-
-
-        }
-
-
-
-        //var y = await query
-        //    .Where(x => x.bookAuthor.author.FullName == datamodel.Author || x.category.Name == datamodel.Category)
-
-        //    .FirstOrDefaultAsync();
-
-
-
-        // _context.Books.Add(datamodel);
-        //var y =  await _context.SaveChangesAsync();
-
-
-
-        return new Respostebookapi();
-
-
-
-    }
 
 
 
