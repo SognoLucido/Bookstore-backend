@@ -1,0 +1,88 @@
+{
+  "authors": [
+    {  
+      "FullName": "john smith",
+      "Bio": "John Smith is a prolific writer known for his captivating mystery novels that keep readers on the edge of their seats."
+    },
+    {   
+      "FullName": "jane doe",
+      "Bio": "Jane Doe specializes in science fiction, exploring futuristic worlds and advanced technologies with a human touch."
+    }
+  ],
+
+ 
+
+  "categories": [
+    {
+     
+      "Name": "fantasy"
+    },
+    {
+     
+      "Name": "horror"
+    }
+  ],
+
+
+  "books": [
+    {
+     
+      "Title": "the great adventure",
+      "AuthorId": 1,
+      "CategoryId": 1,
+      "ISBN": "9783161484100",
+      "Price": 19.99,
+      "StockQuantity": 50,
+      "PublicationDate": "2023-05-01",
+      "Description": "An exhilarating journey through the uncharted territories."
+    },
+    {
+      
+      "Title": "mystery in the shadows",
+      "AuthorId": 1,
+      "CategoryId": 1,
+      "ISBN": "9781234567897",
+      "Price": 14.99,
+      "StockQuantity": 30,
+      "PublicationDate": "2021-08-15",
+      "Description": "A gripping tale of suspense and intrigue."
+    },
+    {
+     
+      "Title": "science of tomorrow",
+      "AuthorId": 1,
+      "CategoryId": 1,
+      "ISBN": "9780123456789",
+      "Price": 29.99,
+      "StockQuantity": 20,
+      "PublicationDate": "2022-03-22",
+      "Description": "Exploring the future of science and technology."
+    },
+    {
+      
+      "Title": "romance in the air",
+      "AuthorId": 2,
+      "CategoryId": 2,
+      "ISBN": "9782345678901",
+      "Price": 9.99,
+      "StockQuantity": 100,
+      "PublicationDate": "2020-06-10",
+      "Description": "A heartwarming love story that transcends time."
+    },
+    {
+     
+      "Title": "the art of cooking",
+      "AuthorId": 2,
+      "CategoryId": 2,
+      "ISBN": "9784567890123",
+      "Price": 24.99,
+      "StockQuantity": 75,
+      "PublicationDate": "2019-11-30",
+      "Description": "A guide to culinary excellence."
+    }
+  ]
+
+
+
+
+}

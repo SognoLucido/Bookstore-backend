@@ -1,4 +1,5 @@
-﻿using Bookstore_backend;
+﻿using Bookstore.Api.Integration.test.Dataseed;
+using Bookstore_backend;
 using Database.ApplicationDbcontext;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Data.Common;
 using Testcontainers.PostgreSql;
 
@@ -23,19 +25,18 @@ public class ProgramTestApplicationFactory : WebApplicationFactory<Program> , IA
     {
 
         builder.ConfigureLogging(x=>x.ClearProviders());
-
+        
 
         builder.ConfigureServices(services =>
         {
-            var dbContextDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<Booksdbcontext>));
+            var dbContext = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<Booksdbcontext>));
 
-            services.Remove(dbContextDescriptor);
+            services.Remove(dbContext);
 
-            var dbConnectionDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbConnection));
+            var dbConnection = services.SingleOrDefault(d => d.ServiceType == typeof(DbConnection));
 
-            services.Remove(dbConnectionDescriptor);
+            services.Remove(dbConnection);
 
-            
 
             services.AddSingleton<DbConnection>(container =>
             {
@@ -49,15 +50,23 @@ public class ProgramTestApplicationFactory : WebApplicationFactory<Program> , IA
             {
                 var connection = container.GetRequiredService<DbConnection>();
                 options.UseNpgsql(connection);
+
             });
+
+            
+            services.AddSingleton<DataseedperTestLogic>();
+           
         });
 
 
-        builder.UseEnvironment("Development");
+
+        builder.UseEnvironment("xunit");
+
     }
 
 
-    public Task InitializeAsync()
+
+    Task IAsyncLifetime.InitializeAsync()
     {
         return _postgreSqlContainer.StartAsync();
     }
@@ -66,7 +75,6 @@ public class ProgramTestApplicationFactory : WebApplicationFactory<Program> , IA
     {
         return _postgreSqlContainer.DisposeAsync().AsTask();
     }
-
 }
 
 

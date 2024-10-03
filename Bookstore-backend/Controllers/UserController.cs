@@ -34,7 +34,7 @@ namespace Bookstore_backend.Controllers
         [Route("userinfo")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfo))]
-        public async Task<IActionResult> AccountInfoGet([FromServices] TokenBlocklist block)
+        public async Task<IActionResult> GetAccountInfo([FromServices] TokenBlocklist block)
         {
             var UserID = User.Claims.SingleOrDefault(x => x.Type == "UserID");
 

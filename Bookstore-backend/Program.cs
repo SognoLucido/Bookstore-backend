@@ -120,11 +120,6 @@ namespace Bookstore_backend
 
             builder.Services.AddAuthorization(x =>
             {
-                //x.AddPolicy("test",
-                //    x => x.AddRequirements(new AuthTokenblock()));
-
-                ////x.AddPolicy( new AuthTokenblock());
-
                 x.AddPolicy("UserOnly", p => p.RequireClaim("ruoli", "user"));
                 x.AddPolicy("AdminOnly", p => p.RequireClaim("ruoli", "admin"));
             });
@@ -145,22 +140,32 @@ namespace Bookstore_backend
 
             var app = builder.Build();
 
-          
 
-            await app.ApplyMigration();
+            if (app.Environment.IsEnvironment("xunit"))
+            {
+                using var scope = app.Services.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<Booksdbcontext>();
+
+                context.Database.EnsureCreated();
+            }
+            else
+            {
+                await app.ApplyMigration();
+
+                app.UseSwagger();
+                app.UseSwaggerUI(opt =>
+                {
+                    opt.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore_v1");
+                    opt.RoutePrefix = string.Empty;
+                });
+            }
+
+               
+
+            
+
 
             //app.UseHttpsRedirection();
-            //if (app.Environment.IsDevelopment())
-            //{
-            app.UseSwagger();
-            app.UseSwaggerUI(opt =>
-            {
-                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore_v1");
-                opt.RoutePrefix = string.Empty;
-            });
-            //}
-
-
 
             app.UseAuthentication();
             app.UseAuthorization();

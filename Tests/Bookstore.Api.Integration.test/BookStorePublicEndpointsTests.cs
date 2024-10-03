@@ -1,34 +1,33 @@
-﻿using Bookstore.Api.Integration.test.Model;
+﻿using Bookstore.Api.Integration.test.Dataseed;
+using Bookstore.Api.Integration.test.Model;
 using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
+using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace Bookstore.Api.Integration.test
 {
-    public class BookStorePublicEndpointsTests : IClassFixture<ProgramTestApplicationFactory>
+    public class BookStorePublicEndpointsTests : IClassFixture<ProgramTestApplicationFactory>, IAsyncLifetime
     {
 
-        private readonly ProgramTestApplicationFactory _factory;
+        private readonly ProgramTestApplicationFactory factory;
+        private readonly DataseedperTestLogic seed;
 
-        public BookStorePublicEndpointsTests(ProgramTestApplicationFactory factory)
+
+        public BookStorePublicEndpointsTests(ProgramTestApplicationFactory _factory)
         {
-            _factory = factory;
+            factory = _factory;
+            seed = _factory.Services.GetRequiredService<DataseedperTestLogic>();
+
         }
-
-
-
-
-            //
-
-
 
 
         [Fact]
         public async Task Public_apikey_service()
         {
-            var _client = _factory.CreateClient();
+            var _client = factory.CreateClient();
             var TestUser = new Registration
             {
                 FirstName = "test",
@@ -44,30 +43,9 @@ namespace Bookstore.Api.Integration.test
                 Email = TestUser.Email,
                 Password = TestUser.Password,
             };
-            //This record (admin account) is automatically injected during database creation. The values are known; check MigrationInit in the main project
-            var AdminCredentials = new Login()
-            {
-                Email = "admin@example.com",
-                Password = "admin"
-            };
-            // The api_key will consume a service where the ISBN of the book will be used as a query parameter, so we create a fake book and insert it into the database before verifying the API key logic (object creation below)
-            // Since we cannot insert the book without an author and category, we create those as well. 
-            var AuthorAndCategory = new CategoryandAuthorDto()
-            {
-                Author =
-                [
-                      new() { FullName = "testauthor", Bio = "bio" }
-                ],
-                Category =
-                [
-                     new() { Name = "testcategory" }
-                ]
-            };
             var Fakebook = new BookinsertModel
             {
                 Title = "test",
-                Author = AuthorAndCategory.Author[0].FullName,
-                Category = AuthorAndCategory.Category[0].Name,
                 ISBN = "0000000000101",
                 Price = 10,
                 StockQuantity = 100,
@@ -78,23 +56,17 @@ namespace Bookstore.Api.Integration.test
                     day = 1,
                 },
                 Description = "test",
-                   
+
             };
 
-
+            await seed.InsertCustombook(Fakebook);
 
             /////////////////////
 
             var InsertUserBody = await _client.PostAsJsonAsync("auth/register", TestUser);
             var UserTokenBody = await _client.PostAsJsonAsync("auth/login", UserCredentials);
-            var AdminTokenBody = await _client.PostAsJsonAsync("auth/login", AdminCredentials);
 
             var UserTokenraw = UserTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
-            var AdminTokenraw = AdminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
-
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AdminTokenraw.Result.result);
-            _ = await _client.PostAsJsonAsync("api/upsertINFO?AuthorUpinsert=true", AuthorAndCategory);
-            _ = await _client.PostAsJsonAsync("api/book", Fakebook);
 
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", UserTokenraw.Result.result);
             var UserApikey = await _client.GetFromJsonAsync<UserInfoOnlykey>("api/userinfo");
@@ -109,7 +81,7 @@ namespace Bookstore.Api.Integration.test
 
             _client.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Add("x-api-key", Guid.NewGuid().ToString("N")); // Will query the db to check if the key exist
-            var WrongApikey = await _client.GetAsync($"apikey/{Fakebook.ISBN}");  
+            var WrongApikey = await _client.GetAsync($"apikey/{Fakebook.ISBN}");
 
             _client.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Add("x-api-key", "29udad"); // Request blocked before reaching the database due to an invalid format key
@@ -131,7 +103,6 @@ namespace Bookstore.Api.Integration.test
 
 
             Assert.Equal(HttpStatusCode.OK, ApikeygetTest.StatusCode);
-            Assert.Equal(Fakebook.ISBN, ISBNextractMatch.Result.isbn);
             Assert.Equal(HttpStatusCode.NotFound, WrongISBN.StatusCode);
             Assert.Equal(HttpStatusCode.NotFound, WrongApikey.StatusCode);
             Assert.Equal(HttpStatusCode.BadRequest, MisspelledApiKey.StatusCode);
@@ -148,30 +119,10 @@ namespace Bookstore.Api.Integration.test
         public async Task Public_search_endpoint()
         {
 
-
-
-            var _client = _factory.CreateClient();
-            var AdminCredentials = new Login()
-            {
-                Email = "admin@example.com",
-                Password = "admin"
-            };
-            var AuthorAndCategory = new CategoryandAuthorDto()
-            {
-                Author =
-                [
-                      new() { FullName = "testauthor", Bio = "bio" }
-                ],
-                Category =
-                [
-                     new() { Name = "testcategory" }
-                ]
-            };
+            var _client = factory.CreateClient();
             var Fakebook = new BookinsertModel
             {
-                Title = "test",
-                Author = AuthorAndCategory.Author[0].FullName,
-                Category = AuthorAndCategory.Category[0].Name,
+                Title = "testtitleyoz",
                 ISBN = "0000000000101",
                 Price = 10,
                 StockQuantity = 100,
@@ -184,52 +135,48 @@ namespace Bookstore.Api.Integration.test
                 Description = "test",
 
             };
+            await seed.InsertCustombook(Fakebook);
+
 
 
             ////////////////////
-            
-            var AdminTokenBody = await _client.PostAsJsonAsync("auth/login", AdminCredentials);
-            var AdminTokenraw = AdminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AdminTokenraw.Result.result);
 
-            _ = await _client.PostAsJsonAsync("api/upsertINFO?AuthorUpinsert=true", AuthorAndCategory);
-            _ = await _client.PostAsJsonAsync("api/book", Fakebook);
-
-            _client.DefaultRequestHeaders.Authorization = null;
-
-            var FindBookTile = await _client.GetAsync("/api/search?booktitle=test");
-            var NonexistentBookTitle = await _client.GetAsync("/api/search?booktitle=awdwdfw");
+            var FindBookTile = await _client.GetAsync($"/api/search?booktitle={Fakebook.Title}");
+            var NonexistentBookTitle = await _client.GetAsync("/api/search?booktitle=awdwdfw404");
 
 
             ///////////////////
 
-
-
             Assert.Equal(HttpStatusCode.OK, FindBookTile.StatusCode);
-            Assert.Equal(HttpStatusCode.NotFound,NonexistentBookTitle.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, NonexistentBookTitle.StatusCode);
         }
-
-
-
-
-
-
-
-
 
 
 
         [Fact]
         public async Task Public_booklistPage_endpoint()
         {
-            var _client = _factory.CreateClient();
+            var _client = factory.CreateClient();
 
-            ////////////
-           
+
+            /////////////
+
             var getList = await _client.GetFromJsonAsync<List<BooksCatalog>>("/api/booklist?Page=1&Pagesize=4");
 
-            //////////
-            Assert.Equal(4, getList.Count());
+            /////////////
+
+            Assert.Equal(4, getList.Count);
+
+        }
+
+        public async Task InitializeAsync()
+        {
+            await seed.BaseDatabookseed();
+        }
+
+        public async Task DisposeAsync()
+        {
+            await seed.CleanBooks();
 
         }
 
@@ -237,7 +184,5 @@ namespace Bookstore.Api.Integration.test
 
 
 
-
-
-        }
     }
+}

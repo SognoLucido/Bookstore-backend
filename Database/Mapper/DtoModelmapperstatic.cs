@@ -34,15 +34,15 @@ namespace Database.Mapperdtotodb
         public static List<Book> MapTobookList(this IEnumerable<BookinsertModel> data)
         {
             List<Book> books = [];
-            
 
-            foreach (var model in data) 
+
+            foreach (var model in data)
             {
                 books.Add(new Book
                 {
                     Title = model.Title,
-                    
-                    
+
+
                     Author = new()
                     {
                         // AuthorId
@@ -64,7 +64,24 @@ namespace Database.Mapperdtotodb
 
             return books;
 
+        }
 
+        public static Book MapTobook(this BookinsertModel model)
+        {
+
+            var book = new Book
+            {
+                Title = model.Title,     
+                ISBN = model.ISBN,
+                Price = model.Price,
+                StockQuantity = model.StockQuantity,
+                PublicationDate = new DateOnly(model.PublicationDate.year, model.PublicationDate.month, model.PublicationDate.day),
+                Description = model.Description,
+
+            };
+
+
+            return book;
 
         }
 
