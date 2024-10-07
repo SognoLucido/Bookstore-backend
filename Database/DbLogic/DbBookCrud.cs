@@ -253,6 +253,12 @@ public class DbBookCrud : ICrudlayer
         //if (FilteredList.Count > 0)
         var Booklist = BooksFreecloneList.Where(x => !FilteredList.Contains(x.ISBN)).ToList();
 
+        foreach(var book in Booklist)
+        {
+            book.Author.FullName = book.Author.FullName.ToLower();
+            book.Category.Name = book.Category.Name.ToLower();
+        }
+        
         var Authorlist = Booklist.DistinctBy(d=>d.Author.FullName).Select(a=>a.Author.FullName.ToLower());
         var Categorylist = Booklist.DistinctBy(d => d.Category.Name).Select(a => a.Category.Name.ToLower());
 

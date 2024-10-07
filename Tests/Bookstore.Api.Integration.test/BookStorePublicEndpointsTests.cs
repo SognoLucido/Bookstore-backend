@@ -9,20 +9,11 @@ using System.Net.Http.Json;
 
 namespace Bookstore.Api.Integration.test
 {
-    public class BookStorePublicEndpointsTests : IClassFixture<ProgramTestApplicationFactory>, IAsyncLifetime
+    public class BookStorePublicEndpointsTests(ProgramTestApplicationFactory _factory) : IClassFixture<ProgramTestApplicationFactory>, IAsyncLifetime
     {
 
-        private readonly ProgramTestApplicationFactory factory;
-        private readonly DataseedperTestLogic seed;
-
-
-        public BookStorePublicEndpointsTests(ProgramTestApplicationFactory _factory)
-        {
-            factory = _factory;
-            seed = _factory.Services.GetRequiredService<DataseedperTestLogic>();
-
-        }
-
+        private readonly ProgramTestApplicationFactory factory = _factory;
+        private readonly DataseedperTestLogic seed = _factory.Services.GetRequiredService<DataseedperTestLogic>();
 
         [Fact]
         public async Task Public_apikey_service()
@@ -89,7 +80,7 @@ namespace Bookstore.Api.Integration.test
 
             _client.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Add("x-api-key", UserApikey.apiInfo.apikey);
-            //For default accounts, like the user we created earlier (TestUser), the limit for the API key service is 5 calls every 3 minutes (hardcoded) L180 DbBookCrud.cs
+            //For default accounts, like the user we created earlier (TestUser), the limit for the API key service is 5 calls every 3 minutes (hardcoded) 
             //We are testing the limit to ensure everything works correctly 
             for (int i = 0; i < 7; i++)
             {
@@ -165,7 +156,7 @@ namespace Bookstore.Api.Integration.test
 
             /////////////
 
-            Assert.Equal(4, getList.Count);
+            Assert.Equal(4, getList.Count  );
 
         }
 

@@ -10,19 +10,16 @@ namespace Bookstore_backend.Controllers
 {
     [Route("auth/")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController(ICrudlayer _dbcall) : ControllerBase
     {
-      
 
+        private readonly ICrudlayer dbcall = _dbcall;
 
         [HttpPost]
         [Route("register")]   
-        public async Task<IActionResult> Register([FromBody] Registration regi,[FromServices] ICrudlayer dbcall, CancellationToken token)
+        public async Task<IActionResult> Register([FromBody] Registration regi, CancellationToken token)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
+            if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
 
 
             if (await dbcall.Registration(regi, token))
@@ -40,12 +37,9 @@ namespace Bookstore_backend.Controllers
         /// </summary>
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login([FromBody] Login login, [FromServices] ICrudlayer dbcall,[FromServices] ITokenService tokengen, CancellationToken ctoken)
+        public async Task<IActionResult> Login([FromBody] Login login,[FromServices] ITokenService tokengen, CancellationToken ctoken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
+            if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
 
             var data = await dbcall.Login(login, ctoken);
 

@@ -17,22 +17,18 @@ namespace Bookstore_backend.Controllers
  
     [Route("api/")]
     [ApiController]
-    public class UserController : ControllerBase
+    [Authorize]
+    public class UserController(ICrudlayer crud) : ControllerBase
     {
 
-        private readonly ICrudlayer dbcall;
-        public UserController(ICrudlayer crud)
-        {
-            dbcall = crud;
+        private readonly ICrudlayer dbcall = crud;
 
-        }
         /// <summary>
         /// Get account information like -> apikey
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         [Route("userinfo")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfo))]
         public async Task<IActionResult> GetAccountInfo([FromServices] TokenBlocklist block)
         {
@@ -68,11 +64,10 @@ namespace Bookstore_backend.Controllers
 
 
         [HttpPost]
-        [Authorize]
         [Route("buybook")]
         public async Task<IActionResult> UserBuyTransaction([FromBody] BookPartialPaymentModel data, [FromServices] PaymentPortalx portalpay)
         {
-
+            if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
             var UserID = User.Claims.SingleOrDefault(x => x.Type == "UserID");
 
 
@@ -81,14 +76,8 @@ namespace Bookstore_backend.Controllers
             if(User.HasClaim("role","admin")) return BadRequest("only users");
 
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-
-
             var dbdata = await dbcall.GetInvoicebooks(data.BookItemList, GuidUserID);
+
             if (dbdata.Item1 is null || dbdata.Item2 is null) return BadRequest();
 
 
@@ -137,12 +126,11 @@ namespace Bookstore_backend.Controllers
         /// </param>
         [HttpPost]
         [Route("buysubtier")] // default = 0 XX
-        [Authorize]
         public async Task<IActionResult> BuySubscriptions([FromBody] PartialPaymentDetails data, [FromQuery] Subscription subscriptionTier, [FromServices] PaymentPortalx portalpay)
         {
 
 
-
+            if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
             Guid UserdbGuid = Guid.Empty;
             UserRole? role = null;
 

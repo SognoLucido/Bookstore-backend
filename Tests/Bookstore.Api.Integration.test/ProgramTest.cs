@@ -20,7 +20,7 @@ public class ProgramTestApplicationFactory : WebApplicationFactory<Program> , IA
 {
 
     private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder().Build();
-
+   
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
 
@@ -66,14 +66,14 @@ public class ProgramTestApplicationFactory : WebApplicationFactory<Program> , IA
 
 
 
-    Task IAsyncLifetime.InitializeAsync()
+    public async Task InitializeAsync()
     {
-        return _postgreSqlContainer.StartAsync();
+        await _postgreSqlContainer.StartAsync();
     }
 
-    Task IAsyncLifetime.DisposeAsync()
+    public new async Task DisposeAsync()
     {
-        return _postgreSqlContainer.DisposeAsync().AsTask();
+        await _postgreSqlContainer.DisposeAsync();
     }
 }
 

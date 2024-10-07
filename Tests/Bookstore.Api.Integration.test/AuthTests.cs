@@ -17,7 +17,7 @@ public class AuthTests(ProgramTestApplicationFactory factory) : IClassFixture<Pr
 {
 
     private readonly ProgramTestApplicationFactory _factory = factory;
-  
+   
 
     [Fact]
     public async Task Base_Authentication_Login()

@@ -2,12 +2,17 @@
 using Database.DatabaseLogic;
 using Database.Mapperdtotodb;
 using Database.Model;
+using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace Bookstore.Api.Integration.test.Dataseed
 {
+
+   
+
+
     public class DataseedperTestLogic(Booksdbcontext _context)
     {
         private readonly Booksdbcontext context = _context;
@@ -17,10 +22,25 @@ namespace Bookstore.Api.Integration.test.Dataseed
             await context.Database.ExecuteSqlRawAsync("DELETE FROM \"Books\"");
         }
 
+        public async Task CleanUser()
+        {
+            await context.Database.ExecuteSqlRawAsync(@" DELETE FROM ""Api"";DELETE FROM ""Customers"";");
+        }
+
+
+        public async Task InsertCustomAuthorCategory(string AuthorName , string CategoryName)
+        {
+            await context.Authors.AddAsync(new Author { FullName = AuthorName.ToLower(), Bio = "string" });
+            await context.Categories.AddAsync(new Category { Name = CategoryName.ToLower() });
+
+            await context.SaveChangesAsync();
+        }
+
         public async Task BaseDatabookseed()
         {
             var des = new JsonDataseedParsertest();
             var Booksdata = des.DataDeserialize();
+
 
             await context.Authors.AddRangeAsync(Booksdata.authors);
             await context.Categories.AddRangeAsync(Booksdata.categories);
@@ -32,6 +52,13 @@ namespace Bookstore.Api.Integration.test.Dataseed
         }
 
 
+        /// <summary>
+        /// This method Insert a book in the database .
+        /// </summary>
+        /// <remarks>
+        /// Use this method carefully; the Author and Category IDs are hardcoded to ID 1 , 
+        /// at least one Category and Author record must be created before calling this ;  call after BaseDatabookseed()
+        /// </remarks>
         public async Task InsertCustombook(BookinsertModel Custombook)
         {
             var BooktoInsert = Custombook.MapTobook();
@@ -44,7 +71,7 @@ namespace Bookstore.Api.Integration.test.Dataseed
         }
 
 
-        public async Task AuthDataSeedInit(Customer customer, string passw)
+        public async Task AuthDataSeedInit(Customer customer, string passw, UserRole role = UserRole.user)
         {
             var hasher = new Passhasher();
 
@@ -57,22 +84,37 @@ namespace Bookstore.Api.Integration.test.Dataseed
             {
                 CustomerId = customer.Id,
                 Apikey = Guid.NewGuid(),
-                SubscriptionTier = Subscription.Tier2
+                SubscriptionTier = role == UserRole.admin ? Subscription.Tier2 : Subscription.Tier0
 
             };
-
-
-
-            //var check1 =context.Database.CanConnect();
-            //var check2 =context.Database.EnsureCreated();
-
 
 
             await context.Customers.AddAsync(customer);
             await context.SaveChangesAsync();
         }
 
+        public async Task InsertDummyuser(Login user, UserRole role = UserRole.user)
+        {
+            var Testuser = new Customer()
+            {
+                Id = Guid.NewGuid(),
+                FirstName = role == UserRole.admin ? "Admin" : "Test",
+                LastName = role == UserRole.admin ? "Admin" : "User",
+                Email = user.Email,
+                //password
+                //salt
+                Address = "home",
+                Phone = "string",
+                RolesModelId = (int)role
 
+
+            };
+
+
+            await AuthDataSeedInit(Testuser, user.Password, role);
+
+
+        }
 
 
 

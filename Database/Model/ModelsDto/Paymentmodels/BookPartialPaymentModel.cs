@@ -38,8 +38,7 @@ namespace Database.Model.ModelsDto.PaymentPartialmodels
         public string CardHolderName { get; set; }
 
         [Required]
-        [MaxLength(16)]
-        [RegularExpression("^[0-9]+$")]
+        [RegularExpression("^[0-9]{16}$")]
         public string CardNumber { get; set; }
 
         [Required]

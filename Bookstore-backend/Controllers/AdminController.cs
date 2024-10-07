@@ -5,6 +5,7 @@ using Database.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -14,15 +15,10 @@ namespace Bookstore_backend.Controllers
     [Route("api/")]
     [ApiController]
     [Authorize("AdminOnly")]
-    public class AdminController : ControllerBase
+    public class AdminController(ICrudlayer _dbcall) : ControllerBase
     {
 
-        private readonly ICrudlayer dbcall;
-        public AdminController(ICrudlayer crud)
-        {
-            dbcall = crud;
-
-        }
+        private readonly ICrudlayer dbcall = _dbcall;
 
 
 
@@ -118,8 +114,10 @@ namespace Bookstore_backend.Controllers
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(List<DetailedFilterBookModel>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(Respostebookapi))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(Respostebookapi))]
-        public async Task<IActionResult> InsertBook([FromBody][Required] List<BookinsertModel?> bodydata) 
+        public async Task<IActionResult> InsertBook([FromBody][Required] List<BookinsertModel?> bodydata)
         {
+
+            if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
 
             if (bodydata.Count  == 0 ) return BadRequest();
 
@@ -156,7 +154,7 @@ namespace Bookstore_backend.Controllers
         public async Task<IActionResult> InsertCategoryxAuthor([FromBody] CategoryandAuthorDto body , bool AuthorUpinsert)
         {
 
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
             if (body.Category is null && body.Author is null) return BadRequest();
 
          return await dbcall.UpinsertAuthorsxCategories(body,AuthorUpinsert) == true ? Ok() : BadRequest() ;
@@ -185,7 +183,7 @@ namespace Bookstore_backend.Controllers
         {
 
             //
-
+            if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
 
             if (await dbcall.AddOrOverrideStockQuantitybyISBN(ISBN, qnty, ForceOverride ?? false, cToken))
             {
@@ -265,7 +263,7 @@ namespace Bookstore_backend.Controllers
 
 
 
-
+        //todo GET customer order history
 
 
 

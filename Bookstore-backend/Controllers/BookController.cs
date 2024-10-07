@@ -11,16 +11,9 @@ namespace Bookstore_backend.Controllers
 {
 
     [ApiController]
-    public class BookStoreController : ControllerBase
+    public class BookStoreController(ICrudlayer _dbcall) : ControllerBase
     {
-        private readonly ICrudlayer dbcall;
-
-
-        public BookStoreController(ICrudlayer crud)
-        {
-            dbcall = crud;
-
-        }
+        private readonly ICrudlayer dbcall = _dbcall;
 
         /// <summary>
         /// substring matching with limit result hardcoded to 5 
@@ -55,10 +48,6 @@ namespace Bookstore_backend.Controllers
         public async Task<IActionResult> GetBookList([FromQuery] Pagemodel pagesettings, CancellationToken cToken)
         {
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             var data = await dbcall.RawReturn(pagesettings.Page, pagesettings.Pagesize, cToken);
 
