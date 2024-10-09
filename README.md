@@ -14,7 +14,7 @@ Simple backend api service for a bookstore
 - docker / compose
 - Postgres
      
-**Check Out the Unix Tests** : [Xunit Tests](Tests/).   
+**Check Out the xUnit Tests** : [xUnit Tests](Tests/).   
 
 ***TODO***: 
 - [x] Minimal APIs (check branch)
