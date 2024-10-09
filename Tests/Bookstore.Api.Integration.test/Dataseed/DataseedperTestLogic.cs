@@ -1,10 +1,13 @@
-﻿using Database.ApplicationDbcontext;
+﻿using Bookstore.Api.Integration.test.Model;
+using Database.ApplicationDbcontext;
 using Database.DatabaseLogic;
 using Database.Mapperdtotodb;
 using Database.Model;
 using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
 using Microsoft.EntityFrameworkCore;
+using Subscription = Database.Model.Subscription;
+
 
 
 namespace Bookstore.Api.Integration.test.Dataseed
@@ -22,11 +25,15 @@ namespace Bookstore.Api.Integration.test.Dataseed
             await context.Database.ExecuteSqlRawAsync("DELETE FROM \"Books\"");
         }
 
+        public async Task CleanAuthorNCategory()
+        {
+            await context.Database.ExecuteSqlRawAsync(@" DELETE FROM ""Authors"";DELETE FROM ""Categories"";");
+        }
+
         public async Task CleanUser()
         {
             await context.Database.ExecuteSqlRawAsync(@" DELETE FROM ""Api"";DELETE FROM ""Customers"";");
         }
-
 
         public async Task InsertCustomAuthorCategory(string AuthorName , string CategoryName)
         {
@@ -117,7 +124,23 @@ namespace Bookstore.Api.Integration.test.Dataseed
         }
 
 
+        public async Task<AuthorNCategoryOnlyNames> CheckAuthorNCategory()
+        {
 
+            return new AuthorNCategoryOnlyNames
+            {
+                Authors = await context.Authors.Select(x=>x.FullName).ToListAsync(),
+                Category = await context.Categories.Select(x => x.Name).ToListAsync(),
+            };
 
+        }
+
+        public async Task<int> Checkstockitemdb(string isbn) => await context.Books.Where(x => x.ISBN == isbn).Select(s => s.StockQuantity).FirstAsync();
+       
+        public async Task<Decimal> CheckBookPrice(string isbn) => await context.Books.Where(x=>x.ISBN == isbn).Select(s=>s.Price).FirstAsync();
+
+        public async Task<bool> Checkbookexist(string isbn) => await context.Books.AnyAsync(x => x.ISBN == isbn);
+
+        public async Task<bool> UserExist (string email) => await context.Customers.AnyAsync(x => x.Email == email);
     }
 }

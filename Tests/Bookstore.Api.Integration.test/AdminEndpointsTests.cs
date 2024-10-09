@@ -4,6 +4,7 @@ using Database.Model;
 using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
@@ -183,15 +184,298 @@ namespace Bookstore.Api.Integration.test
 
 
 
+        [Fact]
+        public async Task Insert_AuthorAndCategory()
+        {
+
+
+            // we need an endpoint to check before testing Insert_AuthorAndCategory() , TODO like /api/admin/Singleitemsearch/
+            // Since we can only check the author or category on a book search query
+            // we need to insert a book with author&category and call the searchendpoint or query the db context manually 
+
+            //temp checking with the dbcontext Test 
+            var AdminCredentials = new Login()
+            {
+                Email = "admin@example.com",
+                Password = "password123"
+            };
+            var data = new CategoryandAuthorDto
+            {
+                Author =
+                [
+                    new() { FullName = "Author1test" , Bio = "string"},
+                    new() { FullName = "Author2test" , Bio = "string"},
+                    new() { FullName = "Author1test" , Bio = "string"}
+                ],
+                Category =
+                [
+                    new() { Name = "fantasy"},
+                    new() { Name = "hello"},
+                    new() { Name = "hello"}
+                ]
+            };
+
+            await seed.InsertDummyuser(AdminCredentials, UserRole.admin);
+
+            /////////////////////
+
+            var adminTokenBody = await client.PostAsJsonAsync("auth/login", AdminCredentials);
+            var adminTokenraw = adminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminTokenraw.Result.result);
+
+            var insertdata = await client.PostAsJsonAsync("/api/upsertINFO", data);
+
+            var dbdata = await seed.CheckAuthorNCategory();
+            //  int totaladdedtodb = dbdata.Authors.Count + dbdata.Category.Count;
+
+            //////////////////////
+
+
+            Assert.Equal(HttpStatusCode.OK, insertdata.StatusCode);
+            // Assert.Equal(4, totaladdedtodb); TODO fix: we are sharing the database istance with all adminendpointtest ,
+            Assert.Contains(data.Author[1].FullName, dbdata.Authors);
+            Assert.Contains(data.Category[0].Name, dbdata.Category);
+
+
+
+        }
+
+
+
+        [Fact]
+        public async Task BookStock_Test()
+        {
+
+            var AdminCredentials = new Login()
+            {
+                Email = "admin@example.com",
+                Password = "password123"
+            };
+            var Fakebook = new BookinsertModel
+            {
+                Title = "test",
+                ISBN = "0000000000101",
+                Price = 10,
+                StockQuantity = 10,
+                PublicationDate = new()
+                {
+                    year = 2000,
+                    month = 1,
+                    day = 1,
+                },
+                Description = "test",
+
+            };
+
+            await seed.BaseDatabookseed();
+            await seed.InsertCustombook(Fakebook);
+            await seed.InsertDummyuser(AdminCredentials, UserRole.admin);
+            const int testAddint = 10;
+            const int testOverrideInt = 2;
+
+
+            /////////////////
+
+            var adminTokenBody = await client.PostAsJsonAsync("auth/login", AdminCredentials);
+            var adminTokenraw = adminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminTokenraw.Result.result);
+
+
+            var additemstostockN = await client.PatchAsync($"api/bookstock/{Fakebook.ISBN}?qnty={testAddint}", null);
+
+            int itemAddResult = await seed.Checkstockitemdb(Fakebook.ISBN);
+
+            var ovverideitemstock = await client.PatchAsync($"api/bookstock/{Fakebook.ISBN}?qnty={testOverrideInt}&ForceOverride=True", new StringContent(string.Empty));
+
+            int itemOverrideResult = await seed.Checkstockitemdb(Fakebook.ISBN);
+
+            ////////////////
+
+            Assert.Equal(Fakebook.StockQuantity + testAddint, itemAddResult);
+            Assert.Equal(testOverrideInt, itemOverrideResult);
+
+        }
+
+
+        [Fact]
+        public async Task BookPrice_Test()
+        {
+
+            var AdminCredentials = new Login()
+            {
+                Email = "admin@example.com",
+                Password = "password123"
+            };
+            var Fakebook = new BookinsertModel
+            {
+                Title = "test",
+                ISBN = "0000000000101",
+                Price = 10,
+                StockQuantity = 10,
+                PublicationDate = new()
+                {
+                    year = 2000,
+                    month = 1,
+                    day = 1,
+                },
+                Description = "test",
+
+            };
+
+            await seed.BaseDatabookseed();
+            await seed.InsertCustombook(Fakebook);
+            await seed.InsertDummyuser(AdminCredentials, UserRole.admin);
+
+            const Decimal newPrice = 15.5M;
+
+            ///////////////////
+
+            var adminTokenBody = await client.PostAsJsonAsync("auth/login", AdminCredentials);
+            var adminTokenraw = adminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminTokenraw.Result.result);
+
+            var CurrentPrice = await seed.CheckBookPrice(Fakebook.ISBN);
+
+            var ChangePrice = await client.PatchAsync($"api/bookprice/{Fakebook.ISBN}?price={newPrice.ToString(CultureInfo.InvariantCulture)}", null);
+
+            var PriceUpdated = await seed.CheckBookPrice(Fakebook.ISBN);
+
+            //////////////////
+
+
+            Assert.Equal(Fakebook.Price, CurrentPrice);
+            Assert.Equal(HttpStatusCode.OK, ChangePrice.StatusCode);
+            Assert.Equal(newPrice, PriceUpdated);
+            Assert.NotEqual(CurrentPrice, PriceUpdated);
+
+
+        }
+
+
+        [Fact]
+        public async Task DeleteBook_ByISBN()
+        {
+            var AdminCredentials = new Login()
+            {
+                Email = "admin@example.com",
+                Password = "password123"
+            };
+
+            string AuthorNameToinsert = "TestAuthor";
+            string CategoryNameToinsert = "TestCategory";
+
+            var FakebookList = new List<BookinsertModel>
+            {
+                new()
+                {
+                Title = "testdeletebook",
+                Author =  AuthorNameToinsert,
+                Category = CategoryNameToinsert,
+                ISBN = "0000000000111",
+                Price = 10,
+                StockQuantity = 100,
+                PublicationDate = new()
+                {
+                    year = 2000,
+                    month = 1,
+                    day = 1,
+                },
+                Description = "test",
+                 }
+            };
+
+
+
+            await seed.InsertCustomAuthorCategory(AuthorNameToinsert, CategoryNameToinsert);
+            await seed.InsertDummyuser(AdminCredentials, UserRole.admin);
+
+            /////////////////////
+            var adminTokenBody = await client.PostAsJsonAsync("auth/login", AdminCredentials);
+            var adminTokenraw = adminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminTokenraw.Result.result);
+
+            var insertBook = await client.PostAsJsonAsync("api/book", FakebookList);
+
+            bool existAfterinsert = await seed.Checkbookexist(FakebookList[0].ISBN);
+
+            var deletebook = await client.DeleteAsync($"/api/book/{FakebookList[0].ISBN}");
+
+            var dexistAfterdelete = await seed.Checkbookexist(FakebookList[0].ISBN);
+
+            ////////////////////
+
+            Assert.Equal(HttpStatusCode.Created, insertBook.StatusCode);
+            Assert.True(existAfterinsert);
+            Assert.False(dexistAfterdelete);
+
+
+        }
+
+        [Fact]
+        public async Task DeleteOthersAccount()
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var UserCredentials = new Login()
+            {
+                Email = "user@example.com",
+                Password = "password123",
+            };
+            var AdminCredentials = new Login()
+            {
+                Email = "testadmin@example.com",
+                Password = "admin"
+            };
+
+            await seed.InsertDummyuser(AdminCredentials, UserRole.admin);
+            await seed.InsertDummyuser(UserCredentials);
+
+            //////////////////////
+
+
+            var UserLogin = await client.PostAsJsonAsync("auth/login", UserCredentials);
+
+            var adminTokenBody = await client.PostAsJsonAsync("auth/login", AdminCredentials);
+            var adminTokenraw = adminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminTokenraw.Result.result);
+            var deleteuser = await client.DeleteAsync($"/api/account?email={UserCredentials.Email}");
+
+            var UserTryTologin = await client.PostAsJsonAsync("auth/login", UserCredentials);
+            var UserExist = await seed.UserExist(UserCredentials.Email);
+
+            await seed.InsertDummyuser(UserCredentials);
+            var UserTryTologinAfterInsert = await client.PostAsJsonAsync("auth/login", UserCredentials);
+            var userTokenraw = await UserTryTologinAfterInsert.Content.ReadFromJsonAsync<Tokenlogin>();
+            var userToken = tokenHandler.ReadJwtToken(userTokenraw.result);
+            var userClaimUserID = userToken.Claims.First(x => x.Type == "UserID").Value;
+
+            var deleteuserByuserID = await client.DeleteAsync($"/api/account?userid={userClaimUserID}");
+
+            var existafterUserIDdel = await seed.UserExist(UserCredentials.Email);
+
+            //////////////////////
+
+            Assert.Equal(HttpStatusCode.OK, UserLogin.StatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, UserTryTologin.StatusCode);
+            Assert.False(UserExist);
+            Assert.Equal(HttpStatusCode.OK, UserTryTologinAfterInsert.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, deleteuserByuserID.StatusCode);
+            Assert.False(existafterUserIDdel);
+
+
+
+        }
 
         public async Task DisposeAsync()
         {
             await seed.CleanUser();
+            await seed.CleanBooks();
+
         }
 
-        public Task InitializeAsync()
+        public async Task InitializeAsync()
         {
-            return Task.CompletedTask;
+            //await seed.CleanAuthorNCategory();
+            await Task.CompletedTask;
         }
     }
 }

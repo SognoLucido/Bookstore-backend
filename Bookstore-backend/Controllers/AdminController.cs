@@ -176,7 +176,7 @@ namespace Bookstore_backend.Controllers
         /// <returns></returns>
         [HttpPatch("bookstock/{ISBN}")]
         public async Task<IActionResult> AddOrOverrideStockQuantitybyISBN(
-            [FromRoute][MaxLength(30)][RegularExpression("^[0-9]*$")] string ISBN,
+            [FromRoute][MaxLength(30)][RegularExpression("^[0-9]{13}$")] string ISBN,
             [FromQuery][Required] int qnty,
             [FromQuery] bool? ForceOverride, // if true override the current dbstock-qnty with the qnty  , if not just add += qnty to the dbstock qnty 
             CancellationToken cToken)
@@ -196,7 +196,7 @@ namespace Bookstore_backend.Controllers
 
         [HttpPatch("bookprice/{ISBN}")]
         public async Task<IActionResult> Changeprice(
-            [FromRoute][MaxLength(30)][RegularExpression("^[0-9]*$")] string ISBN,
+            [FromRoute][MaxLength(30)][RegularExpression("^[0-9]{13}$")] string ISBN,
             [FromQuery] decimal price,
             CancellationToken ctoken)
         {
@@ -213,7 +213,7 @@ namespace Bookstore_backend.Controllers
 
         [HttpDelete("book/{ISBN}")]
      
-        public async Task<IActionResult> DeletebyISBN([FromRoute][RegularExpression("^[0-9]*$")] string ISBN, CancellationToken cToken)
+        public async Task<IActionResult> DeletebyISBN([FromRoute][RegularExpression("^[0-9]{13}$")] string ISBN, CancellationToken cToken)
         {
 
             if (await dbcall.Deletebyisbn(ISBN, cToken))

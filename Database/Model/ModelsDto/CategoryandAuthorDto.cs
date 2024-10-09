@@ -10,9 +10,9 @@ namespace Database.Model.ModelsDto
     public class CategoryandAuthorDto
     {
 
-        public List<AuthorinsertDto>? Author { get; set; }
+        public List<AuthorinsertDto?>? Author { get; set; }
 
-        public List<CategoryinsertDto>? Category { get; set; }
+        public List<CategoryinsertDto?>? Category { get; set; }
     }
 
 

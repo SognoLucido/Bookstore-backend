@@ -191,12 +191,6 @@ namespace Bookstore.Api.Integration.test
 
 
 
-
-
-
-
-
-
         public Task InitializeAsync()
         {
            return Task.CompletedTask;
@@ -208,45 +202,6 @@ namespace Bookstore.Api.Integration.test
         }
 
 
-
-
-
-
-
-        //private async Task pepo(ProgramTestApplicationFactory factory)
-        //{
-        //    //if (string.IsNullOrEmpty(Token))
-        //    //{
-
-        //    //    var _client = factory.CreateClient();
-        //    //    var TestUser = new Registration
-        //    //    {
-        //    //        FirstName = "test",
-        //    //        LastName = "user",
-        //    //        Email = "userv1@example.com",
-        //    //        Password = "password123",
-        //    //        Address = "string",
-        //    //        Phone = "string"
-
-        //    //    };
-        //    //    var UserCredentials = new Login()
-        //    //    {
-        //    //        Email = TestUser.Email,
-        //    //        Password = TestUser.Password,
-        //    //    };
-
-
-        //    //    var InsertUserBody = await _client.PostAsJsonAsync("auth/register", TestUser);
-        //    //    var UserTokenBody = await _client.PostAsJsonAsync("auth/login", UserCredentials);
-
-        //    //    var UserTokenraw = UserTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
-        //    //    Token = UserTokenraw.Result?.result ?? throw new Exception("TestUser login InitializeAsync failed");
-
-
-
-        //    //    _client.Dispose();
-        //    //}
-        //}
 
     }
 }

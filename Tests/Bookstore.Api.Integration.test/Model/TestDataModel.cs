@@ -18,6 +18,13 @@ namespace Bookstore.Api.Integration.test.Model
     public record SubtierInfo (Subscription apiInfo);
     public record Apikey (string apikey);
     public record Subscription(string subscriptionTier);
+
+
+    public class AuthorNCategoryOnlyNames
+    {
+       public List<string> Authors { get; set; }
+       public  List<string> Category { get; set; }
+    }
   
 
 
