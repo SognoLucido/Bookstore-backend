@@ -13,6 +13,8 @@ Simple backend api service for a bookstore
 - SwaggerUI
 - docker / compose
 - Postgres
+     
+**Check Out the Unix Tests** : [Xunit Tests](Tests/).   
 
 ***TODO***: 
 - [x] Minimal APIs (check branch)
