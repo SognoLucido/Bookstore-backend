@@ -11,13 +11,13 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 
-namespace Bookstore.Api.Integration.test;
+namespace Bookstore.Api.Integration.test.EndpointsTests;
 
-public class AuthTests(ProgramTestApplicationFactory factory) : IClassFixture<ProgramTestApplicationFactory> 
+public class AuthTests(ProgramTestApplicationFactory factory) : IClassFixture<ProgramTestApplicationFactory>
 {
 
     private readonly ProgramTestApplicationFactory _factory = factory;
-   
+
 
     [Fact]
     public async Task Base_Authentication_Login()
@@ -40,7 +40,7 @@ public class AuthTests(ProgramTestApplicationFactory factory) : IClassFixture<Pr
         {
             Email = TestUser.Email,
             Password = TestUser.Password,
-        };  
+        };
         var AdminCredentials = new Login()  //safetoedit
         {
             Email = "testadmin@example.com",
@@ -60,21 +60,21 @@ public class AuthTests(ProgramTestApplicationFactory factory) : IClassFixture<Pr
 
         };
 
-        
+
         await DBseed.AuthDataSeedInit(AdminCreation, AdminCredentials.Password);
 
-     
+
         ////////////////////////
 
         //token roles validation logic
         var InsertUserBody = await _client.PostAsJsonAsync("auth/register", TestUser);
-        var UserTokenBody = await _client.PostAsJsonAsync("auth/login",UserCredentials );
+        var UserTokenBody = await _client.PostAsJsonAsync("auth/login", UserCredentials);
         var AdminTokenBody = await _client.PostAsJsonAsync("auth/login", AdminCredentials);
 
         var UserTokenraw = UserTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
         var AdminTokenraw = AdminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
 
-        var UserToken =  tokenHandler.ReadJwtToken(UserTokenraw.Result.result);
+        var UserToken = tokenHandler.ReadJwtToken(UserTokenraw.Result.result);
         var AdminToken = tokenHandler.ReadJwtToken(AdminTokenraw.Result.result);
 
         var UserClaimRole = UserToken.Claims.SingleOrDefault(x => x.Type == "ruoli");
@@ -83,10 +83,10 @@ public class AuthTests(ProgramTestApplicationFactory factory) : IClassFixture<Pr
         //user data validation logic
 
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", UserTokenraw.Result.result);
-        
+
         var Userdata = await _client.GetFromJsonAsync<Data>("api/userinfo");
 
-     
+
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AdminTokenraw.Result.result);
         var Admindata = await _client.GetFromJsonAsync<Data>("api/userinfo");
 
@@ -95,12 +95,12 @@ public class AuthTests(ProgramTestApplicationFactory factory) : IClassFixture<Pr
         Assert.Equal("user", UserClaimRole.Value);
         Assert.Equal("admin", AdminClaimRole.Value);
         Assert.Equal(TestUser.FirstName + TestUser.LastName, Userdata.firstname + Userdata.lastname);
-        Assert.Equal(AdminCreation.FirstName+ AdminCreation.LastName, Admindata.firstname + Admindata.lastname);
+        Assert.Equal(AdminCreation.FirstName + AdminCreation.LastName, Admindata.firstname + Admindata.lastname);
         Assert.Equal(TestUser.Email, Userdata.email);
         Assert.Equal(AdminCredentials.Email, Admindata.email);
         Assert.Equal(HttpStatusCode.OK, InsertUserBody.StatusCode);
 
     }
 
- 
+
 }

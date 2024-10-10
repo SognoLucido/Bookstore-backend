@@ -10,9 +10,9 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace Bookstore.Api.Integration.test
+namespace Bookstore.Api.Integration.test.EndpointsTests
 {
-    public class UserEndpointTests(ProgramTestApplicationFactory _factory) : IClassFixture<ProgramTestApplicationFactory> ,IAsyncLifetime
+    public class UserEndpointTests(ProgramTestApplicationFactory _factory) : IClassFixture<ProgramTestApplicationFactory>, IAsyncLifetime
     {
 
         private readonly ProgramTestApplicationFactory factory = _factory;
@@ -24,15 +24,15 @@ namespace Bookstore.Api.Integration.test
         public async Task User_BuysubTier()
         {
             var client = factory.CreateClient();
-          
+
             var UserCredentials = new Login()
             {
-                Email =  "user@example.com",
+                Email = "user@example.com",
                 Password = "password123"
             };
 
             await seed.InsertDummyuser(UserCredentials);
-            
+
             var paymentdata = new PartialPaymentDetails
             {
                 CardHolderName = "test",
@@ -65,7 +65,7 @@ namespace Bookstore.Api.Integration.test
             Assert.Equal("Tier2", tier2check.apiInfo.subscriptionTier);
 
 
-          
+
 
         }
 
@@ -73,7 +73,7 @@ namespace Bookstore.Api.Integration.test
         public async Task User_buybook()
         {
             var client = factory.CreateClient();
-           
+
             await seed.BaseDatabookseed();
 
             var UserCredentials = new Login()
@@ -128,7 +128,7 @@ namespace Bookstore.Api.Integration.test
             //////////////////////
 
 
-        
+
             var UserTokenBody = await client.PostAsJsonAsync("auth/login", UserCredentials);
             var UserTokenraw = UserTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
 
@@ -145,11 +145,11 @@ namespace Bookstore.Api.Integration.test
 
             ///////////////////
 
-             Assert.Equal(HttpStatusCode.BadRequest, buyingOverstock.StatusCode);  //The request is dropped before reaching the payment portal (check it in db and drop)
+            Assert.Equal(HttpStatusCode.BadRequest, buyingOverstock.StatusCode);  //The request is dropped before reaching the payment portal (check it in db and drop)
             Assert.Equal(HttpStatusCode.OK, buybook.StatusCode);
 
 
-            
+
 
         }
 
@@ -167,7 +167,7 @@ namespace Bookstore.Api.Integration.test
             await seed.InsertDummyuser(UserCredentials);
 
             //////////////////
-            
+
             var UserTokenBody = await client.PostAsJsonAsync("auth/login", UserCredentials);
             var UserTokenraw = UserTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
 
@@ -178,7 +178,7 @@ namespace Bookstore.Api.Integration.test
             var checkUserexistPart2 = await client.GetAsync("api/userinfo");
 
             /////////////////
-            
+
             Assert.Equal(HttpStatusCode.OK, checkUserexistPart1.StatusCode);
             Assert.Equal(HttpStatusCode.OK, deleteAccount.StatusCode);
             Assert.Equal(HttpStatusCode.Unauthorized, checkUserexistPart2.StatusCode);
@@ -193,7 +193,7 @@ namespace Bookstore.Api.Integration.test
 
         public Task InitializeAsync()
         {
-           return Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public async Task DisposeAsync()

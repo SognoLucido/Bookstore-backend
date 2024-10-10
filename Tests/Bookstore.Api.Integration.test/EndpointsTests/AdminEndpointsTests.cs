@@ -10,7 +10,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace Bookstore.Api.Integration.test
+namespace Bookstore.Api.Integration.test.EndpointsTests
 {
     public class AdminEndpointsTests(ProgramTestApplicationFactory _factory) : IClassFixture<ProgramTestApplicationFactory>, IAsyncLifetime
     {
@@ -129,8 +129,8 @@ namespace Bookstore.Api.Integration.test
                 Password = "password123"
             };
 
-            string AuthorNameToinsert = "TestAuthor";
-            string CategoryNameToinsert = "TestCategory";
+            string AuthorNameToinsert = "TestAuthorx";
+            string CategoryNameToinsert = "TestCategoryx";
 
             var FakebookList = new List<BookinsertModel>
             {
@@ -326,7 +326,7 @@ namespace Bookstore.Api.Integration.test
             await seed.InsertCustombook(Fakebook);
             await seed.InsertDummyuser(AdminCredentials, UserRole.admin);
 
-            const Decimal newPrice = 15.5M;
+            const decimal newPrice = 15.5M;
 
             ///////////////////
 

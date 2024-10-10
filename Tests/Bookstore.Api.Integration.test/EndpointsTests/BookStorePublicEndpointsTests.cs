@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace Bookstore.Api.Integration.test
+namespace Bookstore.Api.Integration.test.EndpointsTests
 {
     public class BookStorePublicEndpointsTests(ProgramTestApplicationFactory _factory) : IClassFixture<ProgramTestApplicationFactory>, IAsyncLifetime
     {
@@ -156,7 +156,7 @@ namespace Bookstore.Api.Integration.test
 
             /////////////
 
-            Assert.Equal(4, getList.Count  );
+            Assert.Equal(4, getList.Count);
 
         }
 
