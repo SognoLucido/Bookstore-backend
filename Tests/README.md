@@ -2,10 +2,6 @@
 > Docker is required for integration tests
 >
 
-> [!WARNING]
->  Integration test container logic needs a rework!! Each test class shares the same database environment, which can cause problems/bugs.
-> 
-
 ## ***TESTBookstore.Api.Integration.test*** : 
  **AuthTest.cs** :
 - Authentication Tests:
