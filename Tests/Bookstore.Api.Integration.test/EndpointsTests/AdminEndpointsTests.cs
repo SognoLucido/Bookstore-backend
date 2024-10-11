@@ -10,53 +10,83 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
+
+
 namespace Bookstore.Api.Integration.test.EndpointsTests
 {
-    public class AdminEndpointsTests(ProgramTestApplicationFactory _factory) : IClassFixture<ProgramTestApplicationFactory>, IAsyncLifetime
+
+
+    [CollectionDefinition("Admincollection", DisableParallelization = true)]
+    public class DatabaseCollection : IClassFixture<ProgramTestApplicationFactory>
+    {
+
+    }
+
+
+
+    [Collection("Admincollection")]
+    public class AdminEndpointsTests_Part1(ProgramTestApplicationFactory _factory) : IAsyncLifetime
     {
 
         private readonly HttpClient client = _factory.CreateClient();
         private readonly DataseedperTestLogic seed = _factory.Services.GetRequiredService<DataseedperTestLogic>();
 
 
+
         [Fact]
-        public async Task AdminSearch_books()
+        public async Task Insert_AuthorAndCategory()
         {
-            var adminCredentials = new Login()
+
+
+            // we need an endpoint to check before testing Insert_AuthorAndCategory() , TODO like /api/admin/Singleitemsearch/
+            // Since we can only check the author or category on a book search query
+            // we need to insert a book with author&category and call the searchendpoint or query the db context manually 
+
+            //temp checking with the dbcontext Test 
+            var AdminCredentials = new Login()
             {
                 Email = "admin@example.com",
                 Password = "password123"
             };
+            var data = new CategoryandAuthorDto
+            {
+                Author =
+                [
+                    new() { FullName = "Author1test" , Bio = "string"},
+                    new() { FullName = "Author2test" , Bio = "string"},
+                    new() { FullName = "Author1test" , Bio = "string"}
+                ],
+                Category =
+                [
+                    new() { Name = "fantasy"},
+                    new() { Name = "hello"},
+                    new() { Name = "hello"}
+                ]
+            };
 
-            await seed.BaseDatabookseed();
-            await seed.BaseDatabookseed();
-            await seed.InsertDummyuser(adminCredentials, UserRole.admin);
+            await seed.InsertDummyuser(AdminCredentials, UserRole.admin);
 
-            //////////////////////
+            /////////////////////
 
-            var adminTokenBody = await client.PostAsJsonAsync("auth/login", adminCredentials);
+            var adminTokenBody = await client.PostAsJsonAsync("auth/login", AdminCredentials);
             var adminTokenraw = adminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminTokenraw.Result.result);
 
-            var Getallbooks = await client.GetFromJsonAsync<List<DetailedFilterBookModel>>("/api/admin/search");
+            var insertdata = await client.PostAsJsonAsync("/api/upsertINFO", data);
 
-            // The normal API book search is hardcoded with a limit of 5 items per call, but the admin version (which we are testing) is unlimited
-            // We inserted 10 books (await seed.BaseDataBookSeed() x2), so we expect all 10 books
-            int Bookscount = Getallbooks?.Count ?? 0;
+            var dbdata = await seed.CheckAuthorNCategory();
+             int totaladdedtodb = dbdata.Authors.Count + dbdata.Category.Count;
+
             //////////////////////
 
 
-            Assert.Equal(10, Bookscount);
+            Assert.Equal(HttpStatusCode.OK, insertdata.StatusCode);
+            Assert.Equal(4, totaladdedtodb); 
+            Assert.Contains(data.Author[1].FullName, dbdata.Authors);
+            Assert.Contains(data.Category[0].Name, dbdata.Category);
 
 
         }
-
-
-
-
-
-
-
 
         [Fact]
         public async Task ChangeRole()
@@ -117,6 +147,62 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
 
         }
 
+
+
+       
+        public Task InitializeAsync()
+        {
+           return Task.CompletedTask;
+        }
+
+        public async Task DisposeAsync()
+        {
+            await seed.CleanUser();
+            await seed.CleanAuthorNCategory();
+        }
+    }
+
+
+
+    [Collection("Admincollection")]
+    public class AdminEndpointsTests_Part2(ProgramTestApplicationFactory _factory) : IAsyncLifetime
+    {
+
+        private readonly HttpClient client = _factory.CreateClient();
+        private readonly DataseedperTestLogic seed = _factory.Services.GetRequiredService<DataseedperTestLogic>();
+
+
+        [Fact]
+        public async Task AdminSearch_books()
+        {
+            var adminCredentials = new Login()
+            {
+                Email = "admin@example.com",
+                Password = "password123"
+            };
+
+            await seed.BaseDatabookseed();
+            await seed.BaseDatabookseed();
+            await seed.InsertDummyuser(adminCredentials, UserRole.admin);
+
+            //////////////////////
+
+            var adminTokenBody = await client.PostAsJsonAsync("auth/login", adminCredentials);
+            var adminTokenraw = adminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminTokenraw.Result.result);
+
+            var Getallbooks = await client.GetFromJsonAsync<List<DetailedFilterBookModel>>("/api/admin/search");
+
+            // The normal API book search is hardcoded with a limit of 5 items per call, but the admin version (which we are testing) is unlimited
+            // We inserted 10 books (await seed.BaseDataBookSeed() x2), so we expect all 10 books
+            int Bookscount = Getallbooks?.Count ?? 0;
+            //////////////////////
+
+
+            Assert.Equal(10, Bookscount);
+
+
+        }
 
 
 
@@ -183,62 +269,6 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
 
 
 
-
-        [Fact]
-        public async Task Insert_AuthorAndCategory()
-        {
-
-
-            // we need an endpoint to check before testing Insert_AuthorAndCategory() , TODO like /api/admin/Singleitemsearch/
-            // Since we can only check the author or category on a book search query
-            // we need to insert a book with author&category and call the searchendpoint or query the db context manually 
-
-            //temp checking with the dbcontext Test 
-            var AdminCredentials = new Login()
-            {
-                Email = "admin@example.com",
-                Password = "password123"
-            };
-            var data = new CategoryandAuthorDto
-            {
-                Author =
-                [
-                    new() { FullName = "Author1test" , Bio = "string"},
-                    new() { FullName = "Author2test" , Bio = "string"},
-                    new() { FullName = "Author1test" , Bio = "string"}
-                ],
-                Category =
-                [
-                    new() { Name = "fantasy"},
-                    new() { Name = "hello"},
-                    new() { Name = "hello"}
-                ]
-            };
-
-            await seed.InsertDummyuser(AdminCredentials, UserRole.admin);
-
-            /////////////////////
-
-            var adminTokenBody = await client.PostAsJsonAsync("auth/login", AdminCredentials);
-            var adminTokenraw = adminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminTokenraw.Result.result);
-
-            var insertdata = await client.PostAsJsonAsync("/api/upsertINFO", data);
-
-            var dbdata = await seed.CheckAuthorNCategory();
-            //  int totaladdedtodb = dbdata.Authors.Count + dbdata.Category.Count;
-
-            //////////////////////
-
-
-            Assert.Equal(HttpStatusCode.OK, insertdata.StatusCode);
-            // Assert.Equal(4, totaladdedtodb); TODO fix: we are sharing the database istance with all adminendpointtest ,
-            Assert.Contains(data.Author[1].FullName, dbdata.Authors);
-            Assert.Contains(data.Category[0].Name, dbdata.Category);
-
-
-
-        }
 
 
 
@@ -466,15 +496,14 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
         }
 
         public async Task DisposeAsync()
-        {
-            await seed.CleanUser();
+        { 
             await seed.CleanBooks();
-
+            await seed.CleanUser();
         }
 
         public async Task InitializeAsync()
         {
-            //await seed.CleanAuthorNCategory();
+            
             await Task.CompletedTask;
         }
     }
