@@ -18,8 +18,9 @@ Simple backend api service for a bookstore
 
 ***TODO***: 
 - [x] Minimal APIs (check branch)
-- [ ] unit/inte testing
+- [x] unit/inte testing
+- [ ] GET customer order history and GET admin/search for a specific item in the db
 - [x] yes
 
-# Live demo
+## Live demo
 soon
