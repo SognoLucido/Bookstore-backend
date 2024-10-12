@@ -30,7 +30,6 @@ public static class MinimalUserEndpoint
 
         apiGroup.MapPost("buysubtier", BuySubscriptions);
 
-
         app.MapDelete("api/accountself", DeleteAccountSelf)
             .WithTags("User")
             .RequireAuthorization("UserOnly");

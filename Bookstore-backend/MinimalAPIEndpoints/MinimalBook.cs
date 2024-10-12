@@ -27,7 +27,7 @@ namespace Bookstore_backend.MinimalAPIEndpoints
                  .Produces(404);
 
             app.MapGet("apikey/{ISBN}", ApiService)
-                .WithTags("Bookstore")
+                .WithTags("BookStore")
                 .Produces<MarketDataAPIModelbyISBN>(200);
                 
 

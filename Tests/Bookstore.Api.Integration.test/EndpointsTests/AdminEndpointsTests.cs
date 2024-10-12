@@ -428,7 +428,7 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
 
             bool existAfterinsert = await seed.Checkbookexist(FakebookList[0].ISBN);
 
-            var deletebook = await client.DeleteAsync($"/api/book/{FakebookList[0].ISBN}");
+            var deletebook = await client.DeleteAsync($"api/book/{FakebookList[0].ISBN}");
 
             var dexistAfterdelete = await seed.Checkbookexist(FakebookList[0].ISBN);
 

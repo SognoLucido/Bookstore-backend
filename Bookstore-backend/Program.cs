@@ -20,16 +20,17 @@ namespace Bookstore_backend
 
 
             builder.Services.AddSwagger();
-       
 
-            //builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(opt =>
-            {
 
-                opt.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Version = "v1",
-                    Title = "Bookstore-backend DEMO",
+
+            builder.Services.AddScoped<IpassHash, Passhasher>();
+            builder.Services.AddHttpClient<PaymentPortalx>();
+            builder.Services.AddScoped<ICrudlayer, DbBookCrud>();
+            builder.Services.AddSingleton<TokenBlocklist>();
+
+
+            builder.Services.AddAuth(builder.Configuration);
+
             builder.Services.AddAuthorizationBuilder()
                 .AddPolicy("UserOnly", p => p.RequireClaim("ruoli", "user"))
                 .AddPolicy("AdminOnly", p => p.RequireClaim("ruoli", "admin"));
@@ -37,16 +38,16 @@ namespace Bookstore_backend
 
 
 
-                });
+            builder.Services.AddDbContext<Booksdbcontext>(opt =>
+                     opt.UseNpgsql(builder.Configuration.GetConnectionString("database")));
 
 
-                opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
+          
 
-                    Name = "Authorization",
-                    BearerFormat = "JWT",
-                    Scheme = "Bearer"
+            builder.Services.AddScoped<ITokenService, JWTokenGenerator>();
+
+            var app = builder.Build();
+
 
             if (app.Environment.IsEnvironment("xunit"))
             {
@@ -67,16 +68,16 @@ namespace Bookstore_backend
                 });
             }
 
-               
 
-            
+
+
 
 
             //app.UseHttpsRedirection();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
 
-            builder.Services.AddAuthentication(
-     
             app.UseBookEndpoints();
             app.UseUserEndpoints();
             app.UseAuthEndpoints();
@@ -84,105 +85,6 @@ namespace Bookstore_backend
 
             app.Run();
 
-
-                    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-
-                }).AddJwtBearer(opt =>
-                    {
-                    opt.TokenValidationParameters = new()
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidateLifetime = true,
-                        ValidIssuer = builder.Configuration["Authentication:Issuer"],
-                        ValidAudience = builder.Configuration["Authentication:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SecretKey"]!))
-                    };
-
-
-
-
-
-                    opt.Events = new JwtBearerEvents
-                    {
-                        OnTokenValidated = context =>
-                        {
-
-                            var tokenBlocklist = context.HttpContext.RequestServices.GetRequiredService<TokenBlocklist>();
-                            var token = ((Microsoft.IdentityModel.JsonWebTokens.JsonWebToken)context.SecurityToken).EncodedSignature;
-
-                            //Console.WriteLine($"check token : {token}");
-
-                            if (tokenBlocklist.TokenListCheck(token))
-                            {
-                                context.Fail("Token is blacklisted.");
-                            }
-
-                            return Task.CompletedTask;
-                        }
-                    };
-
-
-                });
-
-
-
-
-            builder.Services.AddAuthorization(x =>
-            {
-                //x.AddPolicy("test",
-                //    x => x.AddRequirements(new AuthTokenblock()));
-
-                ////x.AddPolicy( new AuthTokenblock());
-
-                x.AddPolicy("UserOnly", p => p.RequireClaim("ruoli", "user"));
-                x.AddPolicy("AdminOnly", p => p.RequireClaim("ruoli", "admin"));
-            });
-
-
-
-
-            builder.Services.AddDbContext<Booksdbcontext>(opt =>
-                     opt.UseNpgsql(builder.Configuration.GetConnectionString("database")));
-
-
-            builder.Services.AddScoped<ITokenService, JWTokenGenerator>();
-
-            //builder.Services.AddDatabaseCrudService();
-
-
-
-
-            var app = builder.Build();
-
-          
-
-            app.ApplyMigration();
-
-            //app.UseHttpsRedirection();
-            //if (app.Environment.IsDevelopment())
-            //{
-            app.UseSwagger();
-            app.UseSwaggerUI(opt =>
-            {
-                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore_v1");
-                opt.RoutePrefix = string.Empty;
-            });
-            //}
-
-
-
-
-           
-
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-
-            app.MapControllers();
 
         }
     }
