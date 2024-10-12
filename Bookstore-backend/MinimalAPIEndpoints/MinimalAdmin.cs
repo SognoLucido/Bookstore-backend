@@ -32,9 +32,9 @@ public static class MinimalAdminEndpoint
 
         apiGroup.MapPost("upsertINFO", InsertCategoryxAuthor);
 
-        apiGroup.MapPost("bookstock/{ISBN}", AddOrOverrideStockQuantitybyISBN);
+        apiGroup.MapPatch("bookstock/{ISBN}", AddOrOverrideStockQuantitybyISBN);
 
-        apiGroup.MapPost("bookprice/{ISBN}", Changeprice);
+        apiGroup.MapPatch("bookprice/{ISBN}", Changeprice);
 
         apiGroup.MapDelete("book/{ISBN}", DeletebyISBN);
 
@@ -141,7 +141,7 @@ public static class MinimalAdminEndpoint
         var (booklist, ErrStatuscode) = await dbcall.InsertBooksItem(bodydata);
 
 
-        return booklist is null ? Results.StatusCode(ErrStatuscode.Code, ErrStatuscode) : Results.StatusCode(201, booklist);
+        return booklist is null ? Results.Json( ErrStatuscode , statusCode : ErrStatuscode?.Code ?? 500) : Results.Json(booklist,statusCode:201);
     }
 
 
@@ -153,7 +153,7 @@ public static class MinimalAdminEndpoint
     /// - <c>False/default(--)</c>: Add only /the non-existent record/s ,
     /// </param>
     /// <returns></returns>
-    private static async Task<IResult> InsertCategoryxAuthor([FromBody] CategoryandAuthorDto body, bool AuthorUpinsert, ICrudlayer dbcall)
+    private static async Task<IResult> InsertCategoryxAuthor([FromBody] CategoryandAuthorDto body, ICrudlayer dbcall,[FromQuery] bool AuthorUpinsert = false)
     {
 
 

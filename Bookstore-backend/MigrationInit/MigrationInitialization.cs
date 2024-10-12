@@ -1,5 +1,4 @@
 ﻿using Database.ApplicationDbcontext;
-using Database.Model;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Text.Json;
@@ -29,13 +28,13 @@ namespace Bookstore_backend.MigrationInit
             catch (NpgsqlException ex) { Console.WriteLine(ex.Message); Environment.Exit(1); }
             catch (Exception ex) { Console.WriteLine(ex.Message); Environment.Exit(1); }
 
-          
+         
             if (check is false)
                 try
                 {
-                   // await Task.Delay(5000);
+                    // await Task.Delay(5000);
 
-                   await dbContext.Database.MigrateAsync();
+                    await dbContext.Database.MigrateAsync();
 
                     var des = new JsonDataseedParser();
                     var adminjsondata = des.AdminDeserialize() ?? throw new JsonException();

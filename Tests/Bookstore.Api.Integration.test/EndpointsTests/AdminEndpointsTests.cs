@@ -226,7 +226,7 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
                 Author =  AuthorNameToinsert,
                 Category = CategoryNameToinsert,
                 ISBN = "0000000000101",
-                Price = 10,
+                Price = 500,
                 StockQuantity = 100,
                 PublicationDate = new()
                 {
@@ -440,6 +440,9 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
 
 
         }
+
+
+
 
         [Fact]
         public async Task DeleteOthersAccount()

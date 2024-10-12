@@ -29,7 +29,7 @@ public interface ICrudlayer
     Task<(string?, string?)> Login(Login login, CancellationToken token = default);
     Task<bool> Deletebyisbn(string isbn, CancellationToken token = default);
     Task<bool> AddOrOverrideStockQuantitybyISBN(string isbn, int qnty, bool Forcerewrite, CancellationToken token = default);
-    Task<(List<DetailedFilterBookModel>?,Respostebookapi?)> InsertBooksItem(List<BookinsertModel> datamodel);
+    Task<(List<DetailedFilterBookModel>?,Respostebookapi?)> InsertBooksItem(List<BookinsertModel?> datamodel);
     Task<bool> UpinsertAuthorsxCategories(CategoryandAuthorDto data, bool AuthorUpinsert);
 
 

@@ -14,7 +14,7 @@ namespace Database.Model.ModelsDto
 
         
         [MaxLength(13)]
-        [RegularExpression("^[0-9]*$")]
+        [RegularExpression("^[0-9]{13}$")]
         public string ISBN { get; set; }
         public decimal Price { get; set; }
 

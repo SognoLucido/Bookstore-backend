@@ -26,7 +26,8 @@ namespace Bookstore_backend.MinimalAPIEndpoints
                  .Produces<List<BooksCatalog>>(200)
                  .Produces(404);
 
-            apiGroup.MapGet("apikey/{ISBN}", ApiService)
+            app.MapGet("apikey/{ISBN}", ApiService)
+                .WithTags("Bookstore")
                 .Produces<MarketDataAPIModelbyISBN>(200);
                 
 
@@ -83,7 +84,7 @@ namespace Bookstore_backend.MinimalAPIEndpoints
         ///    -H 'x-api-key: 000000000000000000004ae86ca65fc2'
         ///    
         /// </remarks>
-        private static async Task<IResult> ApiService([RegularExpression("^[0-9]*$")] string ISBN, ICrudlayer dbcall, [FromHeader(Name = "x-api-key")] string apikey, CancellationToken cToken)
+        private static async Task<IResult> ApiService([RegularExpression("^[0-9]{13}$")]string ISBN, ICrudlayer dbcall, [FromHeader(Name = "x-api-key")] string apikey, CancellationToken cToken)
         {
 
 
