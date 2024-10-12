@@ -136,7 +136,9 @@ public static class MinimalAdminEndpoint
             if (item.PublicationDate.year > DateTime.UtcNow.Year) return Results.BadRequest("wrong year");
         }
 
+        var message = await dbcall.InsertBookItem(bodydata);
 
+        //return
 
         var (booklist, ErrStatuscode) = await dbcall.InsertBooksItem(bodydata);
 
