@@ -31,6 +31,6 @@ public interface ICrudlayer
     Task<bool> AddOrOverrideStockQuantitybyISBN(string isbn, int qnty, bool Forcerewrite, CancellationToken token = default);
     Task<(List<DetailedFilterBookModel>?,Respostebookapi?)> InsertBooksItem(List<BookinsertModel> datamodel);
     Task<bool> UpinsertAuthorsxCategories(CategoryandAuthorDto data, bool AuthorUpinsert);
-
+    Task<ItemModelGroup> SingleItemSearch(string name, Item item);
 
 }

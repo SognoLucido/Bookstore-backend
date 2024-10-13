@@ -5,10 +5,9 @@ using Database.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
 
 namespace Bookstore_backend.Controllers
 {
@@ -24,9 +23,9 @@ namespace Bookstore_backend.Controllers
 
 
         /// <summary>
-        /// substring matching no limit 
+        /// substring matching no limit - returns book/s item
         /// </summary>
-        /// <param name="booktitle">optional</param>
+        /// <param name="booktitle">optional</param> 
         /// <param name="authorname">opt</param>
         /// <param name="category">opt</param> 
         /// <param name="limit">opt</param> 
@@ -45,11 +44,40 @@ namespace Bookstore_backend.Controllers
             var data = (booktitle, authorname, category);
 
 
-            var test = await dbcall.SearchItems(limit, data, cToken);
+            var Itemdata = await dbcall.SearchItems(limit, data, cToken);
 
-            return Ok(test);
+            return Ok(Itemdata);
 
         }
+
+        /// <summary>
+        /// Search information about the selected item  
+        /// </summary>  
+        /// <returns></returns>
+        [HttpGet]
+        [Route("admin/searchitem")]
+        [AllowAnonymous]
+        public async Task <IActionResult> SearchSingleItem(
+            [FromQuery] string ItemName,
+             [FromQuery]Item ItemType
+            )
+        {
+            if ( ItemName is null) return BadRequest();
+
+
+            var data = await dbcall.SingleItemSearch(ItemName, ItemType);
+
+            return data switch
+            {
+                { AuthorDtoGroup: not null } => Ok(data.AuthorDtoGroup),
+                { CategoryDtoGroup: not null } => Ok(data.CategoryDtoGroup),
+                { UserInfoDtoGroup: not null } => Ok(data.UserInfoDtoGroup),
+                _ => NotFound(),
+            };
+        }
+
+
+
 
 
         /// <summary>

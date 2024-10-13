@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 
 
 namespace Bookstore_backend
@@ -22,7 +23,11 @@ namespace Bookstore_backend
 
 
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(opt =>
+                {
+                    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
 
             //builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(opt =>
