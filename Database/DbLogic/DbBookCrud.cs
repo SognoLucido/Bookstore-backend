@@ -1105,8 +1105,9 @@ public class DbBookCrud : ICrudlayer
                       .Join(_context.Api,
                         customer => customer.customer.Id,
                         apitable => apitable.CustomerId,
-                        (customer, apitable) => new UserInfo
+                        (customer, apitable) => new UserInfoWithID
                             (
+                            customer.customer.Id,
                             customer.customer.FirstName,
                             customer.customer.LastName,
                             customer.customer.Email,

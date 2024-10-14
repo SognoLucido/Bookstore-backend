@@ -10,10 +10,13 @@ namespace Database.Model.ModelsDto
     {
         public Author? AuthorDtoGroup { get; set; }
         public Category? CategoryDtoGroup { get; set; }
-
-        public UserInfo? UserInfoDtoGroup { get; set; }
+        public UserInfoWithID? UserInfoDtoGroup { get; set; }
 
 
 
     }
+
+
+
+
 }
