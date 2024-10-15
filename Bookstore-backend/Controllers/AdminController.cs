@@ -21,7 +21,6 @@ namespace Bookstore_backend.Controllers
 
 
 
-
         /// <summary>
         /// substring matching no limit - returns book/s item
         /// </summary>
@@ -56,8 +55,7 @@ namespace Bookstore_backend.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("admin/searchitem")]
-        [AllowAnonymous]
-        public async Task <IActionResult> SearchSingleItem(
+        public async Task<IActionResult> SearchSingleItem(
             [FromQuery] string ItemName,
              [FromQuery]Item ItemType
             )
@@ -77,6 +75,31 @@ namespace Bookstore_backend.Controllers
         }
 
 
+        /// <summary>
+        /// Info about customer orders
+        /// </summary>
+        /// <param name="userid"></param>
+        /// <param name="datestart"> mm/dd/yyyy </param>
+        /// <param name="dateend"> mm/dd/yyyy </param>
+        /// <returns></returns>
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("admin/orders-details")]
+        public async Task<IActionResult> GetOrdersDetail(
+            [Required]Guid userid,
+            DateOnly datestart,
+            DateOnly dateend
+            )
+        {
+
+            if (datestart > dateend) return BadRequest("datestart > dateend");
+
+
+
+            var data = await dbcall.GetOrdersinfo(userid,datestart,dateend);
+
+            return data is not null ? Ok(data) : NotFound();
+        }
 
 
 

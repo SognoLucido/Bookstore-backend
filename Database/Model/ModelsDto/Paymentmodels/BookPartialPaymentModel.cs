@@ -22,7 +22,7 @@ namespace Database.Model.ModelsDto.PaymentPartialmodels
     public class BookItemList
     {
         [MaxLength(13)]
-        [RegularExpression("^[0-9]*$")]
+        [RegularExpression("^[0-9]{13}$")]
         public string ISBN { get; set; }
 
         [Required]

@@ -32,5 +32,6 @@ public interface ICrudlayer
     Task<(List<DetailedFilterBookModel>?,Respostebookapi?)> InsertBooksItem(List<BookinsertModel> datamodel);
     Task<bool> UpinsertAuthorsxCategories(CategoryandAuthorDto data, bool AuthorUpinsert);
     Task<ItemModelGroup> SingleItemSearch(string name, Item item);
+    Task<OrdersInfoDto?> GetOrdersinfo(Guid userid,DateOnly start,DateOnly end);
 
 }

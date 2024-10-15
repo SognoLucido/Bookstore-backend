@@ -7,6 +7,7 @@ using Database.Model.ModelsDto.Paymentmodels;
 using Database.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using System;
 using System.Data;
 
 
@@ -1137,6 +1138,61 @@ public class DbBookCrud : ICrudlayer
 
 
     }
+
+
+    public async Task<OrdersInfoDto?> GetOrdersinfo(Guid userid, DateOnly start, DateOnly end)
+    {
+
+
+        var test = await _context.Orders
+            .Where(i=>i.CustomerId == userid)
+            .Where(d=> start <= DateOnly.FromDateTime(d.OrderDate) && end >= DateOnly.FromDateTime(d.OrderDate))
+            .Select(s => new
+            {
+                s.OrderDate,
+                s.status,
+                s.OrderId,
+                Orderinfo = s.OrderItems.Select(x=> new OrderinfoBaseCut
+                (
+                    x.Book.ISBN,
+                    x.Book.Title,
+                    x.Price,
+                    x.Quantity
+
+                )).ToList(),
+
+            }).AsNoTracking().ToListAsync();
+
+
+        if (test.Count == 0) return null;
+
+
+        var data = new OrdersInfoDto()
+        {
+            userid = userid,
+            orders = new Orderchild[test.Count]
+        };
+
+        for(int i = 0; i < data.orders.Length; i++)
+        {
+            data.orders[i] =  new Orderchild
+           (
+               test[i].OrderDate,
+               test[i].OrderId,
+               test[i].status.ToString(),
+               test[i].Orderinfo,
+               (float)test[i].Orderinfo.Sum(a => a.Price * a.Qnty)
+           );
+        }
+
+
+        return data;
+
+    }
+
+
+
+
 
 
 
