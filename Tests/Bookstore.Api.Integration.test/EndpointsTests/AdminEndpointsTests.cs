@@ -5,7 +5,6 @@ using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
 using Database.Model.ModelsDto.PaymentPartialmodels;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualBasic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
@@ -51,15 +50,19 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
                 Email = "admin@example.com",
                 Password = "password123"
             };
-         
+
             var UserCredentials = new Login()
             {
                 Email = "user@example.com",
                 Password = "password123"
             };
 
-            var Fakebook = new BookinsertModel
+
+            var FakebookList = new List<BookinsertModel>()
             {
+                new()
+                {
+
                 Title = "test",
                 ISBN = "0000000000100",
                 Price = 10,
@@ -71,10 +74,10 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
                     day = 1,
                 },
                 Description = "test",
+                },
 
-            };
-            var Fakebook1 = new BookinsertModel
-            {
+                new()
+                {
                 Title = "test1",
                 ISBN = "0000000000101",
                 Price = 10,
@@ -86,10 +89,10 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
                     day = 1,
                 },
                 Description = "test",
+                },
 
-            };
-            var Fakebook2 = new BookinsertModel
-            {
+                new()
+                {
                 Title = "test2",
                 ISBN = "0000000000102",
                 Price = 10,
@@ -101,8 +104,20 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
                     day = 1,
                 },
                 Description = "test",
+                }
 
+               
             };
+
+
+            const int QntyItem = 1;
+
+            var bookBuyTemplatelist = new List<BookItemList>();
+
+            foreach(var book in FakebookList)
+            {
+                bookBuyTemplatelist.Add(new BookItemList() { ISBN = book.ISBN, Quantity = QntyItem });
+            }
 
             var bodyPurchase = new BookPartialPaymentModel
             {
@@ -117,12 +132,8 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
                         Year = 80
                     }
                 },
-                BookItemList =
-                [
-                    new () { ISBN = Fakebook.ISBN , Quantity = 1},
-                    new () { ISBN = Fakebook1.ISBN ,Quantity = 1},
-                    new () { ISBN = Fakebook2.ISBN ,Quantity = 1}
-                ]
+                BookItemList = bookBuyTemplatelist
+
             };
 
 
@@ -130,9 +141,8 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
             await seed.InsertDummyuser(adminCredentials, UserRole.admin);
             await seed.InsertDummyuser(UserCredentials);
             await seed.BaseDatabookseed();
-            await seed.InsertCustombook(Fakebook);
-            await seed.InsertCustombook(Fakebook1);
-            await seed.InsertCustombook(Fakebook2);
+            await seed.InsertCustombook(FakebookList);
+
 
             /////////////////////////
 
@@ -153,26 +163,28 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
 
             DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
 
-            //var OrdersDetails = await client.GetFromJsonAsync<OrdersInfoDto>($"api/admin/orders-details?userid={UserID}&datestart={currentDate}&dateend={currentDate}");
 
-             var OrderInfoRequest = await client.GetAsync($"api/admin/orders-details?userid={UserID}&datestart={currentDate:MM,dd,yyyy}&dateend={currentDate:MM,dd,yyyy}");
+            var OrderInfoRequest = await client.GetAsync($"api/admin/orders-details?userid={UserID}&datestart={currentDate:MM,dd,yyyy}&dateend={currentDate:MM,dd,yyyy}");
 
             string jsonResponse = await OrderInfoRequest.Content.ReadAsStringAsync();
 
-            var ordersDetails = JsonSerializer.Deserialize<OrdersInfoDto>(jsonResponse,options);
+            var ordersDetails = JsonSerializer.Deserialize<OrdersInfoDto>(jsonResponse, options);
 
-
+            var listofISBNinOrderInfoRequest = ordersDetails.orders[0].order.Select(s => s.ISBN).ToArray();
+            var TotalpriceOrderitems = ordersDetails.orders[0].order.Sum(s => s.Price * s.Qnty);
 
             Console.WriteLine();
             /////////////////////////
 
             Assert.Equal(HttpStatusCode.OK, UserPurchase.StatusCode);
-            //  Assert.NotNull(OrdersDetails);
+
             Assert.Equal(UserID, ordersDetails.userid.ToString());
 
+            Assert.Contains(FakebookList[0].ISBN,listofISBNinOrderInfoRequest);
+
+            Assert.Equal(FakebookList.Sum(x => x.Price * QntyItem), TotalpriceOrderitems);
 
 
-           
 
 
 
@@ -184,7 +196,7 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
 
         public async Task InitializeAsync()
         {
-          await DisposeAsync();
+            await DisposeAsync();
         }
 
         public async Task DisposeAsync()
@@ -354,7 +366,7 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
                 Email = "admin@example.com",
                 Password = "password123"
             };
-        
+
             await seed.BaseDatabookseed();
             await seed.BaseDatabookseed();
             await seed.InsertDummyuser(adminCredentials, UserRole.admin);
@@ -389,8 +401,8 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
                 Password = "passwordzero"
             };
 
-            const string AuthorName = "TestAuthorx";
-            const string CategoryName = "TestCategoryx";
+            const string AuthorName = "TestAuthorxz";
+            const string CategoryName = "TestCategoryxz";
 
 
             await seed.InsertDummyuser(adminCredentials, UserRole.admin);

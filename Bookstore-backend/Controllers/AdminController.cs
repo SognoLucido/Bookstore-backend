@@ -59,7 +59,6 @@ namespace Bookstore_backend.Controllers
         /// </param> 
         /// <returns></returns>
         [HttpGet]
-        [AllowAnonymous]
         [Route("admin/searchitem")]
         public async Task<IActionResult> SearchSingleItem(
             [FromQuery] string ItemName,
@@ -89,7 +88,8 @@ namespace Bookstore_backend.Controllers
         /// <param name="dateend"> mm/dd/yyyy </param>
         /// <returns></returns>
         [HttpGet]
-        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrdersInfoDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("admin/orders-details")]
         public async Task<IActionResult> GetOrdersDetail(
             [Required]Guid userid,

@@ -59,6 +59,29 @@ namespace Bookstore.Api.Integration.test.Dataseed
         }
 
 
+
+        public async Task InsertCustombook(List<BookinsertModel> Custombook)
+        {
+            var Booklist = new List<Book>();
+
+            foreach (var book in Custombook)
+            {
+                Booklist.Add(book.MapTobook());
+
+            }
+
+            foreach(var book in Booklist)
+            {
+                book.AuthorId = 1;
+                book.CategoryId = 1;
+            }
+
+            await context.Books.AddRangeAsync(Booklist);
+            await context.SaveChangesAsync();
+
+        }
+
+
         /// <summary>
         /// This method Insert a book in the database .
         /// </summary>

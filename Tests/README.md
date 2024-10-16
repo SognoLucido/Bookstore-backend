@@ -21,6 +21,8 @@
   
 **AdminEndpointsTests.cs** : 
 - search book item
+- search single item (author/category/userinfo)
+- info about customer orders
 - changerole(user to admin and vice versa)
 - Post book
 - Author&category insertion
