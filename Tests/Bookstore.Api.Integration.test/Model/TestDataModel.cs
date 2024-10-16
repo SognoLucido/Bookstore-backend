@@ -11,6 +11,9 @@ namespace Bookstore.Api.Integration.test.Model
     public record Data(string firstname, string lastname ,string email);
     public record Role(string role);
     public record Isbn(string isbn);
+    public record FUllname ( string fullname);
+    public record Categoryname(string name);  
+    public record Email(string email);
     public record RolebyEmail (string email, string role);
     public record RolebyUserID ( string userID , string role);
 

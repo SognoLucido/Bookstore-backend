@@ -3,7 +3,7 @@
     public class TokenBlocklist // redis ?
     {
         //temp block list
-        public HashSet<string> TokenList { get; private set; } = [];
+        private HashSet<string> TokenList { get;  set; } = [];
         
         //<securitytoken>
 

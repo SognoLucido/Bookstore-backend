@@ -3,12 +3,16 @@ using Bookstore.Api.Integration.test.Model;
 using Database.Model;
 using Database.Model.Apimodels;
 using Database.Model.ModelsDto;
+using Database.Model.ModelsDto.PaymentPartialmodels;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 
 
@@ -23,9 +27,181 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
     }
 
 
+    [Collection("Admincollection")]
+    public class AdminEndpointsTests_Part3(ProgramTestApplicationFactory _factory) : IAsyncLifetime
+    {
+
+        private readonly HttpClient client = _factory.CreateClient();
+        private readonly DataseedperTestLogic seed = _factory.Services.GetRequiredService<DataseedperTestLogic>();
+
+
+
+
+        [Fact]
+        public async Task Orders_details_info()
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var adminCredentials = new Login()
+            {
+                Email = "admin@example.com",
+                Password = "password123"
+            };
+         
+            var UserCredentials = new Login()
+            {
+                Email = "user@example.com",
+                Password = "password123"
+            };
+
+            var Fakebook = new BookinsertModel
+            {
+                Title = "test",
+                ISBN = "0000000000100",
+                Price = 10,
+                StockQuantity = 10,
+                PublicationDate = new()
+                {
+                    year = 2000,
+                    month = 1,
+                    day = 1,
+                },
+                Description = "test",
+
+            };
+            var Fakebook1 = new BookinsertModel
+            {
+                Title = "test1",
+                ISBN = "0000000000101",
+                Price = 10,
+                StockQuantity = 10,
+                PublicationDate = new()
+                {
+                    year = 2000,
+                    month = 1,
+                    day = 1,
+                },
+                Description = "test",
+
+            };
+            var Fakebook2 = new BookinsertModel
+            {
+                Title = "test2",
+                ISBN = "0000000000102",
+                Price = 10,
+                StockQuantity = 10,
+                PublicationDate = new()
+                {
+                    year = 2000,
+                    month = 1,
+                    day = 1,
+                },
+                Description = "test",
+
+            };
+
+            var bodyPurchase = new BookPartialPaymentModel
+            {
+                PaymentDetails = new()
+                {
+                    CardHolderName = "test",
+                    CardNumber = "0000000000000000",
+                    CardCVC = "000",
+                    CardExpiry = new()
+                    {
+                        Month = 12,
+                        Year = 80
+                    }
+                },
+                BookItemList =
+                [
+                    new () { ISBN = Fakebook.ISBN , Quantity = 1},
+                    new () { ISBN = Fakebook1.ISBN ,Quantity = 1},
+                    new () { ISBN = Fakebook2.ISBN ,Quantity = 1}
+                ]
+            };
+
+
+
+            await seed.InsertDummyuser(adminCredentials, UserRole.admin);
+            await seed.InsertDummyuser(UserCredentials);
+            await seed.BaseDatabookseed();
+            await seed.InsertCustombook(Fakebook);
+            await seed.InsertCustombook(Fakebook1);
+            await seed.InsertCustombook(Fakebook2);
+
+            /////////////////////////
+
+            var UserTokenBody = await client.PostAsJsonAsync("auth/login", UserCredentials);
+            var UserTokenraw = UserTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", UserTokenraw.Result.result);
+
+
+            var UserPurchase = await client.PostAsJsonAsync("api/buybook", bodyPurchase);
+
+            var userToken = tokenHandler.ReadJwtToken(UserTokenraw.Result.result);
+            var UserID = userToken.Claims.First(x => x.Type == "UserID").Value;
+
+            var adminTokenBody = await client.PostAsJsonAsync("auth/login", adminCredentials);
+            var adminTokenraw = adminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminTokenraw.Result.result);
+
+
+            DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
+
+            //var OrdersDetails = await client.GetFromJsonAsync<OrdersInfoDto>($"api/admin/orders-details?userid={UserID}&datestart={currentDate}&dateend={currentDate}");
+
+             var OrderInfoRequest = await client.GetAsync($"api/admin/orders-details?userid={UserID}&datestart={currentDate:MM,dd,yyyy}&dateend={currentDate:MM,dd,yyyy}");
+
+            string jsonResponse = await OrderInfoRequest.Content.ReadAsStringAsync();
+
+            var ordersDetails = JsonSerializer.Deserialize<OrdersInfoDto>(jsonResponse,options);
+
+
+
+            Console.WriteLine();
+            /////////////////////////
+
+            Assert.Equal(HttpStatusCode.OK, UserPurchase.StatusCode);
+            //  Assert.NotNull(OrdersDetails);
+            Assert.Equal(UserID, ordersDetails.userid.ToString());
+
+
+
+           
+
+
+
+        }
+
+
+
+
+
+        public async Task InitializeAsync()
+        {
+          await DisposeAsync();
+        }
+
+        public async Task DisposeAsync()
+        {
+            await seed.CleanBooks();
+            await seed.CleanUser();
+            await seed.CleanAuthorNCategory();
+        }
+
+
+
+
+
+    }
 
     [Collection("Admincollection")]
-    public class AdminEndpointsTests_Part1(ProgramTestApplicationFactory _factory) : IAsyncLifetime
+    public class AdminEndpointsTests_Part2(ProgramTestApplicationFactory _factory) : IAsyncLifetime
     {
 
         private readonly HttpClient client = _factory.CreateClient();
@@ -38,9 +214,6 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
         {
 
 
-            // we need an endpoint to check before testing Insert_AuthorAndCategory() , TODO like /api/admin/Singleitemsearch/
-            // Since we can only check the author or category on a book search query
-            // we need to insert a book with author&category and call the searchendpoint or query the db context manually 
 
             //temp checking with the dbcontext Test 
             var AdminCredentials = new Login()
@@ -75,13 +248,13 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
             var insertdata = await client.PostAsJsonAsync("/api/upsertINFO", data);
 
             var dbdata = await seed.CheckAuthorNCategory();
-             int totaladdedtodb = dbdata.Authors.Count + dbdata.Category.Count;
+            int totaladdedtodb = dbdata.Authors.Count + dbdata.Category.Count;
 
             //////////////////////
 
 
             Assert.Equal(HttpStatusCode.OK, insertdata.StatusCode);
-            Assert.Equal(4, totaladdedtodb); 
+            Assert.Equal(4, totaladdedtodb);
             Assert.Contains(data.Author[1].FullName, dbdata.Authors);
             Assert.Contains(data.Category[0].Name, dbdata.Category);
 
@@ -149,14 +322,15 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
 
 
 
-       
+
         public Task InitializeAsync()
         {
-           return Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public async Task DisposeAsync()
         {
+
             await seed.CleanUser();
             await seed.CleanAuthorNCategory();
         }
@@ -165,7 +339,7 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
 
 
     [Collection("Admincollection")]
-    public class AdminEndpointsTests_Part2(ProgramTestApplicationFactory _factory) : IAsyncLifetime
+    public class AdminEndpointsTests_Part1(ProgramTestApplicationFactory _factory) : IAsyncLifetime
     {
 
         private readonly HttpClient client = _factory.CreateClient();
@@ -180,7 +354,7 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
                 Email = "admin@example.com",
                 Password = "password123"
             };
-
+        
             await seed.BaseDatabookseed();
             await seed.BaseDatabookseed();
             await seed.InsertDummyuser(adminCredentials, UserRole.admin);
@@ -203,6 +377,52 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
 
 
         }
+
+
+        [Fact]
+        public async Task Search_singleItem()
+        {
+
+            var adminCredentials = new Login()
+            {
+                Email = "admintest@example.com",
+                Password = "passwordzero"
+            };
+
+            const string AuthorName = "TestAuthorx";
+            const string CategoryName = "TestCategoryx";
+
+
+            await seed.InsertDummyuser(adminCredentials, UserRole.admin);
+            await seed.InsertCustomAuthorCategory(AuthorName, CategoryName);
+
+
+
+            ////////////////////
+
+
+            var adminTokenBody = await client.PostAsJsonAsync("auth/login", adminCredentials);
+            var adminTokenraw = adminTokenBody.Content.ReadFromJsonAsync<Tokenlogin>();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", adminTokenraw.Result.result);
+
+
+            var GetUserInfo = await client.GetFromJsonAsync<Email>($"api/admin/searchitem?ItemName={adminCredentials.Email.ToLower()}&ItemType=userinfo");
+            var GetAuthorName = await client.GetFromJsonAsync<FUllname>($"api/admin/searchitem?ItemName={AuthorName.ToLower()}&ItemType=author");
+            var GetCategoryName = await client.GetFromJsonAsync<Categoryname>($"api/admin/searchitem?ItemName={CategoryName.ToLower()}&ItemType=category");
+            //////////////////
+
+
+            Assert.Equal(adminCredentials.Email.ToLower(), GetUserInfo.email);
+            Assert.Equal(AuthorName.ToLower(), GetAuthorName.fullname);
+            Assert.Equal(CategoryName.ToLower(), GetCategoryName.name);
+
+        }
+
+
+
+
+
+
 
 
 
@@ -496,14 +716,14 @@ namespace Bookstore.Api.Integration.test.EndpointsTests
         }
 
         public async Task DisposeAsync()
-        { 
+        {
             await seed.CleanBooks();
             await seed.CleanUser();
         }
 
         public async Task InitializeAsync()
         {
-            
+
             await Task.CompletedTask;
         }
     }

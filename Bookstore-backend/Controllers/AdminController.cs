@@ -51,9 +51,15 @@ namespace Bookstore_backend.Controllers
 
         /// <summary>
         /// Search information about the selected item  
-        /// </summary>  
+        /// </summary>
+        /// <param name="ItemName">
+        /// - Author(name) = string 
+        /// - Category(name) = string 
+        /// - UserInfo(Email) = user@example.com
+        /// </param> 
         /// <returns></returns>
         [HttpGet]
+        [AllowAnonymous]
         [Route("admin/searchitem")]
         public async Task<IActionResult> SearchSingleItem(
             [FromQuery] string ItemName,
