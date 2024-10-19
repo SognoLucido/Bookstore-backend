@@ -7,7 +7,7 @@ Simple backend api service for a bookstore
 - efcore
 - Mvc Controllers
 - Minimal api (check branch)
-- JWT with Asymmetric Key
+- JWT with symmetric Key
 - xunit
 - Testcontainers
 - SwaggerUI
