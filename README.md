@@ -21,5 +21,3 @@ Simple backend api service for a bookstore
 - [x] unit/inte testing
 - [x] yes
 
-## Live demo
-soon
