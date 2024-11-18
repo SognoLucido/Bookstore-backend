@@ -19,5 +19,7 @@ Simple backend api service for a bookstore
 ***TODO***: 
 - [x] Minimal APIs (check branch)
 - [x] unit/inte testing
+- [ ] .net9
+- [ ] Aspire
 - [x] yes
 
